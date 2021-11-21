@@ -16,7 +16,7 @@ public class CatalogueService extends AbstractActor {
     public static void main(String[] args) {
         // Set up actor system, this method should be called initially before anything else in the class
         catalogueSystem = ActorSystem.create();
-        // Create an actor for this ActorSystem with the catalogueActor class
+        // Create an actor for this ActorSystem for this class
         ActorRef ref = catalogueSystem.actorOf(Props.create(CatalogueService.class), "catalogue");
 
         // Register this with the broker

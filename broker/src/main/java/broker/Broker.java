@@ -18,8 +18,6 @@ public class Broker extends AbstractActor {
 //        ActorSelection selection =
 //                brokerSystem.actorSelection("akka.tcp://default@127.0.0.1:2551/user/broker");
 //        selection.tell("register", ref);
-
-
     }
 
     @Override
@@ -27,6 +25,9 @@ public class Broker extends AbstractActor {
         return receiveBuilder()
                 .match(String.class,
                         msg -> {
+                            // This is currently just an example block which gets called from the main method in
+                            // CatalogueService, it then sends a CatalogueAddition request to the catalogue service
+                            // which adds the example book below just to demonstrate db connectivity
                             if (!msg.equals("registerCatalogue")) return;
                             catalogueService  = getSender();
                             System.out.println("Look here, " + catalogueService.toString());
