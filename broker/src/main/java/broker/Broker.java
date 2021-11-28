@@ -2,6 +2,7 @@ package broker;
 
 import akka.actor.*;
 import messages.catalogue.CatalogueAddition;
+import messages.catalogue.CatalogueRemoval;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -34,15 +35,21 @@ public class Broker extends AbstractActor {
 //                            actorRefs.put(ref.toString(), ref);
 
                             // Send a test request to catalogue to register a book
-                            CatalogueAddition bookAddition = new CatalogueAddition(3,
-                                    "Python for Dummies",
-                                    "John Smith",
-                                    "tallaght_library",
-                                    10);
+//                            CatalogueAddition bookAddition = new CatalogueAddition(3,
+//                                    "Python for Dummies",
+//                                    "John Smith",
+//                                    "tallaght_library",
+//                                    10);
+//
+//
+////                                catalogueService = actorRefs.get("catalogue");
+//                                catalogueService.tell(bookAddition, getSelf());#
 
+                            // Example book removal (book will have to have been added first)
+                            CatalogueRemoval bookRemoval = new CatalogueRemoval(3, "tallaght_library");
 
-//                                catalogueService = actorRefs.get("catalogue");
-                                catalogueService.tell(bookAddition, getSelf());
+                            catalogueService.tell(bookRemoval, getSelf());
+
 
                         }).build();
         }

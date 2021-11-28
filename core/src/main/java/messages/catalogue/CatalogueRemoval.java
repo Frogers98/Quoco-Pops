@@ -1,6 +1,6 @@
 package messages.catalogue;
 
-public class CatalogueRemoval {
+public class CatalogueRemoval implements MySerializable{
     private int bookID;
     private String libraryName;
 
