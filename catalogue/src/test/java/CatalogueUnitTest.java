@@ -7,6 +7,7 @@ import akka.actor.Props;
 import akka.testkit.javadsl.TestKit;
 import catalogue.CatalogueService;
 import messages.catalogue.CatalogueAddition;
+import messages.catalogue.CatalogueRemoval;
 import org.junit.*;
 
 import java.time.Duration;
@@ -31,20 +32,33 @@ public class CatalogueUnitTest {
         catalogueSystem = null;
     }
 
-    @Test
-    public void testBookAddition() {
-        // Very basic test that sends a bookAddition message to the catalogue service and waits for a string response.
-        // I've temporarily made the catalogue service send a string message back to the sender if the db write is succesful
-        // but this should be made more robust
-        TestKit probe = new TestKit(catalogueSystem);
-        CatalogueAddition bookAddition = new CatalogueAddition(3,
-                "Python for Dummies",
-                "John Smith",
-                "tallaght_library",
-                10);
-        catalogueService.tell(bookAddition, probe.getRef());
+//    @Test
+//    public void testBookAddition() {
+//        // Very basic test that sends a bookAddition message to the catalogue service and waits for a string response.
+//        // I've temporarily made the catalogue service send a string message back to the sender if the db write is succesful
+//        // but this should be made more robust
+//        TestKit bookAdditionActor = new TestKit(catalogueSystem);
+//        CatalogueAddition bookAddition = new CatalogueAddition(3,
+//                "Python for Dummies",
+//                "John Smith",
+//                "tallaght_library",
+//                10);
+//        catalogueService.tell(bookAddition, bookAdditionActor.getRef());
+//
+//        bookAdditionActor.awaitCond(bookAdditionActor::msgAvailable);
+//        bookAdditionActor.expectMsg(Duration.ZERO, "bookAdditionSuccess");
+//        return;
+//    }
 
-        probe.awaitCond(probe::msgAvailable);
-        probe.expectMsg(Duration.ZERO, "success");
-    }
+//    @Test
+//    public void testBookRemoval() {
+//        TestKit bookRemovalActor = new TestKit(catalogueSystem);
+//        CatalogueRemoval bookRemoval = new CatalogueRemoval(3, "tallaght_library");
+//        catalogueService.tell(bookRemoval, bookRemovalActor.getRef());
+//
+//        bookRemovalActor.awaitCond(bookRemovalActor::msgAvailable);
+//        bookRemovalActor.expectMsg(Duration.ofSeconds(60), "bookRemovalSuccess");
+//
+//        return;
+//    }
 }

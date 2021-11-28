@@ -48,9 +48,9 @@ public class Broker extends AbstractActor {
 //                                catalogueService.tell(bookAddition, getSelf());#
 
                             // Example book removal (book will have to have been added first)
-                            CatalogueRemoval bookRemoval = new CatalogueRemoval(3, "tallaght_library");
-                            catalogueService = actorRefs.get("catalogue");
-                            catalogueService.tell(bookRemoval, getSelf());
+//                            CatalogueRemoval bookRemoval = new CatalogueRemoval(3, "tallaght_library");
+//                            catalogueService = actorRefs.get("catalogue");
+//                            catalogueService.tell(bookRemoval, getSelf());
 
 
                         }).build();
