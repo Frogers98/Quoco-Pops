@@ -52,7 +52,14 @@ public class CatalogueService extends AbstractActor {
                                 statement.setInt(4, bookAddition.getNumCopies());
                                 statement.setInt(5, bookAddition.getNumCopies());
 
-                                statement.executeUpdate();
+                                // Execute the sql query (returns the rows affected by the query
+                                int rowsAffected = statement.executeUpdate();
+                                // if at least one row was affected send a string back to the sender to indicate success
+                                // this is only a temporary fix for the unit test as it waits for a string after sending a
+                                // test bookAddition to this service
+                                if (rowsAffected > 0) {
+                                    getSender().tell("success", getSelf());
+                                }
                             } catch(SQLException e) {
                                 e.printStackTrace();
                             }

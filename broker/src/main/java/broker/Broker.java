@@ -11,6 +11,7 @@ public class Broker extends AbstractActor {
     private static ActorSystem brokerSystem;
     private static HashMap<String, ActorRef> actorRefs = new HashMap<>();
     private static ActorRef catalogueService;
+    private static int bookAdditionID = 0;
 
 
     public static void main(String args[]) {
@@ -35,7 +36,8 @@ public class Broker extends AbstractActor {
 //                            actorRefs.put(ref.toString(), ref);
 
                             // Send a test request to catalogue to register a book
-//                            CatalogueAddition bookAddition = new CatalogueAddition(3,
+//                            CatalogueAddition bookAddition = new CatalogueAddition(bookAdditionID++
+//                                      3,
 //                                    "Python for Dummies",
 //                                    "John Smith",
 //                                    "tallaght_library",
@@ -47,7 +49,7 @@ public class Broker extends AbstractActor {
 
                             // Example book removal (book will have to have been added first)
                             CatalogueRemoval bookRemoval = new CatalogueRemoval(3, "tallaght_library");
-
+                            catalogueService = actorRefs.get("catalogue");
                             catalogueService.tell(bookRemoval, getSelf());
 
 
