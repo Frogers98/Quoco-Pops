@@ -1,8 +1,7 @@
 package catalogue;
 
 import akka.actor.*;
-import messages.catalogue.CatalogueAddition;
-import messages.catalogue.SearchRequest;
+import messages.catalogue.*;
 
 import java.sql.*;
 
@@ -57,6 +56,22 @@ public class CatalogueService extends AbstractActor {
                             } catch(SQLException e) {
                                 e.printStackTrace();
                             }
+                        })
+                .match(CatalogueRemoval.class,
+                        bookRemoval -> {
+                            // bookID is a unique value in the table so we can remove the row from
+                            // the appropriate table with matching bookID
+                            String libraryName = bookRemoval.getLibraryName();
+
+                            // try with block to instantiate database stuff so it will close itself when finished
+                            try (Connection conn = DriverManager.getConnection(dBURL, dbUsername, dbPassword)) {
+
+                                String SQL = "DELETE FROM " + libraryName + "WHERE book_id=?";
+                                PreparedStatement statement = conn.prepareStatement(SQL, Statement.RETURN_GENERATED_KEYS);
+                                statement.setInt(1, bookRemoval.getBookID());
+                            }
+
+
                         }).build();
     }
 }
