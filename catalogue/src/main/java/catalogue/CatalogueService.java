@@ -4,12 +4,14 @@ import akka.actor.*;
 import messages.catalogue.*;
 
 import java.sql.*;
+import java.util.ArrayList;
 
 public class CatalogueService extends AbstractActor {
     static ActorSystem catalogueSystem;
     private final static String dBURL = "jdbc:mysql://localhost:3306/ds_project";
     private final static String dbUsername = "root";
     private final static String dbPassword = "Passw0rd1";
+    private static ArrayList<String> libraryNames = new ArrayList<>();
 
 
     public static void main(String[] args) {
@@ -33,6 +35,31 @@ public class CatalogueService extends AbstractActor {
                         // Do a lookup in the database for the book by the book id and send a SearchResponse message
                         // back to the broker
                         searchRequest -> {
+                            // try with block to instantiate database stuff so it will close itself when finished
+                            try (Connection conn = DriverManager.getConnection(dBURL, dbUsername, dbPassword)) {
+                                for (String libraryName : libraryNames) {
+                                    String SQL = "SELECT * FROM " + libraryName + " WHERE book_id =?";
+                                    PreparedStatement statement = conn.prepareStatement(SQL, Statement.RETURN_GENERATED_KEYS);
+                                    statement.setInt(searchRequest.getBookId());
+                                    ResultSet res = statement.executeQuery();
+                                    // Create a SearchResponse object with the result and send it back to the broker
+                                    while (res.next()) {
+                                        SearchResponse response = new SearchResponse(
+                                                res.getInt("book_id"),
+                                                res.getString("book_title"),
+                                                res.getString("book_author"),
+                                                libraryName,
+                                                res.getInt("available_copies"),
+                                                res.getInt("total_copies"),
+                                                searchRequest.getSearchId()
+                                        );
+                                        getSender().tell(response, getSelf());
+
+                                    }
+                                }
+                            } catch (SQLException e) {
+                                e.printStackTrace();;
+                            }
 
 
                         })
