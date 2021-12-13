@@ -1,18 +1,19 @@
 package service.messages;
 
-import service.core.QuotationService;
+import service.core.LibraryService;
 
 
 public class Init {
-      private QuotationService service;
+    
+    private LibraryService service;
   
-      public Init(QuotationService service) {
-          this.service = service;
-      }
+    public Init(LibraryService service) {
+        this.service = service;
+    }
   
-      public QuotationService getService() {
-          return service;
-      }
+    public LibraryService getService() {
+        return service;
+    }
 }
 
 
