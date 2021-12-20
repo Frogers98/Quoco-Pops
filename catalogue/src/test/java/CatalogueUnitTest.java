@@ -8,6 +8,8 @@ import akka.testkit.javadsl.TestKit;
 import catalogue.CatalogueService;
 import messages.catalogue.CatalogueAddition;
 import messages.catalogue.CatalogueRemoval;
+import messages.catalogue.SearchRequest;
+import messages.catalogue.SearchResponse;
 import org.junit.*;
 
 import java.time.Duration;
@@ -61,4 +63,16 @@ public class CatalogueUnitTest {
 //
 //        return;
 //    }
+
+    @Test
+    public void testBookSearch() {
+        TestKit bookSearchActor = new TestKit(catalogueSystem);
+        SearchRequest bookSearch = new SearchRequest(3, 1);
+        catalogueService.tell(bookSearch, bookSearchActor.getRef());
+
+        bookSearchActor.awaitCond(bookSearchActor::msgAvailable);
+        bookSearchActor.expectMsgClass(SearchResponse.class);
+
+        return;
+    }
 }

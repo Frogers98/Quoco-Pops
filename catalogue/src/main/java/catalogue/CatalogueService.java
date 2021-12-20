@@ -24,6 +24,8 @@ public class CatalogueService extends AbstractActor {
         ActorSelection selection =
                 catalogueSystem.actorSelection("akka.tcp://default@127.0.0.1:2551/user/broker");
         selection.tell("registerCatalogue", ref);
+        //TEMPORARY - add tallaght library to libraryNames, library names should really be stored in a database or somewhere else
+        libraryNames.add("")
 
 
     }
@@ -34,9 +36,14 @@ public class CatalogueService extends AbstractActor {
                 .match(SearchRequest.class,
                         // Do a lookup in the database for the book by the book id and send a SearchResponse message
                         // back to the broker
+                        // This should loop through all the library names in the system (currently represented in an
+                        // ArrayList) and return a SearchResponse object for each library to the sender
+                        // No current support for a search for one specific library, this needs to be added either here somehow
+                        // or possibly with a different class for searching a specific library
                         searchRequest -> {
                             // try with block to instantiate database stuff so it will close itself when finished
                             try (Connection conn = DriverManager.getConnection(dBURL, dbUsername, dbPassword)) {
+                                // Search for the book in every library
                                 for (String libraryName : libraryNames) {
                                     String SQL = "SELECT * FROM " + libraryName + " WHERE book_id =?";
                                     PreparedStatement statement = conn.prepareStatement(SQL, Statement.RETURN_GENERATED_KEYS);
