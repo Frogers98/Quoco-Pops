@@ -25,7 +25,7 @@ public class CatalogueService extends AbstractActor {
                 catalogueSystem.actorSelection("akka.tcp://default@127.0.0.1:2551/user/broker");
         selection.tell("registerCatalogue", ref);
         //TEMPORARY - add tallaght library to libraryNames, library names should really be stored in a database or somewhere else
-        libraryNames.add("")
+        libraryNames.add("tallaght_library");
 
 
     }
@@ -40,14 +40,18 @@ public class CatalogueService extends AbstractActor {
                         // ArrayList) and return a SearchResponse object for each library to the sender
                         // No current support for a search for one specific library, this needs to be added either here somehow
                         // or possibly with a different class for searching a specific library
+
+                        //N.B. Current error with looping through libraries because of lack of error handling and using the ArrayList
+                        // Hardcoded tallaght library as the only library to search for now and working
                         searchRequest -> {
                             // try with block to instantiate database stuff so it will close itself when finished
                             try (Connection conn = DriverManager.getConnection(dBURL, dbUsername, dbPassword)) {
                                 // Search for the book in every library
-                                for (String libraryName : libraryNames) {
+                                //for (String libraryName : libraryNames) {
+                                String libraryName = "tallaght_library";
                                     String SQL = "SELECT * FROM " + libraryName + " WHERE book_id =?";
                                     PreparedStatement statement = conn.prepareStatement(SQL, Statement.RETURN_GENERATED_KEYS);
-                                    statement.setInt(searchRequest.getBookId());
+                                    statement.setInt(1, searchRequest.getBookId());
                                     ResultSet res = statement.executeQuery();
                                     // Create a SearchResponse object with the result and send it back to the broker
                                     while (res.next()) {
@@ -60,10 +64,11 @@ public class CatalogueService extends AbstractActor {
                                                 res.getInt("total_copies"),
                                                 searchRequest.getSearchId()
                                         );
+                                        System.out.println("book found in " + libraryName + ". title: " + res.getString("book_title"));
                                         getSender().tell(response, getSelf());
 
                                     }
-                                }
+                                //END FOR LOOP}
                             } catch (SQLException e) {
                                 e.printStackTrace();;
                             }

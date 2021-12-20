@@ -71,7 +71,7 @@ public class CatalogueUnitTest {
         catalogueService.tell(bookSearch, bookSearchActor.getRef());
 
         bookSearchActor.awaitCond(bookSearchActor::msgAvailable);
-        bookSearchActor.expectMsgClass(SearchResponse.class);
+        bookSearchActor.expectMsgClass(Duration.ofSeconds(60), SearchResponse.class);
 
         return;
     }

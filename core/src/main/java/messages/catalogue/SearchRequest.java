@@ -16,7 +16,7 @@ public class SearchRequest {
         this.bookId = bookId;
     }
 
-    public long getBookId() {
+    public int getBookId() {
         return bookId;
     }
 
