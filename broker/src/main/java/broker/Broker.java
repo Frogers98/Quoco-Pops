@@ -1,59 +1,32 @@
 package broker;
 
-import akka.actor.*;
-import messages.catalogue.CatalogueAddition;
-import messages.catalogue.CatalogueRemoval;
+import akka.http.javadsl.server.HttpApp;
+import akka.http.javadsl.server.Route;
 
-import java.util.ArrayList;
-import java.util.HashMap;
+import akka.Done;
+import akka.actor.ActorSystem;
+import java.util.Optional;
+import java.util.concurrent.*;
 
-public class Broker extends AbstractActor {
-    private static ActorSystem brokerSystem;
-    private static HashMap<String, ActorRef> actorRefs = new HashMap<>();
-    private static ActorRef catalogueService;
-    private static int bookAdditionID = 0;
-
-
-    public static void main(String args[]) {
-        brokerSystem = ActorSystem.create();
-        ActorRef ref = brokerSystem.actorOf(Props.create(Broker.class), "broker");
-//        ActorSelection selection =
-//                brokerSystem.actorSelection("akka.tcp://default@127.0.0.1:2551/user/broker");
-//        selection.tell("register", ref);
-    }
+public class Broker extends HttpApp {
 
     @Override
-    public Receive createReceive() {
-        return receiveBuilder()
-                .match(String.class,
-                        msg -> {
-                            // This is currently just an example block which gets called from the main method in
-                            // CatalogueService, it then sends a CatalogueAddition request to the catalogue service
-                            // which adds the example book below just to demonstrate db connectivity
-                            if (!msg.equals("registerCatalogue")) return;
-                            catalogueService  = getSender();
-                            System.out.println("Look here, " + catalogueService.toString());
-//                            actorRefs.put(ref.toString(), ref);
+    protected Route routes() {
+        return path("hello-world", () ->
+                get(() ->
+                        complete("Test api call for broker")
+                )
+        );
+    }
 
-                            // Send a test request to catalogue to register a book
-//                            CatalogueAddition bookAddition = new CatalogueAddition(bookAdditionID++
-//                                      3,
-//                                    "Python for Dummies",
-//                                    "John Smith",
-//                                    "tallaght_library",
-//                                    10);
-//
-//
-////                                catalogueService = actorRefs.get("catalogue");
-//                                catalogueService.tell(bookAddition, getSelf());#
-
-                            // Example book removal (book will have to have been added first)
-//                            CatalogueRemoval bookRemoval = new CatalogueRemoval(3, "tallaght_library");
-//                            catalogueService = actorRefs.get("catalogue");
-//                            catalogueService.tell(bookRemoval, getSelf());
-
-
-                        }).build();
+    public static void main(String[] args) {
+        final Broker myServer = new Broker();
+        try {
+            myServer.startServer("localhost", 8080);
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
+
+}
 
