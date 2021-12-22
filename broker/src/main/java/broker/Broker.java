@@ -12,6 +12,7 @@ public class Broker extends HttpApp {
 
     @Override
     protected Route routes() {
+        // Can be accessed at localhost:8080/hello-world when the broker is running
         return path("hello-world", () ->
                 get(() ->
                         complete("Test api call for broker")
