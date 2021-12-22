@@ -18,9 +18,9 @@ import static akka.http.javadsl.server.Directives.*;
 import static akka.http.javadsl.server.Directives.complete;
 
 public class Broker extends AbstractActor {
-    private Duration askTimeout;
-    private Scheduler scheduler;
-    private static ArrayList<ActorRef> actorRefs = new ArrayList<>();
+//    private Duration askTimeout;
+//    private Scheduler scheduler;
+    private static ArrayList<ActorRef> actorRefs = new ArrayList<>(); // This will store the ActorRefs for all services
     private ActorRef brokerRef;
 
 //    public Broker(ActorSystem system, ActorRef brokerRef) {
@@ -72,6 +72,7 @@ public class Broker extends AbstractActor {
     // }
     public static Route userRoutes() {
         return pathPrefix("hello-world", () ->
+                // Accessible at localhost:8080/hello-world
                 concat(
 
                         pathEnd(() ->
@@ -90,6 +91,8 @@ public class Broker extends AbstractActor {
                 .match(String.class,
                         msg -> {
                             if (!msg.equals("register")) return;
+                            // Print the actorRef to see if it's functioning
+                            System.out.println(getSender().toString());
                             actorRefs.add(getSender());
                         }).build();
     }

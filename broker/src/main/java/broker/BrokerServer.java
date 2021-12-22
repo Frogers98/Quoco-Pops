@@ -24,6 +24,9 @@ import java.net.InetSocketAddress;
 import java.util.concurrent.CompletionStage;
 
 public class BrokerServer {
+    // In the lightbend tutorial there is no static system as the ActorSystem and ActorRef were created in a different manner
+    // unsure if this could lead to issues down the road but made more sense to me as startHttpServer and main are both
+    // static methods? Feel free to change if another way makes more sense
     private static ActorSystem system;
 
 
@@ -46,11 +49,12 @@ public class BrokerServer {
             }
         });
     }
-    // #start-http-server
+
 
     public static void main(String[] args) throws Exception {
 
         //Adapted from lightbend tutorial - create Actor system and actor for the broker and then start the server
+
         // Removed the Behaviour arrow function as that belongs to Akka-Typed
 //        Behavior rootBehavior = Behaviors.setup(context -> {
 
