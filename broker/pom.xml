@@ -12,7 +12,7 @@
     <artifactId>broker</artifactId>
 
     <properties>
-        <main.class>broker.Broker</main.class>
+        <main.class>broker.BrokerServer</main.class>
         <akka.version>2.6.17</akka.version>
         <maven.compiler.source>11</maven.compiler.source>
         <maven.compiler.target>11</maven.compiler.target>

@@ -21,9 +21,8 @@ public class CatalogueService extends AbstractActor {
         ActorRef ref = catalogueSystem.actorOf(Props.create(CatalogueService.class), "catalogue");
 
         // Register this with the broker
-        ActorSelection selection =
-                catalogueSystem.actorSelection("akka.tcp://default@127.0.0.1:2551/user/broker");
-        selection.tell("registerCatalogue", ref);
+        ActorSelection selection = catalogueSystem.actorSelection("akka.tcp://default@127.0.0.1:2551/user/broker");
+        selection.tell("register", ref);
         //TEMPORARY - add tallaght library to libraryNames, library names should really be stored in a database or somewhere else
         libraryNames.add("tallaght_library");
 
