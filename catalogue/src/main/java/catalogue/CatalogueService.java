@@ -27,7 +27,6 @@ public class CatalogueService extends AbstractActor {
         //TEMPORARY - add tallaght library to libraryNames, library names should really be stored in a database or somewhere else
         libraryNames.add("tallaght_library");
 
-
     }
 
     @Override

@@ -1,5 +1,11 @@
-C:\Users\finni\OneDrive - University College Dublin\Semester_4\distributed_systems\project\libraryProject\core\src\main\java\messages\catalogue\MySerializable.java
-C:\Users\finni\OneDrive - University College Dublin\Semester_4\distributed_systems\project\libraryProject\core\src\main\java\messages\catalogue\CatalogueRemoval.java
-C:\Users\finni\OneDrive - University College Dublin\Semester_4\distributed_systems\project\libraryProject\core\src\main\java\messages\catalogue\SearchRequest.java
-C:\Users\finni\OneDrive - University College Dublin\Semester_4\distributed_systems\project\libraryProject\core\src\main\java\messages\catalogue\SearchResponse.java
-C:\Users\finni\OneDrive - University College Dublin\Semester_4\distributed_systems\project\libraryProject\core\src\main\java\messages\catalogue\CatalogueAddition.java
+C:\Users\janee\Desktop\DistSys\no2\quoco-pops\core\src\main\java\messages\MySerializable.java
+C:\Users\janee\Desktop\DistSys\no2\quoco-pops\core\src\main\java\messages\catalogue\SearchRequest.java
+C:\Users\janee\Desktop\DistSys\no2\quoco-pops\core\src\main\java\messages\registry\RegisterMember.java
+C:\Users\janee\Desktop\DistSys\no2\quoco-pops\core\src\main\java\messages\registry\UpdatePassword.java
+C:\Users\janee\Desktop\DistSys\no2\quoco-pops\core\src\main\java\messages\catalogue\CatalogueAddition.java
+C:\Users\janee\Desktop\DistSys\no2\quoco-pops\core\src\main\java\messages\catalogue\CatalogueRemoval.java
+C:\Users\janee\Desktop\DistSys\no2\quoco-pops\core\src\main\java\messages\catalogue\SearchResponse.java
+C:\Users\janee\Desktop\DistSys\no2\quoco-pops\core\src\main\java\messages\registry\CalculateFines.java
+C:\Users\janee\Desktop\DistSys\no2\quoco-pops\core\src\main\java\messages\registry\DeleteMember.java
+C:\Users\janee\Desktop\DistSys\no2\quoco-pops\core\src\main\java\messages\registry\RetrieveMemberDetails.java
+C:\Users\janee\Desktop\DistSys\no2\quoco-pops\core\src\main\java\core\Member.java

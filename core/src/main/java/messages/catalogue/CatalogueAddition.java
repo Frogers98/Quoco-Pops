@@ -1,5 +1,7 @@
 package messages.catalogue;
 
+import messages.MySerializable;
+
 public class CatalogueAddition implements MySerializable {
     private int bookID;
     private String bookTitle;
