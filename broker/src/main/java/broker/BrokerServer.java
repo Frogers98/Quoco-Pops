@@ -39,6 +39,7 @@ public class BrokerServer {
                 system.log().info("Server online at http://{}:{}/",
                         address.getHostString(),
                         address.getPort());
+                System.out.println();
             } else {
                 system.log().error("Failed to bind HTTP endpoint, terminating system", exception);
                 system.terminate();
@@ -50,13 +51,14 @@ public class BrokerServer {
     public static void main(String[] args) throws Exception {
 
         //Adapted from lightbend tutorial - create Actor system and actor for the broker and then start the server
+        // Removed the Behaviour arrow function as that belongs to Akka-Typed
 //        Behavior rootBehavior = Behaviors.setup(context -> {
 
             ActorSystem brokerSystem = ActorSystem.create();
             system = brokerSystem;
             ActorRef brokerRef = system.actorOf(Props.create(Broker.class), "broker");
-            Broker broker = new Broker(system, brokerRef);
-            startHttpServer(broker.userRoutes());
+//            Broker broker = new Broker(system, brokerRef);
+            startHttpServer(Broker.userRoutes());
 
 //            return Behaviors.empty();
 //        });

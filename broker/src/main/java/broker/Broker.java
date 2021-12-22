@@ -18,16 +18,18 @@ import static akka.http.javadsl.server.Directives.*;
 import static akka.http.javadsl.server.Directives.complete;
 
 public class Broker extends AbstractActor {
-    private final Duration askTimeout;
-    private final Scheduler scheduler;
+    private Duration askTimeout;
+    private Scheduler scheduler;
     private static ArrayList<ActorRef> actorRefs = new ArrayList<>();
     private ActorRef brokerRef;
 
-    public Broker(ActorSystem system, ActorRef brokerRef) {
-        this.brokerRef = brokerRef;
-        scheduler = system.scheduler();
-        askTimeout = system.settings().config().getDuration("my-app.routes.ask-timeout");
-    }
+//    public Broker(ActorSystem system, ActorRef brokerRef) {
+//        this.brokerRef = brokerRef;
+//        scheduler = system.scheduler();
+//        askTimeout = system.settings().config().getDuration("my-app.routes.ask-timeout");
+//    }
+//
+//    public Broker() {}
 
     public static ArrayList<ActorRef> getActorRefs() {
         return actorRefs;
@@ -68,8 +70,8 @@ public class Broker extends AbstractActor {
 //                )
 //        );
     // }
-    public Route userRoutes() {
-        return pathPrefix("users", () ->
+    public static Route userRoutes() {
+        return pathPrefix("hello-world", () ->
                 concat(
 
                         pathEnd(() ->
