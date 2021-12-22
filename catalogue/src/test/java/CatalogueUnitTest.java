@@ -17,9 +17,6 @@ import java.time.Duration;
 public class CatalogueUnitTest {
     static ActorSystem catalogueSystem;
     static ActorRef catalogueService;
-    private final static String dBURL = "jdbc:mysql://localhost:3306/ds_project";
-    private final static String dbUsername = "root";
-    private final static String dbPassword = "Passw0rd1";
 
     @BeforeClass
     public static void setup() {
