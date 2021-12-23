@@ -1,0 +1,11 @@
+messages\MySerializable.class
+messages\registry\UpdatePassword.class
+messages\catalogue\SearchRequest.class
+messages\registry\RetrieveMemberDetails.class
+messages\registry\CalculateFines.class
+messages\catalogue\CatalogueAddition.class
+messages\catalogue\CatalogueRemoval.class
+messages\registry\RegisterMember.class
+messages\registry\DeleteMember.class
+messages\catalogue\SearchResponse.class
+core\Member.class
