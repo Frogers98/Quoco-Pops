@@ -1,3 +1,1 @@
-actor\Registry.class
-registry\RegistryService.class
-Main.class
+borrow/LoanService.class

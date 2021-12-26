@@ -1,59 +1,52 @@
 package broker;
-
-import akka.actor.*;
-import messages.catalogue.CatalogueAddition;
-import messages.catalogue.CatalogueRemoval;
+import akka.NotUsed;
+import akka.actor.ActorRef;
+import akka.actor.ActorSystem;
+import akka.actor.Props;
+import akka.actor.AbstractActor;
+import akka.actor.AbstractLoggingActor;
+import akka.event.Logging;
+import akka.event.LoggingAdapter;
+import akka.http.javadsl.ConnectHttp;
+import akka.http.javadsl.Http;
+import akka.http.javadsl.ServerBinding;
+import akka.http.javadsl.marshallers.jackson.Jackson;
+import akka.http.javadsl.model.HttpRequest;
+import akka.http.javadsl.model.HttpResponse;
+import akka.http.javadsl.model.StatusCodes;
+import akka.http.javadsl.server.AllDirectives;
+import akka.http.javadsl.server.Route;
+import akka.http.javadsl.unmarshalling.StringUnmarshallers;
+import akka.japi.pf.ReceiveBuilder;
+import akka.stream.ActorMaterializer;
+import akka.stream.javadsl.Flow;
+import akka.util.Timeout;
+import scala.concurrent.duration.FiniteDuration;
 
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.List;
+import java.util.concurrent.CompletionStage;
+import java.util.concurrent.TimeUnit;
 
-public class Broker extends AbstractActor {
+import static akka.pattern.PatternsCS.ask;
+public class Broker extends AbstractLoggingActor {
     private static ActorSystem brokerSystem;
-    private static HashMap<String, ActorRef> actorRefs = new HashMap<>();
-    private static ActorRef catalogueService;
-    private static int bookAdditionID = 0;
+    private static ActorRef loanService;
 
 
     public static void main(String args[]) {
         brokerSystem = ActorSystem.create();
-        ActorRef ref = brokerSystem.actorOf(Props.create(Broker.class), "broker");
-//        ActorSelection selection =
-//                brokerSystem.actorSelection("akka.tcp://default@127.0.0.1:2551/user/broker");
-//        selection.tell("register", ref);
     }
 
     @Override
     public Receive createReceive() {
         return receiveBuilder()
-                .match(String.class,
-                        msg -> {
-                            // This is currently just an example block which gets called from the main method in
-                            // CatalogueService, it then sends a CatalogueAddition request to the catalogue service
-                            // which adds the example book below just to demonstrate db connectivity
-                            if (!msg.equals("registerCatalogue")) return;
-                            catalogueService  = getSender();
-                            System.out.println("Look here, " + catalogueService.toString());
-//                            actorRefs.put(ref.toString(), ref);
-
-                            // Send a test request to catalogue to register a book
-//                            CatalogueAddition bookAddition = new CatalogueAddition(bookAdditionID++
-//                                      3,
-//                                    "Python for Dummies",
-//                                    "John Smith",
-//                                    "tallaght_library",
-//                                    10);
-//
-//
-////                                catalogueService = actorRefs.get("catalogue");
-//                                catalogueService.tell(bookAddition, getSelf());#
-
-                            // Example book removal (book will have to have been added first)
-//                            CatalogueRemoval bookRemoval = new CatalogueRemoval(3, "tallaght_library");
-//                            catalogueService = actorRefs.get("catalogue");
-//                            catalogueService.tell(bookRemoval, getSelf());
-
-
-                        }).build();
+            .match(String.class,
+                msg -> {
+                if (!msg.equals("registerCatalogue")) return;
+                loanService  = getSender();
+                System.out.println("Look here, " + loanService.toString());
+            }).build();
         }
     }
 

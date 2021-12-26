@@ -9,10 +9,11 @@
     <packaging>pom</packaging>
     <version>0.0.1</version>
     <modules>
-        <module>catalogue</module>
+        <!-- <module>catalogue</module> -->
         <module>core</module>
         <module>broker</module>
-        <module>registry</module>
+        <!-- <module>registry</module> -->
+        <module>borrow</module>
     </modules>
 
     <properties>
