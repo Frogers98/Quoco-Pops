@@ -8,19 +8,21 @@ import akka.actor.Scheduler;
 import akka.http.javadsl.model.StatusCodes;
 import akka.http.javadsl.server.PathMatchers;
 import akka.http.javadsl.server.Route;
-
+import messages.catalogue.*;
+import messages.catalogue.CatalogueAddition;
 
 import java.time.Duration;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.concurrent.CompletionStage;
 
 import static akka.http.javadsl.server.Directives.*;
 import static akka.http.javadsl.server.Directives.complete;
 
 public class Broker extends AbstractActor {
-//    private Duration askTimeout;
+    //    private Duration askTimeout;
 //    private Scheduler scheduler;
-    private static ArrayList<ActorRef> actorRefs = new ArrayList<>(); // This will store the ActorRefs for all services
+    private static HashMap<String, ActorRef> actorRefs = new HashMap<>(); // This will store the ActorRefs for all services
     private ActorRef brokerRef;
 
 //    public Broker(ActorSystem system, ActorRef brokerRef) {
@@ -31,9 +33,6 @@ public class Broker extends AbstractActor {
 //
 //    public Broker() {}
 
-    public static ArrayList<ActorRef> getActorRefs() {
-        return actorRefs;
-    }
 
 
 //    private CompletionStage<UserRegistry.Users> getBook() {
@@ -77,7 +76,9 @@ public class Broker extends AbstractActor {
 
                         pathEnd(() ->
                                 get(() ->
-                                        complete("Test api call for broker")
+                                                complete("Test api call for broker")
+//                                actorRefs.get("catalogue").tell(new CatalogueAddition(3, "Python for Dummies", "John Smith", "tallaght_library", 10));
+//                                return complete(StatusCodes.ACCEPTED, "bid placed");
 
                                 )
                         )
@@ -92,8 +93,11 @@ public class Broker extends AbstractActor {
                         msg -> {
                             if (!msg.equals("register")) return;
                             // Print the actorRef to see if it's functioning
+                            if (msg.equals("registerCatalogue")) {
                             System.out.println(getSender().toString());
-                            actorRefs.add(getSender());
+                            // Store the actor ref for catalogue in the hash map
+                            actorRefs.put("catalogue", getSender());
+                        }
                         }).build();
     }
 

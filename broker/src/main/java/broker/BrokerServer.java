@@ -42,7 +42,6 @@ public class BrokerServer {
                 system.log().info("Server online at http://{}:{}/",
                         address.getHostString(),
                         address.getPort());
-                System.out.println();
             } else {
                 system.log().error("Failed to bind HTTP endpoint, terminating system", exception);
                 system.terminate();
