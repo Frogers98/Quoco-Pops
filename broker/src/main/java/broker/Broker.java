@@ -18,12 +18,15 @@ import java.util.concurrent.CompletionStage;
 
 import static akka.http.javadsl.server.Directives.*;
 import static akka.http.javadsl.server.Directives.complete;
+import static akka.http.javadsl.server.Directives.onSuccess;
+import static akka.pattern.Patterns.ask;
 
 public class Broker extends AbstractActor {
     //    private Duration askTimeout;
 //    private Scheduler scheduler;
     private static HashMap<String, ActorRef> actorRefs = new HashMap<>(); // This will store the ActorRefs for all services
     private ActorRef brokerRef;
+    private static Duration timeout = Duration.ofSeconds(5);
 
 //    public Broker(ActorSystem system, ActorRef brokerRef) {
 //        this.brokerRef = brokerRef;
@@ -69,16 +72,38 @@ public class Broker extends AbstractActor {
 //                )
 //        );
     // }
+
+    private String deleteBook() {
+        // FIre and forget method that sends a CatalogueRemoval object to the catalogue service and returns a string when done
+        CatalogueRemoval bookRemoval = new CatalogueRemoval(3, "tallaght_library");
+        actorRefs.get("catalogue").tell(bookRemoval, getSelf());
+        return "done";
+    }
+
+//    private CompletionStage<UserRegistry.GetUserResponse> getBook(String name) {
+//        return AskPattern.ask(userRegistryActor, ref -> new UserRegistry.GetUser(name, ref), askTimeout, scheduler);
+//    }
+
     public static Route userRoutes() {
         return pathPrefix("hello-world", () ->
                 // Accessible at localhost:8080/hello-world
                 concat(
 
                         pathEnd(() ->
-                                get(() ->
-                                                complete("Test api call for broker")
-//                                actorRefs.get("catalogue").tell(new CatalogueAddition(3, "Python for Dummies", "John Smith", "tallaght_library", 10));
-//                                return complete(StatusCodes.ACCEPTED, "bid placed");
+                                get(() -> {
+                                            //String complete = deleteBook();
+//                                return complete("Test api call for broker");
+//                                            CompletionStage<SearchResponse> future = ask(actorRefs.get("catalogue"), new SearchRequest(3, 1), timeout);
+//                                            return completeOKWithFuture(future);
+
+                                // Adds this mock book to the database and outputs a string to the browser
+                                    // need to check database manually to verify it worked
+                                actorRefs.get("catalogue").tell(new CatalogueAddition(3, "Python for Dummies", "John Smith", "tallaght_library", 10), null);
+                                return complete("request to add to database sent");
+//                                                onSuccess(getBook(),
+//                                                        book -> complete(StatusCodes.OK, "success")
+//                                                )
+                                        }
 
                                 )
                         )
@@ -91,7 +116,10 @@ public class Broker extends AbstractActor {
         return receiveBuilder()
                 .match(String.class,
                         msg -> {
-                            if (!msg.equals("register")) return;
+                    // This can take in register_____ messages from each of the services and store it in a hash map
+                            // with the key as the name of the service
+                    System.out.println("Message received:" +  msg);
+                            if (!msg.startsWith("register")) return;
                             // Print the actorRef to see if it's functioning
                             if (msg.equals("registerCatalogue")) {
                             System.out.println(getSender().toString());
