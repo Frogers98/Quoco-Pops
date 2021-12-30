@@ -1,4 +1,5 @@
 package messages.catalogue;
+import messages.core.MySerializable;
 
 public class CatalogueRemoval implements MySerializable{
     private int bookID;
