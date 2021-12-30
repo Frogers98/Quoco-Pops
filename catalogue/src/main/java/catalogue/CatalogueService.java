@@ -4,6 +4,7 @@ import akka.actor.*;
 import messages.catalogue.*;
 
 import java.sql.*;
+import java.time.Duration;
 import java.util.ArrayList;
 
 public class CatalogueService extends AbstractActor {
@@ -12,20 +13,22 @@ public class CatalogueService extends AbstractActor {
     private final static String dbUsername = "root";
     private final static String dbPassword = "Passw0rd1";
     private static ArrayList<String> libraryNames = new ArrayList<>();
+    private static ActorRef catalogueActorRef;
+    private static ActorRef brokerRef;
 
 
     public static void main(String[] args) {
         // Set up actor system, this method should be called initially before anything else in the class
         catalogueSystem = ActorSystem.create();
         // Create an actor for this ActorSystem for this class
-        ActorRef ref = catalogueSystem.actorOf(Props.create(CatalogueService.class), "catalogue");
+        catalogueActorRef = catalogueSystem.actorOf(Props.create(CatalogueService.class), "catalogue");
 
         // Register this with the broker
-        ActorSelection selection = catalogueSystem.actorSelection("akka.tcp://default@127.0.0.1:2551/user/broker");
-        selection.tell("registerCatalogue", ref);
+        ActorSelection brokerSelection = catalogueSystem.actorSelection("akka.tcp://default@127.0.0.1:2551/user/broker");
+        brokerSelection.tell("registerCatalogue", catalogueActorRef);
         //TEMPORARY - add tallaght library to libraryNames, library names should really be stored in a database or somewhere else
         libraryNames.add("tallaght_library");
-
+        System.out.println("Catalogue started");
 
     }
 
@@ -128,6 +131,51 @@ public class CatalogueService extends AbstractActor {
                             }
 
 
+                        })
+                .match(String.class,
+                        msg -> {
+                    if (msg.equals("Tick")) {
+                        // If the broker ActorRef hasn't been registered yet sleep for 2 seconds
+//                        while (brokerRef == null) {
+//                            Thread.sleep(2000);
+//                        }
+                        brokerRef.tell("testScheduler", getSelf());
+                    }
+                    else if (msg.equals("registerBroker")) {
+                        brokerRef = getSender();
+                        startScheduler();
+                    }
                         }).build();
     }
+
+//    class Ticker extends AbstractActor {
+//        @Override
+//        public Receive createReceive() {
+//            return receiveBuilder()
+//                    .matchEquals(
+//                            "Tick",
+//                            m -> {
+//                                // Do someting
+//                            })
+//                    .build();
+//        }
+//    }
+
+//    ActorRef tickActor = catalogueSystem.actorOf(Props.create(Ticker.class, this));
+
+    // This will schedule to send the Tick-message
+    // to the tickActor after 0ms repeating every 50ms
+    public static void startScheduler() {
+        Cancellable cancellable =
+                catalogueSystem
+                        .scheduler()
+                        .schedule(
+                                Duration.ofMillis(5000), Duration.ofMillis(3000), catalogueActorRef, "Tick", catalogueSystem.dispatcher(), null);
+    }
+
+    // This cancels further Ticks to be sent
+//    cancellable.cancel();
+    // #schedule-recurring
+//    system.stop(tickActor);
+
 }
