@@ -1,5 +1,10 @@
+<<<<<<< HEAD
 messages\catalogue\MySerializable.class
 messages\catalogue\CatalogueAddition.class
 messages\catalogue\CatalogueRemoval.class
 messages\catalogue\SearchRequest.class
 messages\catalogue\SearchResponse.class
+=======
+messages/borrow/LoanAddition.class
+messages/MySerializable.class
+>>>>>>> borrowing
