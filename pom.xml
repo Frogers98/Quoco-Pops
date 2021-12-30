@@ -12,6 +12,7 @@
         <module>catalogue</module>
         <module>core</module>
         <module>broker</module>
+        <module>client</module>
     </modules>
 
     <properties>

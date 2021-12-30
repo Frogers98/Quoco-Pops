@@ -25,9 +25,14 @@ public class Broker extends AbstractActor {
                         msg -> {
                             // This can take in register_____ messages from each of the services and store it in a hash map
                             // with the key as the name of the service
-                            // Test block for receiving scheduled message
-                            if (msg.equals("testScheduler")) {
-                                System.out.println(msg);
+                            // Test block for receiving scheduled message (commented out to avoid filling the terminal
+//                            if (msg.equals("testScheduler")) {
+//                                System.out.println(msg);
+//                            }
+                            // TEMPORARY: This string will get sent back to the broker from the catalogue when a book is added succesfully
+                            // only for testing full comminucation in system from client to services
+                            if (msg.equals("bookAdditionSuccess")) {
+                                System.out.println("LOOK HERE BOOK ADDED OK");
                             }
                             else {
                                 if (!msg.startsWith("register")) return;
@@ -39,12 +44,19 @@ public class Broker extends AbstractActor {
                                     actorRefs.put("register", getSender());
                                 } else if (msg.equals("registerBorrowing")) {
                                     actorRefs.put("borrowing", getSender());
+                                } else if (msg.equals("registerClient")) {
+                                    actorRefs.put("client", getSender());
                                 }
                             }
                             // Send a register message back to whichever service just registered with the broker so that
                             // it has a copy of the brokers ActorRef
                             getSender().tell("registerBroker", getSelf());
 
+                        })
+                .match(CatalogueAddition.class,
+                        bookAddition -> {
+                    // Forward the message from the client to the catalogue service
+                            actorRefs.get("catalogue").tell(bookAddition, getSelf());
                         }).build();
     }
 
