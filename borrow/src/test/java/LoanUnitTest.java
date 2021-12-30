@@ -38,7 +38,7 @@ public class LoanUnitTest {
        // I've temporarily made the catalogue service send a string message back to the sender if the db write is succesful
        // but this should be made more robust
        TestKit bookLoanActor = new TestKit(laonSystem);
-       LoanAddition bookAddition = new LoanAddition(1,3,43,1,"", "");
+       LoanAddition bookAddition = new LoanAddition(1,3,43,"", "");
        laonService.tell(bookAddition, bookLoanActor.getRef());
 
        bookLoanActor.awaitCond(bookLoanActor::msgAvailable);
@@ -58,15 +58,15 @@ public class LoanUnitTest {
 //        return;
 //    }
 
-    // @Test
-    // public void testBookSearch() {
-    //     TestKit bookSearchActor = new TestKit(catalogueSystem);
-    //     SearchRequest bookSearch = new SearchRequest(3, 1);
-    //     catalogueService.tell(bookSearch, bookSearchActor.getRef());
+    @Test
+    public void testBookSearch() {
+        TestKit loanSearchActor = new TestKit(laonSystem);
+        RetrieveLoan loanSearch = new RetrieveLoan(3, 1);
+        laonService.tell(loanSearch, loanSearchActor.getRef());
 
-    //     bookSearchActor.awaitCond(bookSearchActor::msgAvailable);
-    //     bookSearchActor.expectMsgClass(Duration.ofSeconds(60), SearchResponse.class);
+        loanSearchActor.awaitCond(loanSearchActor::msgAvailable);
+        loanSearchActor.expectMsgClass(Duration.ofSeconds(60), SearchResponse.class);
 
-    //     return;
-    // }
+        return;
+    }
 }

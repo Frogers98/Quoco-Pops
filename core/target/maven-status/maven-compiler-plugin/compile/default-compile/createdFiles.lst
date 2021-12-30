@@ -1,12 +1,2 @@
-messages/catalogue/CatalogueRemoval.class
-core/Member.class
-messages/catalogue/SearchRequest.class
-messages/registry/CalculateFines.class
-messages/registry/RetrieveMemberDetails.class
-messages/catalogue/SearchResponse.class
-messages/MySerializable.class
-messages/registry/RegisterMember.class
-messages/registry/DeleteMember.class
-messages/registry/UpdatePassword.class
-messages/catalogue/CatalogueAddition.class
 messages/borrow/LoanAddition.class
+messages/MySerializable.class

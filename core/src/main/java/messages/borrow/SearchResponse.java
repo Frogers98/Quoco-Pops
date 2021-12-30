@@ -2,7 +2,7 @@ package messages.borrow;
 
 import messages.MySerializable;
 
-public class LoanAddition implements MySerializable {
+public class SearchResponse implements MySerializable {
     private int loanID;
     private int userID;
     private int bookID;
@@ -10,7 +10,7 @@ public class LoanAddition implements MySerializable {
     private String returnDate;
 
 
-    public LoanAddition(int loanID, int userID, int bookID, String loanDate, String returnDate) {
+    public SearchResponse(int loanID, int userID, int bookID, String loanDate, String returnDate) {
         this.loanID = loanID;
         this.userID = userID;
         this.bookID = bookID;
