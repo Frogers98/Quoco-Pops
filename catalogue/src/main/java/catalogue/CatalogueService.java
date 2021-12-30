@@ -134,43 +134,23 @@ public class CatalogueService extends AbstractActor {
                         })
                 .match(String.class,
                         msg -> {
-                    if (msg.equals("Tick")) {
-                        // If the broker ActorRef hasn't been registered yet sleep for 2 seconds
-//                        while (brokerRef == null) {
-//                            Thread.sleep(2000);
-//                        }
-                        brokerRef.tell("testScheduler", getSelf());
-                    }
-                    else if (msg.equals("registerBroker")) {
+                    if (msg.equals("registerBroker")) {
                         brokerRef = getSender();
                         startScheduler();
+                        System.out.println("registered broker in catalogue service");
                     }
                         }).build();
     }
 
-//    class Ticker extends AbstractActor {
-//        @Override
-//        public Receive createReceive() {
-//            return receiveBuilder()
-//                    .matchEquals(
-//                            "Tick",
-//                            m -> {
-//                                // Do someting
-//                            })
-//                    .build();
-//        }
-//    }
 
-//    ActorRef tickActor = catalogueSystem.actorOf(Props.create(Ticker.class, this));
-
-    // This will schedule to send the Tick-message
-    // to the tickActor after 0ms repeating every 50ms
     public static void startScheduler() {
+        // This method starts a scheduler that will be started one the broker starts up
+        // it should send a string to the broker every 3 seconds after an initial 5 second wait.
         Cancellable cancellable =
                 catalogueSystem
                         .scheduler()
                         .schedule(
-                                Duration.ofMillis(5000), Duration.ofMillis(3000), catalogueActorRef, "Tick", catalogueSystem.dispatcher(), null);
+                                Duration.ofMillis(5000), Duration.ofMillis(3000), brokerRef, "testScheduler", catalogueSystem.dispatcher(), null);
     }
 
     // This cancels further Ticks to be sent
