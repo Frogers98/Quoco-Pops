@@ -1,25 +1,21 @@
 package broker;
 
 import akka.actor.*;
-import messages.catalogue.CatalogueAddition;
-import messages.catalogue.CatalogueRemoval;
+import messages.catalogue.*;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 
 public class Broker extends AbstractActor {
+
+    private static HashMap<String, ActorRef> actorRefs = new HashMap<>(); // This will store the ActorRefs for all services
+    private static ActorRef brokerRef;
     private static ActorSystem brokerSystem;
-    private static HashMap<String, ActorRef> actorRefs = new HashMap<>();
-    private static ActorRef catalogueService;
-    private static int bookAdditionID = 0;
 
-
-    public static void main(String args[]) {
+    public static void main(String[] args) {
         brokerSystem = ActorSystem.create();
-        ActorRef ref = brokerSystem.actorOf(Props.create(Broker.class), "broker");
-//        ActorSelection selection =
-//                brokerSystem.actorSelection("akka.tcp://default@127.0.0.1:2551/user/broker");
-//        selection.tell("register", ref);
+        ActorRef brokerRef = brokerSystem.actorOf(Props.create(Broker.class), "broker");
+        actorRefs.put("broker", brokerRef);
+        System.out.println("Broker started");
     }
 
     @Override
@@ -27,33 +23,43 @@ public class Broker extends AbstractActor {
         return receiveBuilder()
                 .match(String.class,
                         msg -> {
-                            // This is currently just an example block which gets called from the main method in
-                            // CatalogueService, it then sends a CatalogueAddition request to the catalogue service
-                            // which adds the example book below just to demonstrate db connectivity
-                            if (!msg.equals("registerCatalogue")) return;
-                            catalogueService  = getSender();
-                            System.out.println("Look here, " + catalogueService.toString());
-//                            actorRefs.put(ref.toString(), ref);
+                            // This can take in register_____ messages from each of the services and store it in a hash map
+                            // with the key as the name of the service
+                            // Test block for receiving scheduled message (commented out to avoid filling the terminal
+//                            if (msg.equals("testScheduler")) {
+//                                System.out.println(msg);
+//                            }
+                            // TEMPORARY: This string will get sent back to the broker from the catalogue when a book is added succesfully
+                            // only for testing full comminucation in system from client to services
+                            if (msg.equals("bookAdditionSuccess")) {
+                                System.out.println("LOOK HERE BOOK ADDED OK");
+                            }
+                            else {
+                                if (!msg.startsWith("register")) return;
 
-                            // Send a test request to catalogue to register a book
-//                            CatalogueAddition bookAddition = new CatalogueAddition(bookAdditionID++
-//                                      3,
-//                                    "Python for Dummies",
-//                                    "John Smith",
-//                                    "tallaght_library",
-//                                    10);
-//
-//
-////                                catalogueService = actorRefs.get("catalogue");
-//                                catalogueService.tell(bookAddition, getSelf());#
+                                // Store the actor ref for whichever service registered in the hash map
+                                if (msg.equals("registerCatalogue")) {
+                                    actorRefs.put("catalogue", getSender());
+                                } else if (msg.equals("registerRegistry")) {
+                                    actorRefs.put("register", getSender());
+                                } else if (msg.equals("registerBorrowing")) {
+                                    actorRefs.put("borrowing", getSender());
+                                } else if (msg.equals("registerClient")) {
+                                    actorRefs.put("client", getSender());
+                                }
+                            }
+                            // Send a register message back to whichever service just registered with the broker so that
+                            // it has a copy of the brokers ActorRef
+                            getSender().tell("registerBroker", getSelf());
 
-                            // Example book removal (book will have to have been added first)
-//                            CatalogueRemoval bookRemoval = new CatalogueRemoval(3, "tallaght_library");
-//                            catalogueService = actorRefs.get("catalogue");
-//                            catalogueService.tell(bookRemoval, getSelf());
-
-
+                        })
+                .match(CatalogueAddition.class,
+                        bookAddition -> {
+                    // Forward the message from the client to the catalogue service
+                            actorRefs.get("catalogue").tell(bookAddition, getSelf());
                         }).build();
-        }
     }
+
+
+}
 

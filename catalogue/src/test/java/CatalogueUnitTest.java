@@ -17,9 +17,6 @@ import java.time.Duration;
 public class CatalogueUnitTest {
     static ActorSystem catalogueSystem;
     static ActorRef catalogueService;
-    private final static String dBURL = "jdbc:mysql://localhost:3306/ds_project";
-    private final static String dbUsername = "root";
-    private final static String dbPassword = "Passw0rd1";
 
     @BeforeClass
     public static void setup() {
@@ -64,15 +61,15 @@ public class CatalogueUnitTest {
 //        return;
 //    }
 
-    @Test
-    public void testBookSearch() {
-        TestKit bookSearchActor = new TestKit(catalogueSystem);
-        SearchRequest bookSearch = new SearchRequest(3, 1);
-        catalogueService.tell(bookSearch, bookSearchActor.getRef());
-
-        bookSearchActor.awaitCond(bookSearchActor::msgAvailable);
-        bookSearchActor.expectMsgClass(Duration.ofSeconds(60), SearchResponse.class);
-
-        return;
-    }
+//    @Test
+//    public void testBookSearch() {
+//        TestKit bookSearchActor = new TestKit(catalogueSystem);
+//        SearchRequest bookSearch = new SearchRequest(3, 1);
+//        catalogueService.tell(bookSearch, bookSearchActor.getRef());
+//
+//        bookSearchActor.awaitCond(bookSearchActor::msgAvailable);
+//        bookSearchActor.expectMsgClass(Duration.ofSeconds(60), SearchResponse.class);
+//
+//        return;
+//    }
 }

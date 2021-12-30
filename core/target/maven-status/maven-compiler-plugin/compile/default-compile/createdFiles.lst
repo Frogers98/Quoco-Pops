@@ -1,7 +1,11 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
 messages\catalogue\MySerializable.class
+=======
+>>>>>>> 40bce1eef273904e60d927665e1344c83324b21d
 messages\catalogue\CatalogueAddition.class
 messages\catalogue\CatalogueRemoval.class
+messages\core\MySerializable.class
 messages\catalogue\SearchRequest.class
 messages\catalogue\SearchResponse.class
 =======

@@ -9,13 +9,13 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>broker</artifactId>
+    <artifactId>client</artifactId>
 
     <properties>
-        <main.class>broker.Broker</main.class>
-        <akka.version>2.6.17</akka.version>
         <maven.compiler.source>11</maven.compiler.source>
         <maven.compiler.target>11</maven.compiler.target>
+        <akka.version>2.6.17</akka.version>
+        <main.class>client.Client</main.class>
     </properties>
 
     <dependencies>

@@ -1,6 +1,7 @@
 package messages.catalogue;
+import messages.core.MySerializable;
 
-public class SearchResponse {
+public class SearchResponse implements MySerializable {
     private int bookID;
     private String bookTitle;
     private String bookAuthor;

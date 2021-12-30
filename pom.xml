@@ -13,8 +13,8 @@
         <module>catalogue</module>
         <module>core</module>
         <module>broker</module>
-        <!-- <module>registry</module> -->
         <module>borrow</module>
+        <module>client</module>
 
     </modules>
 
