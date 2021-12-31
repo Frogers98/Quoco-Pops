@@ -1,4 +1,4 @@
-package messages.catalogue;
+package messages;
 
 public interface MySerializable {
 }

@@ -1,6 +1,7 @@
 package catalogue;
 
 import akka.actor.*;
+import core.Book;
 import messages.catalogue.*;
 
 import java.sql.*;
@@ -25,7 +26,6 @@ public class CatalogueService extends AbstractActor {
         selection.tell("registerCatalogue", ref);
         //TEMPORARY - add tallaght library to libraryNames, library names should really be stored in a database or somewhere else
         libraryNames.add("tallaght_library");
-
 
     }
 
@@ -54,14 +54,19 @@ public class CatalogueService extends AbstractActor {
                                     ResultSet res = statement.executeQuery();
                                     // Create a SearchResponse object with the result and send it back to the broker
                                     while (res.next()) {
+                                        Book bookRetrieved = new Book(res.getInt("book_id"), res.getString("book_title"), res.getString("book_author"), libraryName, res.getInt("total_copies"));
                                         SearchResponse response = new SearchResponse(
-                                                res.getInt("book_id"),
-                                                res.getString("book_title"),
-                                                res.getString("book_author"),
-                                                libraryName,
-                                                res.getInt("available_copies"),
-                                                res.getInt("total_copies"),
-                                                searchRequest.getSearchId()
+                                            searchRequest.getLibraryRef(),
+                                            bookRetrieved,
+                                            res.getInt("available_copies")
+
+                                                // res.getInt("book_id"),
+                                                // res.getString("book_title"),
+                                                // res.getString("book_author"),
+                                                // libraryName,
+                                                // res.getInt("available_copies"),
+                                                // res.getInt("total_copies"),
+                                                // searchRequest.getSearchId()
                                         );
                                         System.out.println("book found in " + libraryName + ". title: " + res.getString("book_title"));
                                         getSender().tell(response, getSelf());
@@ -74,21 +79,22 @@ public class CatalogueService extends AbstractActor {
 
 
                         })
-                .match(CatalogueAddition.class,
+                .match(CatalogueAdditionRequest.class,
                         bookAddition -> {
                             // Get the library this book is being added to so we add it to the right table
-                            String libraryName = bookAddition.getLibraryName();
+                            String libraryName = bookAddition.getLibraryRef();
+                            Book book = bookAddition.getBook();
 
                             // try with block to instantiate database stuff so it will close itself when finished
                             try (Connection conn = DriverManager.getConnection(dBURL, dbUsername, dbPassword)) {
                                 String SQL = "INSERT into " + libraryName + " (book_id, book_title, book_author, available_copies, total_copies)" +
                                         " VALUES (?,?,?,?,?)";
                                 PreparedStatement statement = conn.prepareStatement(SQL, Statement.RETURN_GENERATED_KEYS);
-                                statement.setInt(1, bookAddition.getBookID());
-                                statement.setString(2, bookAddition.getBookTitle());
-                                statement.setString(3, bookAddition.getBookAuthor());
-                                statement.setInt(4, bookAddition.getNumCopies());
-                                statement.setInt(5, bookAddition.getNumCopies());
+                                statement.setInt(1, book.getBookID());
+                                statement.setString(2, book.getBookTitle());
+                                statement.setString(3, book.getBookAuthor());
+                                statement.setInt(4, book.getNumCopies());
+                                statement.setInt(5, book.getNumCopies());
 
                                 // Execute the sql query (returns the rows affected by the query
                                 int rowsAffected = statement.executeUpdate();
@@ -103,12 +109,12 @@ public class CatalogueService extends AbstractActor {
                             }
                         })
 
-                .match(CatalogueRemoval.class,
+                .match(CatalogueRemovalRequest.class,
                         bookRemoval -> {
                             // bookID is a unique value in the table so we can remove the row from
                             // the appropriate table with matching bookID
                             System.out.println("IN CATALOGUE REMOVAL");
-                            String libraryName = bookRemoval.getLibraryName();
+                            String libraryName = bookRemoval.getLibraryRef();
 
                             // try with block to instantiate database stuff so it will close itself when finished
                             try (Connection conn = DriverManager.getConnection(dBURL, dbUsername, dbPassword)) {

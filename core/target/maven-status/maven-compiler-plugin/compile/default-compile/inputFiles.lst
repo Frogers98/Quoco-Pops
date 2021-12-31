@@ -1,5 +1,14 @@
-C:\Users\finni\OneDrive - University College Dublin\Semester_4\distributed_systems\project\libraryProject\core\src\main\java\messages\catalogue\MySerializable.java
-C:\Users\finni\OneDrive - University College Dublin\Semester_4\distributed_systems\project\libraryProject\core\src\main\java\messages\catalogue\CatalogueRemoval.java
-C:\Users\finni\OneDrive - University College Dublin\Semester_4\distributed_systems\project\libraryProject\core\src\main\java\messages\catalogue\SearchRequest.java
-C:\Users\finni\OneDrive - University College Dublin\Semester_4\distributed_systems\project\libraryProject\core\src\main\java\messages\catalogue\SearchResponse.java
-C:\Users\finni\OneDrive - University College Dublin\Semester_4\distributed_systems\project\libraryProject\core\src\main\java\messages\catalogue\CatalogueAddition.java
+C:\Users\janee\Desktop\TradBroker\quoco-pops\core\src\main\java\messages\registry\RegisterMemberRequest.java
+C:\Users\janee\Desktop\TradBroker\quoco-pops\core\src\main\java\messages\registry\UpdatePasswordRequest.java
+C:\Users\janee\Desktop\TradBroker\quoco-pops\core\src\main\java\core\Member.java
+C:\Users\janee\Desktop\TradBroker\quoco-pops\core\src\main\java\messages\registry\CalculateFinesRequest.java
+C:\Users\janee\Desktop\TradBroker\quoco-pops\core\src\main\java\messages\catalogue\CatalogueRemovalRequest.java
+C:\Users\janee\Desktop\TradBroker\quoco-pops\core\src\main\java\messages\catalogue\SearchResponse.java
+C:\Users\janee\Desktop\TradBroker\quoco-pops\core\src\main\java\messages\MySerializable.java
+C:\Users\janee\Desktop\TradBroker\quoco-pops\core\src\main\java\messages\registry\RetrieveMemberDetailsResponse.java
+C:\Users\janee\Desktop\TradBroker\quoco-pops\core\src\main\java\messages\registry\DeleteMemberRequest.java
+C:\Users\janee\Desktop\TradBroker\quoco-pops\core\src\main\java\messages\registry\CalculateFinesResponse.java
+C:\Users\janee\Desktop\TradBroker\quoco-pops\core\src\main\java\core\Book.java
+C:\Users\janee\Desktop\TradBroker\quoco-pops\core\src\main\java\messages\registry\RetrieveMemberDetailsRequest.java
+C:\Users\janee\Desktop\TradBroker\quoco-pops\core\src\main\java\messages\catalogue\CatalogueAdditionRequest.java
+C:\Users\janee\Desktop\TradBroker\quoco-pops\core\src\main\java\messages\catalogue\SearchRequest.java

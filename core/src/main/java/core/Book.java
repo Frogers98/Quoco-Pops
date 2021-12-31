@@ -1,13 +1,13 @@
-package messages.catalogue;
+package core;
 
-public class CatalogueAddition implements MySerializable {
+public class Book {
     private int bookID;
     private String bookTitle;
     private String bookAuthor;
     private String libraryName;
     private int numCopies;
 
-    public CatalogueAddition(int bookID, String bookTitle, String bookAuthor, String libraryName, int numCopies) {
+    public Book(int bookID, String bookTitle, String bookAuthor, String libraryName, int numCopies) {
         this.bookID = bookID;
         this.bookTitle = bookTitle;
         this.bookAuthor = bookAuthor;
@@ -54,4 +54,5 @@ public class CatalogueAddition implements MySerializable {
     public void setNumCopies(int numCopies) {
         this.numCopies = numCopies;
     }
+    
 }

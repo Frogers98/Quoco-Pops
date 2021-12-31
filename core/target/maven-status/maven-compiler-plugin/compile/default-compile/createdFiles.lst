@@ -1,5 +1,14 @@
-messages\catalogue\MySerializable.class
-messages\catalogue\CatalogueAddition.class
-messages\catalogue\CatalogueRemoval.class
+messages\catalogue\CatalogueRemovalRequest.class
+messages\registry\RetrieveMemberDetailsResponse.class
+messages\registry\RegisterMemberRequest.class
+messages\catalogue\CatalogueAdditionRequest.class
+messages\registry\CalculateFinesRequest.class
+core\Book.class
+messages\MySerializable.class
 messages\catalogue\SearchRequest.class
+messages\registry\RetrieveMemberDetailsRequest.class
+messages\registry\DeleteMemberRequest.class
 messages\catalogue\SearchResponse.class
+messages\registry\CalculateFinesResponse.class
+core\Member.class
+messages\registry\UpdatePasswordRequest.class
