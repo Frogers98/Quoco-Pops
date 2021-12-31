@@ -2,7 +2,7 @@ package messages.catalogue;
 
 import messages.MySerializable;
 
-public class CatalogueRemovalRequest implements MySerializable{
+public class CatalogueRemovalRequest implements MySerializable {
     private String libraryRef;
     private int bookID;
     

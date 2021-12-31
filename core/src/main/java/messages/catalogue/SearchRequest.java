@@ -1,5 +1,6 @@
 package messages.catalogue;
-import messages.core.MySerializable;
+import messages.MySerializable;
+
 public class SearchRequest implements MySerializable {
     // Class to represent a search request to the Catalogue Service containing a book ID
     private String libraryRef;
