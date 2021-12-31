@@ -1,5 +1,6 @@
 package client;
 import akka.actor.*;
+import core.Book;
 import messages.catalogue.*;
 
 import java.sql.*;
@@ -36,11 +37,12 @@ public class Client extends AbstractActor {
 
     public void testClientMessage() {
         //Test message to add a book to the catalogue service
-                CatalogueAddition bookAddition = new CatalogueAddition(4,
+                Book book = new Book(4,
                 "Akka for Dummies",
                 "John Doe",
                 "tallaght_library",
                 5);
+                CatalogueAdditionRequest bookAddition = new CatalogueAdditionRequest("tallaght_library", book);
         brokerRef.tell(bookAddition, getSelf());
     }
 
