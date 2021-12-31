@@ -1,5 +1,6 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 C:\Users\finni\OneDrive - University College Dublin\Semester_4\distributed_systems\project\libraryProject\core\src\main\java\messages\catalogue\MySerializable.java
 =======
 >>>>>>> 40bce1eef273904e60d927665e1344c83324b21d
@@ -15,3 +16,19 @@ C:\Users\finni\OneDrive - University College Dublin\Semester_4\distributed_syste
 =======
 C:\Users\finni\OneDrive - University College Dublin\Semester_4\distributed_systems\project\libraryProject\core\src\main\java\messages\core\MySerializable.java
 >>>>>>> 40bce1eef273904e60d927665e1344c83324b21d
+=======
+C:\Users\janee\Desktop\TradBroker\quoco-pops\core\src\main\java\messages\registry\RegisterMemberRequest.java
+C:\Users\janee\Desktop\TradBroker\quoco-pops\core\src\main\java\messages\registry\UpdatePasswordRequest.java
+C:\Users\janee\Desktop\TradBroker\quoco-pops\core\src\main\java\core\Member.java
+C:\Users\janee\Desktop\TradBroker\quoco-pops\core\src\main\java\messages\registry\CalculateFinesRequest.java
+C:\Users\janee\Desktop\TradBroker\quoco-pops\core\src\main\java\messages\catalogue\CatalogueRemovalRequest.java
+C:\Users\janee\Desktop\TradBroker\quoco-pops\core\src\main\java\messages\catalogue\SearchResponse.java
+C:\Users\janee\Desktop\TradBroker\quoco-pops\core\src\main\java\messages\MySerializable.java
+C:\Users\janee\Desktop\TradBroker\quoco-pops\core\src\main\java\messages\registry\RetrieveMemberDetailsResponse.java
+C:\Users\janee\Desktop\TradBroker\quoco-pops\core\src\main\java\messages\registry\DeleteMemberRequest.java
+C:\Users\janee\Desktop\TradBroker\quoco-pops\core\src\main\java\messages\registry\CalculateFinesResponse.java
+C:\Users\janee\Desktop\TradBroker\quoco-pops\core\src\main\java\core\Book.java
+C:\Users\janee\Desktop\TradBroker\quoco-pops\core\src\main\java\messages\registry\RetrieveMemberDetailsRequest.java
+C:\Users\janee\Desktop\TradBroker\quoco-pops\core\src\main\java\messages\catalogue\CatalogueAdditionRequest.java
+C:\Users\janee\Desktop\TradBroker\quoco-pops\core\src\main\java\messages\catalogue\SearchRequest.java
+>>>>>>> origin/broker_traditional

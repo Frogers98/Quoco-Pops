@@ -1,65 +1,123 @@
 package broker;
 
-import akka.actor.*;
-import messages.catalogue.*;
-
 import java.util.HashMap;
+
+import akka.actor.AbstractActor;
+import akka.actor.ActorRef;
+import messages.Init;
+import messages.catalogue.CatalogueAdditionRequest;
+import messages.catalogue.CatalogueRemovalRequest;
+import messages.catalogue.SearchRequest;
+import messages.catalogue.SearchResponse;
+import messages.registry.CalculateFinesRequest;
+import messages.registry.CalculateFinesResponse;
+import messages.registry.DeleteMemberRequest;
+import messages.registry.RegisterMemberRequest;
+import messages.registry.RetrieveMemberDetailsRequest;
+import messages.registry.RetrieveMemberDetailsResponse;
+import messages.registry.UpdatePasswordRequest;
 
 public class Broker extends AbstractActor {
 
-    private static HashMap<String, ActorRef> actorRefs = new HashMap<>(); // This will store the ActorRefs for all services
+    private static HashMap<String, ActorRef> actorRefs = new HashMap<>(); // This will store the ActorRefs for all
+                                                                          // services
     private static ActorRef brokerRef;
-    private static ActorSystem brokerSystem;
 
-    public static void main(String[] args) {
-        brokerSystem = ActorSystem.create();
-        ActorRef brokerRef = brokerSystem.actorOf(Props.create(Broker.class), "broker");
-        actorRefs.put("broker", brokerRef);
-        System.out.println("Broker started");
-    }
+    private static HashMap<String, ActorRef> clientRefs = new HashMap<>();
 
     @Override
     public Receive createReceive() {
         return receiveBuilder()
+                .match(Init.class,
+                        msg -> {
+                            System.out.println("Broker initialised");
+                            brokerRef = getSender();
+                        })
+
+                .match(CalculateFinesRequest.class,
+                        msg -> {
+                            clientRefs.put(msg.getLibraryRef(), getSender());
+                            actorRefs.get("registry").tell(msg, getSelf());
+                        })
+                .match(CalculateFinesResponse.class,
+                        msg -> {
+                            clientRefs.get(msg.getLibraryRef()).tell(msg, getSelf());
+                        })
+
+                .match(RetrieveMemberDetailsRequest.class,
+                        msg -> {
+                            clientRefs.put(msg.getLibraryRef(), getSender());
+                            actorRefs.get("registry").tell(msg, getSelf());
+                        })
+                .match(RetrieveMemberDetailsResponse.class,
+                        msg -> {
+                            clientRefs.get(msg.getLibraryRef()).tell(msg, getSelf());
+                        })
+
+                .match(RegisterMemberRequest.class,
+                        msg -> {
+                            clientRefs.put(msg.getLibraryRef(), getSender());
+                            actorRefs.get("registry").tell(msg, getSelf());
+                        })
+
+                .match(DeleteMemberRequest.class,
+                        msg -> {
+                            clientRefs.put(msg.getLibraryRef(), getSender());
+                            actorRefs.get("registry").tell(msg, getSelf());
+                        })
+
+                .match(UpdatePasswordRequest.class,
+                        msg -> {
+                            clientRefs.put(msg.getLibraryRef(), getSender());
+                            actorRefs.get("registry").tell(msg, getSelf());
+                        })
+
+                .match(CatalogueAdditionRequest.class,
+                        msg -> {
+                            clientRefs.put(msg.getLibraryRef(), getSender());
+                            actorRefs.get("catalogue").tell(msg, getSelf());
+                        })
+
+                .match(CatalogueRemovalRequest.class,
+                        msg -> {
+                            clientRefs.put(msg.getLibraryRef(), getSender());
+                            actorRefs.get("catalogue").tell(msg, getSelf());
+                        })
+
+                .match(SearchRequest.class,
+                        msg -> {
+                            clientRefs.put(msg.getLibraryRef(), getSender());
+                            actorRefs.get("catalogue").tell(msg, getSelf());
+                        })
+
+                .match(SearchResponse.class,
+                        msg -> {
+                            clientRefs.get(msg.getLibraryRef()).tell(msg, getSelf());
+                        })
+
                 .match(String.class,
                         msg -> {
-                            // This can take in register_____ messages from each of the services and store it in a hash map
+                            // This can take in register_____ messages from each of the services and store
+                            // it in a hash map
                             // with the key as the name of the service
-                            // Test block for receiving scheduled message (commented out to avoid filling the terminal
-//                            if (msg.equals("testScheduler")) {
-//                                System.out.println(msg);
-//                            }
-                            // TEMPORARY: This string will get sent back to the broker from the catalogue when a book is added succesfully
-                            // only for testing full comminucation in system from client to services
-                            if (msg.equals("bookAdditionSuccess")) {
-                                System.out.println("LOOK HERE BOOK ADDED OK");
+                            System.out.println("Message received:" + msg);
+                            // if (!msg.startsWith("register"))
+                            // return;
+                            if (msg.equals("registerCatalogue")) {
+                                System.out.println(getSender().toString());
+                                // Store the actor ref for catalogue in the hash map
+                                actorRefs.put("catalogue", getSender());
                             }
-                            else {
-                                if (!msg.startsWith("register")) return;
-
-                                // Store the actor ref for whichever service registered in the hash map
-                                if (msg.equals("registerCatalogue")) {
-                                    actorRefs.put("catalogue", getSender());
-                                } else if (msg.equals("registerRegistry")) {
-                                    actorRefs.put("register", getSender());
-                                } else if (msg.equals("registerBorrowing")) {
-                                    actorRefs.put("borrowing", getSender());
-                                } else if (msg.equals("registerClient")) {
-                                    actorRefs.put("client", getSender());
-                                }
+                            if (msg.equals("registerRegistry")) {
+                                System.out.println(getSender().toString());
+                                actorRefs.put("registry", getSender());
                             }
-                            // Send a register message back to whichever service just registered with the broker so that
-                            // it has a copy of the brokers ActorRef
-                            getSender().tell("registerBroker", getSelf());
-
+                            if (msg.equals("registerBorrowing")) {
+                                System.out.println(getSender().toString());
+                                actorRefs.put("borrowing", getSender());
+                            }
                         })
-                .match(CatalogueAddition.class,
-                        bookAddition -> {
-                    // Forward the message from the client to the catalogue service
-                            actorRefs.get("catalogue").tell(bookAddition, getSelf());
-                        }).build();
+                .build();
     }
 
-
 }
-

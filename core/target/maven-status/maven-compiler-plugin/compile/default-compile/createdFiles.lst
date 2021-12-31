@@ -1,14 +1,32 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 messages\catalogue\MySerializable.class
 =======
 >>>>>>> 40bce1eef273904e60d927665e1344c83324b21d
 messages\catalogue\CatalogueAddition.class
 messages\catalogue\CatalogueRemoval.class
 messages\core\MySerializable.class
+=======
+messages\catalogue\CatalogueRemovalRequest.class
+messages\registry\RetrieveMemberDetailsResponse.class
+messages\registry\RegisterMemberRequest.class
+messages\catalogue\CatalogueAdditionRequest.class
+messages\registry\CalculateFinesRequest.class
+core\Book.class
+messages\MySerializable.class
+>>>>>>> origin/broker_traditional
 messages\catalogue\SearchRequest.class
+messages\registry\RetrieveMemberDetailsRequest.class
+messages\registry\DeleteMemberRequest.class
 messages\catalogue\SearchResponse.class
+<<<<<<< HEAD
 =======
 messages/borrow/LoanAddition.class
 messages/MySerializable.class
 >>>>>>> borrowing
+=======
+messages\registry\CalculateFinesResponse.class
+core\Member.class
+messages\registry\UpdatePasswordRequest.class
+>>>>>>> origin/broker_traditional
