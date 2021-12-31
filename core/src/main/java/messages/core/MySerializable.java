@@ -1,4 +1,4 @@
-package messages;
+package messages.core;
 
 public interface MySerializable {
 }

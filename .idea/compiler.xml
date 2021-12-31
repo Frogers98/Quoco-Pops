@@ -8,6 +8,7 @@
         <outputRelativeToContentRoot value="true" />
         <module name="core" />
         <module name="client" />
+        <module name="borrow" />
         <module name="broker" />
         <module name="catalogue" />
       </profile>

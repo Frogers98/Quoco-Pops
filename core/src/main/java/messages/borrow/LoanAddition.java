@@ -1,8 +1,6 @@
 package messages.borrow;
 
-import messages.MySerializable;
-
-public class LoanAddition implements MySerializable {
+public class LoanAddition {
     private int loanID;
     private int userID;
     private int bookID;
