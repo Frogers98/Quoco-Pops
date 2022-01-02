@@ -61,15 +61,15 @@ public class CatalogueUnitTest {
 //        return;
 //    }
 
-//    @Test
-//    public void testBookSearch() {
-//        TestKit bookSearchActor = new TestKit(catalogueSystem);
-//        SearchRequest bookSearch = new SearchRequest(3, 1);
-//        catalogueService.tell(bookSearch, bookSearchActor.getRef());
-//
-//        bookSearchActor.awaitCond(bookSearchActor::msgAvailable);
-//        bookSearchActor.expectMsgClass(Duration.ofSeconds(60), SearchResponse.class);
-//
-//        return;
-//    }
+    @Test
+    public void testBookSearch() {
+        TestKit bookSearchActor = new TestKit(catalogueSystem);
+        SearchRequest bookSearch = new SearchRequest("tallaght_library", 3, 1);
+        catalogueService.tell(bookSearch, bookSearchActor.getRef());
+
+        bookSearchActor.awaitCond(bookSearchActor::msgAvailable);
+        bookSearchActor.expectMsgClass(Duration.ofSeconds(60), SearchResponse.class);
+
+        return;
+    }
 }
