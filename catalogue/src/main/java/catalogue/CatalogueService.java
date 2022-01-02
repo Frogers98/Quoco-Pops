@@ -13,7 +13,6 @@ public class CatalogueService extends AbstractActor {
     private final static String dBURL = "jdbc:mysql://localhost:3306/ds_project";
     private final static String dbUsername = "root";
     private final static String dbPassword = "Passw0rd1";
-    private static ArrayList<String> libraryNames = new ArrayList<>();
     private static ActorRef catalogueActorRef;
     private static ActorRef brokerRef;
 
@@ -27,9 +26,6 @@ public class CatalogueService extends AbstractActor {
         // Register this with the broker
         ActorSelection brokerSelection = catalogueSystem.actorSelection("akka.tcp://default@127.0.0.1:2551/user/broker");
         brokerSelection.tell("registerCatalogue", catalogueActorRef);
-        //TEMPORARY - add tallaght library to libraryNames, library names should really be stored in a database or somewhere else
-        libraryNames.add("tallaght_library");
-
     }
 
     @Override
@@ -97,7 +93,11 @@ public class CatalogueService extends AbstractActor {
                                 // this is only a temporary fix for the unit test as it waits for a string after sending a
                                 // test bookAddition to this service
                                 if (rowsAffected > 0) {
-                                    getSender().tell("bookAdditionSuccess", getSelf());
+                                    CatalogueAdditionResponse response = new CatalogueAdditionResponse(bookAddition.getUserId(), true);
+                                    getSender().tell(response, getSelf());
+                                } else {
+                                    CatalogueAdditionResponse response = new CatalogueAdditionResponse(bookAddition.getUserId(), false);
+                                    getSender().tell(response, getSelf());
                                 }
                             } catch (SQLException e) {
                                 e.printStackTrace();
@@ -122,10 +122,12 @@ public class CatalogueService extends AbstractActor {
                                 // Execute the sql query (returns the rows affected by the query
                                 int rowsAffected = statement.executeUpdate();
                                 // if at least one row was affected send a string back to the sender to indicate success
-                                // this is only a temporary fix for the unit test as it waits for a string after sending a
-                                // test bookAddition to this service
                                 if (rowsAffected > 0) {
-                                    getSender().tell("bookRemovalSuccess", getSelf());
+                                    CatalogueRemovalResponse response = new CatalogueRemovalResponse(bookRemoval.getBookID(), true);
+                                    getSender().tell(response, getSelf());
+                                }
+                                else {
+                                    CatalogueRemovalResponse response = new CatalogueRemovalResponse(bookRemoval.getBookID(), false);
                                 }
                             }
 

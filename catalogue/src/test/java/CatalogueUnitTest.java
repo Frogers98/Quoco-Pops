@@ -7,10 +7,7 @@ import akka.actor.Props;
 import akka.testkit.javadsl.TestKit;
 import catalogue.CatalogueService;
 import core.Book;
-import messages.catalogue.CatalogueAdditionRequest;
-import messages.catalogue.CatalogueRemovalRequest;
-import messages.catalogue.SearchRequest;
-import messages.catalogue.SearchResponse;
+import messages.catalogue.*;
 import org.junit.*;
 
 import java.time.Duration;
@@ -32,47 +29,47 @@ public class CatalogueUnitTest {
         catalogueSystem = null;
     }
 
-    @Test
-    public void testBookAddition() {
-        // Very basic test that sends a bookAddition message to the catalogue service and waits for a string response.
-        // I've temporarily made the catalogue service send a string message back to the sender if the db write is succesful
-        // but this should be made more robust
-        TestKit bookAdditionActor = new TestKit(catalogueSystem);
-        Book book = new Book(3,
-                "Python for Dummies",
-                "John Smith",
-                "tallaght_library",
-                10);
-
-        CatalogueAdditionRequest bookAddition = new CatalogueAdditionRequest(book);
-        catalogueService.tell(bookAddition, bookAdditionActor.getRef());
-
-        bookAdditionActor.awaitCond(bookAdditionActor::msgAvailable);
-        bookAdditionActor.expectMsg(Duration.ZERO, "bookAdditionSuccess");
-        return;
-    }
+//    @Test
+//    public void testBookAddition() {
+//        // Very basic test that sends a bookAddition message to the catalogue service and waits for a string response.
+//        // I've temporarily made the catalogue service send a string message back to the sender if the db write is succesful
+//        // but this should be made more robust
+//        TestKit bookAdditionActor = new TestKit(catalogueSystem);
+//        Book book = new Book(3,
+//                "Python for Dummies",
+//                "John Smith",
+//                "tallaght_library",
+//                10);
+//
+//        CatalogueAdditionRequest bookAddition = new CatalogueAdditionRequest(book, 5);
+//        catalogueService.tell(bookAddition, bookAdditionActor.getRef());
+//
+//        bookAdditionActor.awaitCond(bookAdditionActor::msgAvailable);
+//        bookAdditionActor.expectMsgClass(Duration.ofSeconds(60), CatalogueAdditionResponse.class);
+//        return;
+//    }
 
 //    @Test
 //    public void testBookRemoval() {
 //        TestKit bookRemovalActor = new TestKit(catalogueSystem);
-//        CatalogueRemovalRequest bookRemoval = new CatalogueRemovalRequest(3, "tallaght_library");
+//        CatalogueRemovalRequest bookRemoval = new CatalogueRemovalRequest(3, "tallaght_library", 4);
 //        catalogueService.tell(bookRemoval, bookRemovalActor.getRef());
 //
 //        bookRemovalActor.awaitCond(bookRemovalActor::msgAvailable);
-//        bookRemovalActor.expectMsg(Duration.ofSeconds(60), "bookRemovalSuccess");
+//      bookRemovalActor.expectMsgClass(Duration.ofSeconds(60), CatalogueRemovalResponse.class);
 //
 //        return;
 //    }
 
-//    @Test
-//    public void testBookSearch() {
-//        TestKit bookSearchActor = new TestKit(catalogueSystem);
-//        SearchRequest bookSearch = new SearchRequest("tallaght_library", 3, 1);
-//        catalogueService.tell(bookSearch, bookSearchActor.getRef());
-//
-//        bookSearchActor.awaitCond(bookSearchActor::msgAvailable);
-//        bookSearchActor.expectMsgClass(Duration.ofSeconds(60), SearchResponse.class);
-//
-//        return;
-//    }
+    @Test
+    public void testBookSearch() {
+        TestKit bookSearchActor = new TestKit(catalogueSystem);
+        SearchRequest bookSearch = new SearchRequest("tallaght_library", 3, 1);
+        catalogueService.tell(bookSearch, bookSearchActor.getRef());
+
+        bookSearchActor.awaitCond(bookSearchActor::msgAvailable);
+        bookSearchActor.expectMsgClass(Duration.ofSeconds(60), SearchResponse.class);
+
+        return;
+    }
 }

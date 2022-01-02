@@ -4,13 +4,14 @@ import core.Book;
 import messages.MySerializable;
 
 public class CatalogueAdditionRequest implements MySerializable {
-    String libraryRef;
     Book book;
+    int userId;
 
     public CatalogueAdditionRequest() {}
 
-    public CatalogueAdditionRequest(Book book) {
+    public CatalogueAdditionRequest(Book book, int userId) {
         this.book = book;
+        this.userId = userId;
     }
 
     public Book getBook() {
@@ -21,12 +22,11 @@ public class CatalogueAdditionRequest implements MySerializable {
         this.book = book;
     }
 
-    public String getLibraryRef() {
-        return this.libraryRef;
+    public int getUserId() {
+        return userId;
     }
 
-    public void setLibraryRef(String libraryRef) {
-        this.libraryRef = libraryRef;
+    public void setUserId(int userId) {
+        this.userId = userId;
     }
-
 }

@@ -32,6 +32,10 @@ public class Client extends AbstractActor {
                                 // Now that we have the broker ActorRef we can call our test method to try and send a message to it
 //                                testClientMessage();
                             }
+                        })
+                .match(SearchResponse.class,
+                        searchResponse -> {
+
                         }).build();
     }
 
@@ -42,8 +46,12 @@ public class Client extends AbstractActor {
                 "John Doe",
                 "tallaght_library",
                 5);
-                CatalogueAdditionRequest bookAddition = new CatalogueAdditionRequest(book);
+                CatalogueAdditionRequest bookAddition = new CatalogueAdditionRequest(book, 1);
         brokerRef.tell(bookAddition, getSelf());
+
+        // Test message to search for a book using the catalogue service
+        SearchRequest searchRequest = new SearchRequest("tallaght_library", 2, 2);
+        brokerRef.tell(searchRequest, getSelf());
 
     }
 

@@ -74,7 +74,7 @@ public class Broker extends AbstractActor {
 
                 .match(CatalogueAdditionRequest.class,
                         msg -> {
-                            clientRefs.put(msg.getLibraryRef(), getSender());
+                            clientRefs.put(msg.getBook().getLibraryName(), getSender());
                             actorRefs.get("catalogue").tell(msg, getSelf());
                         })
 

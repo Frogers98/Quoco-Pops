@@ -5,12 +5,14 @@ import messages.MySerializable;
 public class CatalogueRemovalRequest implements MySerializable {
     private String libraryRef;
     private int bookID;
+    private int userId;
     
     public CatalogueRemovalRequest() {}
 
-    public CatalogueRemovalRequest(int bookID, String libraryRef) {
+    public CatalogueRemovalRequest(int bookID, String libraryRef, int userId) {
         this.bookID = bookID;
         this.libraryRef = libraryRef;
+        this.userId = userId;
     }
 
     public void setBookID(int bookID) {
@@ -27,5 +29,13 @@ public class CatalogueRemovalRequest implements MySerializable {
 
     public String getLibraryRef() {
         return libraryRef;
+    }
+
+    public void setUserId(int userId) {
+        this.userId = userId;
+    }
+
+    public int getUserId() {
+        return userId;
     }
 }
