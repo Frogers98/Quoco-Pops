@@ -48,36 +48,27 @@ public class CatalogueService extends AbstractActor {
                         searchRequest -> {
                             // try with block to instantiate database stuff so it will close itself when finished
                             try (Connection conn = DriverManager.getConnection(dBURL, dbUsername, dbPassword)) {
-                                // Search for the book in every library
-                                //for (String libraryName : libraryNames) {
-                                String libraryName = "tallaght_library";
-                                    String SQL = "SELECT * FROM " + libraryName + " WHERE book_id =?";
-                                    PreparedStatement statement = conn.prepareStatement(SQL, Statement.RETURN_GENERATED_KEYS);
-                                    statement.setInt(1, searchRequest.getBookId());
-                                    ResultSet res = statement.executeQuery();
-                                    // Create a SearchResponse object with the result and send it back to the broker
-                                    while (res.next()) {
-                                        Book bookRetrieved = new Book(res.getInt("book_id"), res.getString("book_title"), res.getString("book_author"), libraryName, res.getInt("total_copies"));
-                                        SearchResponse response = new SearchResponse(
-                                            searchRequest.getLibraryRef(),
+                                // Search for the book in the catalogue table
+                                String libraryName = searchRequest.getLibraryRef();
+                                String SQL = "SELECT * FROM catalogue WHERE book_id =?";
+                                PreparedStatement statement = conn.prepareStatement(SQL, Statement.RETURN_GENERATED_KEYS);
+                                statement.setInt(1, searchRequest.getBookId());
+                                ResultSet res = statement.executeQuery();
+                                // Create a SearchResponse object with the result and send it back to the broker
+                                while (res.next()) {
+                                    Book bookRetrieved = new Book(res.getInt("book_id"), res.getString("book_title"), res.getString("book_author"), libraryName, res.getInt("total_copies"));
+                                    SearchResponse response = new SearchResponse(
+                                            res.getString("library"),
                                             bookRetrieved,
-                                            res.getInt("available_copies")
-
-                                                // res.getInt("book_id"),
-                                                // res.getString("book_title"),
-                                                // res.getString("book_author"),
-                                                // libraryName,
-                                                // res.getInt("available_copies"),
-                                                // res.getInt("total_copies"),
-                                                // searchRequest.getSearchId()
-                                        );
-                                        System.out.println("book found in " + libraryName + ". title: " + res.getString("book_title"));
-                                        getSender().tell(response, getSelf());
-
-                                    }
+                                            res.getInt("available_copies"),
+                                            searchRequest.getUserId()
+                                    );
+                                    System.out.println("book found in " + libraryName + ". title: " + res.getString("book_title"));
+                                    getSender().tell(response, getSelf());
+                                }
                                 //END FOR LOOP}
                             } catch (SQLException e) {
-                                e.printStackTrace();;
+                                e.printStackTrace();
                             }
 
 
@@ -90,14 +81,15 @@ public class CatalogueService extends AbstractActor {
 
                             // try with block to instantiate database stuff so it will close itself when finished
                             try (Connection conn = DriverManager.getConnection(dBURL, dbUsername, dbPassword)) {
-                                String SQL = "INSERT into " + libraryName + " (book_id, book_title, book_author, available_copies, total_copies)" +
-                                        " VALUES (?,?,?,?,?)";
+                                String SQL = "INSERT into catalogue (book_id, book_title, book_author, available_copies, total_copies, library)" +
+                                        " VALUES (?,?,?,?,?,?)";
                                 PreparedStatement statement = conn.prepareStatement(SQL, Statement.RETURN_GENERATED_KEYS);
                                 statement.setInt(1, book.getBookID());
                                 statement.setString(2, book.getBookTitle());
                                 statement.setString(3, book.getBookAuthor());
                                 statement.setInt(4, book.getNumCopies());
                                 statement.setInt(5, book.getNumCopies());
+                                statement.setString(6, libraryName);
 
                                 // Execute the sql query (returns the rows affected by the query
                                 int rowsAffected = statement.executeUpdate();
@@ -107,7 +99,7 @@ public class CatalogueService extends AbstractActor {
                                 if (rowsAffected > 0) {
                                     getSender().tell("bookAdditionSuccess", getSelf());
                                 }
-                            } catch(SQLException e) {
+                            } catch (SQLException e) {
                                 e.printStackTrace();
                             }
                         })
@@ -122,9 +114,10 @@ public class CatalogueService extends AbstractActor {
                             // try with block to instantiate database stuff so it will close itself when finished
                             try (Connection conn = DriverManager.getConnection(dBURL, dbUsername, dbPassword)) {
 
-                                String SQL = "DELETE FROM " + libraryName + " WHERE book_id = ?";
+                                String SQL = "DELETE FROM catalogue WHERE book_id = ? AND library=?";
                                 PreparedStatement statement = conn.prepareStatement(SQL, Statement.RETURN_GENERATED_KEYS);
                                 statement.setInt(1, bookRemoval.getBookID());
+                                statement.setString(2, libraryName);
 
                                 // Execute the sql query (returns the rows affected by the query
                                 int rowsAffected = statement.executeUpdate();
@@ -140,11 +133,11 @@ public class CatalogueService extends AbstractActor {
                         })
                 .match(String.class,
                         msg -> {
-                    if (msg.equals("registerBroker")) {
-                        brokerRef = getSender();
-                        startScheduler();
-                        System.out.println("registered broker in catalogue service");
-                    }
+                            if (msg.equals("registerBroker")) {
+                                brokerRef = getSender();
+                                startScheduler();
+                                System.out.println("registered broker in catalogue service");
+                            }
                         }).build();
     }
 

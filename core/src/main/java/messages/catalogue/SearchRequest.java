@@ -5,14 +5,14 @@ public class SearchRequest implements MySerializable {
     // Class to represent a search request to the Catalogue Service containing a book ID
     private String libraryRef;
     private int bookId;
-    private int searchId;
+    private int userId;
 
     public SearchRequest() {}
 
-    public SearchRequest(String libraryRef, int bookId, int searchId) {
+    public SearchRequest(String libraryRef, int bookId, int userId) {
         this.libraryRef = libraryRef;
         this.bookId = bookId;
-        this.searchId = searchId;
+        this.userId = userId;
     }
 
     public void setBookId(int bookId) {
@@ -23,12 +23,12 @@ public class SearchRequest implements MySerializable {
         return bookId;
     }
 
-    public void setSearchId(int searchId) {
-        this.searchId = searchId;
+    public void setUserId(int userId) {
+        this.userId = userId;
     }
 
-    public int getSearchId() {
-        return searchId;
+    public int getUserId() {
+        return userId;
     }
 
     public void setLibraryRef(String libraryRef) {
