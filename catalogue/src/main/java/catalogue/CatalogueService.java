@@ -1,12 +1,41 @@
 package catalogue;
 
-import akka.actor.*;
-import core.Book;
-import messages.catalogue.*;
-
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.time.Duration;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.stream.Collectors;
+
+import org.json.JSONArray;
+import org.json.JSONObject;
+
+import akka.actor.AbstractActor;
+import akka.actor.ActorRef;
+import akka.actor.ActorSelection;
+import akka.actor.ActorSystem;
+import akka.actor.Cancellable;
+import akka.actor.Props;
+import core.Book;
+import messages.catalogue.AvailableLocallyResponse;
+import messages.catalogue.AvailableRemotelyResponse;
+import messages.catalogue.CatalogueAdditionRequest;
+import messages.catalogue.CatalogueAdditionResponse;
+import messages.catalogue.CatalogueRemovalRequest;
+import messages.catalogue.CatalogueRemovalResponse;
+import messages.catalogue.CheckAvailabilityRequest;
+import messages.catalogue.DecrementAvailabilityRequest;
+import messages.catalogue.IncrementAvailabilityRequest;
+import messages.catalogue.SearchRequest;
+import messages.catalogue.SearchResponse;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
 
 public class CatalogueService extends AbstractActor {
     static ActorSystem catalogueSystem;
@@ -16,15 +45,16 @@ public class CatalogueService extends AbstractActor {
     private static ActorRef catalogueActorRef;
     private static ActorRef brokerRef;
 
-
     public static void main(String[] args) {
-        // Set up actor system, this method should be called initially before anything else in the class
+        // Set up actor system, this method should be called initially before anything
+        // else in the class
         catalogueSystem = ActorSystem.create();
         // Create an actor for this ActorSystem for this class
         catalogueActorRef = catalogueSystem.actorOf(Props.create(CatalogueService.class), "catalogue");
 
         // Register this with the broker
-        ActorSelection brokerSelection = catalogueSystem.actorSelection("akka.tcp://default@127.0.0.1:2551/user/broker");
+        ActorSelection brokerSelection = catalogueSystem
+                .actorSelection("akka.tcp://default@127.0.0.1:2551/user/broker");
         brokerSelection.tell("registerCatalogue", catalogueActorRef);
     }
 
@@ -32,17 +62,22 @@ public class CatalogueService extends AbstractActor {
     public Receive createReceive() {
         return receiveBuilder()
                 .match(SearchRequest.class,
-                        // Do a lookup in the database for the book by the book id and send a SearchResponse message
+                        // Do a lookup in the database for the book by the book id and send a
+                        // SearchResponse message
                         // back to the broker
-                        // This should loop through all the library names in the system (currently represented in an
+                        // This should loop through all the library names in the system (currently
+                        // represented in an
                         // ArrayList) and return a SearchResponse object for each library to the sender
-                        // No current support for a search for one specific library, this needs to be added either here somehow
+                        // No current support for a search for one specific library, this needs to be
+                        // added either here somehow
                         // or possibly with a different class for searching a specific library
 
-                        //N.B. Current error with looping through libraries because of lack of error handling and using the ArrayList
+                        // N.B. Current error with looping through libraries because of lack of error
+                        // handling and using the ArrayList
                         // Hardcoded tallaght library as the only library to search for now and working
                         searchRequest -> {
-                            // try with block to instantiate database stuff so it will close itself when finished
+                            // try with block to instantiate database stuff so it will close itself when
+                            // finished
                             try (Connection conn = DriverManager.getConnection(dBURL, dbUsername, dbPassword)) {
                                 // Search for the book in the catalogue table
                                 String libraryName = searchRequest.getLibraryRef();
@@ -67,7 +102,6 @@ public class CatalogueService extends AbstractActor {
                                 e.printStackTrace();
                             }
 
-
                         })
                 .match(CatalogueAdditionRequest.class,
                         bookAddition -> {
@@ -75,7 +109,8 @@ public class CatalogueService extends AbstractActor {
                             Book book = bookAddition.getBook();
                             String libraryName = book.getLibraryName();
 
-                            // try with block to instantiate database stuff so it will close itself when finished
+                            // try with block to instantiate database stuff so it will close itself when
+                            // finished
                             try (Connection conn = DriverManager.getConnection(dBURL, dbUsername, dbPassword)) {
                                 String SQL = "INSERT into catalogue (book_id, book_title, book_author, available_copies, total_copies, library)" +
                                         " VALUES (?,?,?,?,?,?)";
@@ -89,8 +124,10 @@ public class CatalogueService extends AbstractActor {
 
                                 // Execute the sql query (returns the rows affected by the query
                                 int rowsAffected = statement.executeUpdate();
-                                // if at least one row was affected send a string back to the sender to indicate success
-                                // this is only a temporary fix for the unit test as it waits for a string after sending a
+                                // if at least one row was affected send a string back to the sender to indicate
+                                // success
+                                // this is only a temporary fix for the unit test as it waits for a string after
+                                // sending a
                                 // test bookAddition to this service
                                 if (rowsAffected > 0) {
                                     CatalogueAdditionResponse response = new CatalogueAdditionResponse(bookAddition.getUserId(), true);
@@ -111,7 +148,8 @@ public class CatalogueService extends AbstractActor {
                             System.out.println("IN CATALOGUE REMOVAL");
                             String libraryName = bookRemoval.getLibraryRef();
 
-                            // try with block to instantiate database stuff so it will close itself when finished
+                            // try with block to instantiate database stuff so it will close itself when
+                            // finished
                             try (Connection conn = DriverManager.getConnection(dBURL, dbUsername, dbPassword)) {
 
                                 String SQL = "DELETE FROM catalogue WHERE book_id = ? AND library=?";
@@ -130,9 +168,98 @@ public class CatalogueService extends AbstractActor {
                                     CatalogueRemovalResponse response = new CatalogueRemovalResponse(bookRemoval.getBookID(), false);
                                 }
                             }
-
-
                         })
+
+                .match(CheckAvailabilityRequest.class,
+                        Request -> {
+                            HashMap<String, Integer> inStock = new HashMap<>();
+                            HashMap<String, String> libraryLocations = new HashMap<>();
+                            String currentLibrary = Request.getLibraryRef();
+
+                            try (Connection conn = DriverManager.getConnection(dBURL, dbUsername, dbPassword)) {
+                                String SQL = "SELECT library_ref, available_copies FROM catalogue WHERE book_id = ?";
+                                PreparedStatement statement = conn.prepareStatement(SQL,
+                                        Statement.RETURN_GENERATED_KEYS);
+                                statement.setInt(1, Request.getBookId());
+                                ResultSet res = statement.executeQuery();
+
+                                while (res.next()) {
+                                    String library = res.getString("library_ref");
+                                    int availableCopies = res.getInt("available_copies");
+
+                                    if (availableCopies > 0) {
+                                        inStock.put(library, availableCopies);
+                                    }
+                                }
+
+                                if (inStock.containsKey(Request.getLibraryRef())) {
+                                    getSender().tell(new AvailableLocallyResponse(Request.getLibraryRef(),
+                                            Request.getBookId(), inStock.get(Request.getLibraryRef())), getSelf());
+                                } else {
+                                    // Add current library
+                                    inStock.put(Request.getLibraryRef(), 0);
+
+                                    String SQL2 = "SELECT place_id, library_ref, library_name FROM libraries WHERE library_ref IN ("
+                                            + String.join(", ", Collections.nCopies(inStock.keySet().size(), "?"))
+                                            + ")";
+
+                                    PreparedStatement statement2 = conn.prepareStatement(SQL2,
+                                            Statement.RETURN_GENERATED_KEYS);
+
+                                    int index = 1;
+                                    for (String library : inStock.keySet()) {
+                                        statement2.setString(index++, library);
+                                    }
+
+                                    ResultSet res2 = statement2.executeQuery();
+
+                                    while (res2.next()) {
+                                        String libraryRef = res2.getString("library_ref");
+                                        String libraryName = res2.getString("library_name");
+                                        String libraryLocation = res2.getString("place_id");
+
+                                        if (libraryRef.equals(currentLibrary)) {
+                                            currentLibrary = libraryName;
+                                        }
+                                        libraryLocations.put(libraryName, libraryLocation);
+                                    }
+
+                                    String currentLibraryLocation = libraryLocations.get(currentLibrary);
+                                    libraryLocations.remove(currentLibrary);
+
+                                    String locationString = String.join("%7Cplace_id:", libraryLocations.values());
+
+                                    OkHttpClient client = new OkHttpClient().newBuilder().build();
+                                    Request request = new Request.Builder()
+                                            .url("https://maps.googleapis.com/maps/api/distancematrix/json?origins=place_id:"
+                                                    + currentLibraryLocation + "&destinations=place_id:"
+                                                    + locationString
+                                                    + "&units=metric&key=AIzaSyCRymHLwxDVVK0e48AbTd1mJ8Yf1Hc2eVQ")
+                                            .method("GET", null)
+                                            .build();
+
+                                    Response response = client.newCall(request).execute();
+                                    String responseBody = response.body().string();
+
+                                    ArrayList<String> libraryNames = new ArrayList<>(libraryLocations.keySet());
+                                    HashMap<String, Integer> distances = new HashMap<>();
+
+                                    JSONArray libraryElements = new JSONObject(responseBody).getJSONArray("rows")
+                                            .getJSONObject(0)
+                                            .getJSONArray("elements");
+
+                                    for (int i = 0; i < libraryElements.length(); i++) {
+                                        int distance = libraryElements.getJSONObject(i).getJSONObject("distance")
+                                                .getInt("value");
+                                        distances.put(libraryNames.get(i), distance);
+                                    }
+
+                                    getSender().tell(new AvailableRemotelyResponse(Request.getLibraryRef(),
+                                            Request.getBookId(), distances), getSelf());
+                                }
+                            }
+                        })
+
                 .match(String.class,
                         msg -> {
                             if (msg.equals("registerBroker")) {
@@ -140,23 +267,58 @@ public class CatalogueService extends AbstractActor {
                                 startScheduler();
                                 System.out.println("registered broker in catalogue service");
                             }
-                        }).build();
-    }
+                        })
 
+                .match(IncrementAvailabilityRequest.class,
+                        msg -> {
+                            try (Connection conn = DriverManager.getConnection(dBURL, dbUsername, dbPassword)) {
+                                String SQL = "UPDATE catalogue SET available_copies=available_copies + 1 WHERE library_ref=\"" + msg.getLibraryRef() + "\" AND book_id="
+                                        + msg.getBookId();
+                                PreparedStatement statement = conn.prepareStatement(SQL,
+                                        Statement.RETURN_GENERATED_KEYS);
+
+                                int rowsAffected = statement.executeUpdate();
+
+                                if (rowsAffected > 0) {
+                                    getSender().tell(rowsAffected, getSelf());
+                                }
+                            }
+                        })
+
+                .match(DecrementAvailabilityRequest.class,
+                        msg -> {
+                            try (Connection conn = DriverManager.getConnection(dBURL, dbUsername, dbPassword)) {
+                                String SQL = "UPDATE catalogue SET available_copies = available_copies - 1 WHERE library_ref=\"" + msg.getLibraryRef() + "\" AND book_id="
+                                        + msg.getBookId();
+                                PreparedStatement statement = conn.prepareStatement(SQL,
+                                        Statement.RETURN_GENERATED_KEYS);
+
+                                int rowsAffected = statement.executeUpdate();
+
+                                if (rowsAffected > 0) {
+                                    getSender().tell(rowsAffected, getSelf());
+                                }
+                            }
+
+                        })
+
+                .build();
+    }
 
     public static void startScheduler() {
         // This method starts a scheduler that will be started one the broker starts up
-        // it should send a string to the broker every 3 seconds after an initial 5 second wait.
-        Cancellable cancellable =
-                catalogueSystem
-                        .scheduler()
-                        .schedule(
-                                Duration.ofMillis(5000), Duration.ofMillis(3000), brokerRef, "testScheduler", catalogueSystem.dispatcher(), null);
+        // it should send a string to the broker every 3 seconds after an initial 5
+        // second wait.
+        Cancellable cancellable = catalogueSystem
+                .scheduler()
+                .schedule(
+                        Duration.ofMillis(5000), Duration.ofMillis(3000), brokerRef, "testScheduler",
+                        catalogueSystem.dispatcher(), null);
     }
 
     // This cancels further Ticks to be sent
-//    cancellable.cancel();
+    // cancellable.cancel();
     // #schedule-recurring
-//    system.stop(tickActor);
+    // system.stop(tickActor);
 
 }

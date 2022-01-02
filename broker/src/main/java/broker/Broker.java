@@ -5,12 +5,17 @@ import java.util.HashMap;
 import akka.actor.AbstractActor;
 import akka.actor.ActorRef;
 import messages.Init;
+import messages.borrow.AddBorrowingPrivileges;
+import messages.borrow.CalculateFinesRequest;
+import messages.borrow.CalculateFinesResponse;
+import messages.borrow.LoanRequest;
+import messages.borrow.RemoveBorrowingPrivileges;
+import messages.borrow.RetrieveLoan;
 import messages.catalogue.CatalogueAdditionRequest;
 import messages.catalogue.CatalogueRemovalRequest;
+import messages.catalogue.DecrementAvailabilityRequest;
 import messages.catalogue.SearchRequest;
 import messages.catalogue.SearchResponse;
-import messages.registry.CalculateFinesRequest;
-import messages.registry.CalculateFinesResponse;
 import messages.registry.DeleteMemberRequest;
 import messages.registry.RegisterMemberRequest;
 import messages.registry.RetrieveMemberDetailsRequest;
@@ -19,8 +24,10 @@ import messages.registry.UpdatePasswordRequest;
 
 public class Broker extends AbstractActor {
 
-    private static HashMap<String, ActorRef> actorRefs = new HashMap<>(); // This will store the ActorRefs for all
-                                                                          // services
+    // Store ActorRefs for all services i.e. catalogue, borrow and registry
+    private static HashMap<String, ActorRef> actorRefs = new HashMap<>();
+
+    // Store ActorRefs for all clients i.e. libraries in the system
     private static ActorRef brokerRef;
 
     private static HashMap<String, ActorRef> clientRefs = new HashMap<>();
@@ -39,6 +46,7 @@ public class Broker extends AbstractActor {
                             clientRefs.put(msg.getLibraryRef(), getSender());
                             actorRefs.get("registry").tell(msg, getSelf());
                         })
+
                 .match(CalculateFinesResponse.class,
                         msg -> {
                             clientRefs.get(msg.getLibraryRef()).tell(msg, getSelf());
@@ -49,6 +57,7 @@ public class Broker extends AbstractActor {
                             clientRefs.put(msg.getLibraryRef(), getSender());
                             actorRefs.get("registry").tell(msg, getSelf());
                         })
+
                 .match(RetrieveMemberDetailsResponse.class,
                         msg -> {
                             clientRefs.get(msg.getLibraryRef()).tell(msg, getSelf());
@@ -58,12 +67,15 @@ public class Broker extends AbstractActor {
                         msg -> {
                             clientRefs.put(msg.getLibraryRef(), getSender());
                             actorRefs.get("registry").tell(msg, getSelf());
+                            actorRefs.get("loan").tell(new AddBorrowingPrivileges(msg.getMember().getId()),
+                                    getSelf());
                         })
 
                 .match(DeleteMemberRequest.class,
                         msg -> {
                             clientRefs.put(msg.getLibraryRef(), getSender());
                             actorRefs.get("registry").tell(msg, getSelf());
+                            actorRefs.get("loan").tell(new RemoveBorrowingPrivileges(msg.getId()), getSelf());
                         })
 
                 .match(UpdatePasswordRequest.class,
@@ -95,6 +107,19 @@ public class Broker extends AbstractActor {
                             clientRefs.get(msg.getLibraryRef()).tell(msg, getSelf());
                         })
 
+                .match(LoanRequest.class,
+                        msg -> {
+                            clientRefs.put(msg.getLibraryRef(), getSender());
+                            actorRefs.get("loan").tell(msg, getSelf());
+                            actorRefs.get("catalogue").tell(
+                                    new DecrementAvailabilityRequest(msg.getLibraryRef(), msg.getBookID()), getSelf());
+                        })
+
+                .match(RetrieveLoan.class,
+                        msg -> {
+                            clientRefs.put(msg.getLibraryRef(), getSender());
+                            actorRefs.get("loan").tell(msg, getSelf());
+                        })
                 .match(String.class,
                         msg -> {
                             // This can take in register_____ messages from each of the services and store
@@ -112,9 +137,9 @@ public class Broker extends AbstractActor {
                                 System.out.println(getSender().toString());
                                 actorRefs.put("registry", getSender());
                             }
-                            if (msg.equals("registerBorrowing")) {
+                            if (msg.equals("registerLoan")) {
                                 System.out.println(getSender().toString());
-                                actorRefs.put("borrowing", getSender());
+                                actorRefs.put("loan", getSender());
                             }
                         })
                 .build();

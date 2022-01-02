@@ -1,4 +1,4 @@
-package messages.registry;
+package messages.borrow;
 
 import messages.MySerializable;
 

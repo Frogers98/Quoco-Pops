@@ -1,4 +1,4 @@
-package messages.registry;
+package messages.borrow;
 
 public class CalculateFinesResponse {
     private String libraryRef;
