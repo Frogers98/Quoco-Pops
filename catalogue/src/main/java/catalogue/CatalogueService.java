@@ -76,8 +76,8 @@ public class CatalogueService extends AbstractActor {
                 .match(CatalogueAdditionRequest.class,
                         bookAddition -> {
                             // Get the library this book is being added to so we add it to the right table
-                            String libraryName = bookAddition.getLibraryRef();
                             Book book = bookAddition.getBook();
+                            String libraryName = book.getLibraryName();
 
                             // try with block to instantiate database stuff so it will close itself when finished
                             try (Connection conn = DriverManager.getConnection(dBURL, dbUsername, dbPassword)) {

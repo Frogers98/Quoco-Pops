@@ -30,7 +30,7 @@ public class Client extends AbstractActor {
                                 brokerRef = getSender();
                                 System.out.println("registered broker in client");
                                 // Now that we have the broker ActorRef we can call our test method to try and send a message to it
-                                testClientMessage();
+//                                testClientMessage();
                             }
                         }).build();
     }
@@ -42,8 +42,9 @@ public class Client extends AbstractActor {
                 "John Doe",
                 "tallaght_library",
                 5);
-                CatalogueAdditionRequest bookAddition = new CatalogueAdditionRequest("tallaght_library", book);
+                CatalogueAdditionRequest bookAddition = new CatalogueAdditionRequest(book);
         brokerRef.tell(bookAddition, getSelf());
+
     }
 
 }

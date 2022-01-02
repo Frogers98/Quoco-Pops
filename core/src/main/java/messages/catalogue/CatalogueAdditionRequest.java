@@ -9,8 +9,7 @@ public class CatalogueAdditionRequest implements MySerializable {
 
     public CatalogueAdditionRequest() {}
 
-    public CatalogueAdditionRequest(String libraryRef, Book book) {
-        this.libraryRef = libraryRef;
+    public CatalogueAdditionRequest(Book book) {
         this.book = book;
     }
 
