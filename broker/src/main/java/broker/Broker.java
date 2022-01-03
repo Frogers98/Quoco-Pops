@@ -4,6 +4,8 @@ import java.util.HashMap;
 
 import akka.actor.AbstractActor;
 import akka.actor.ActorRef;
+import akka.actor.ActorSystem;
+import akka.actor.Props;
 import messages.Init;
 import messages.borrow.AddBorrowingPrivileges;
 import messages.borrow.CalculateFinesRequest;
@@ -31,6 +33,16 @@ public class Broker extends AbstractActor {
     private static ActorRef brokerRef;
 
     private static HashMap<String, ActorRef> clientRefs = new HashMap<>();
+
+    private static ActorSystem brokerSystem;
+
+    public static void main(String[] args) {
+        brokerSystem = ActorSystem.create();
+        ActorRef brokerRef = brokerSystem.actorOf(Props.create(Broker.class), "broker");
+        actorRefs.put("broker", brokerRef);
+        System.out.println("Broker started");
+    }
+
 
     @Override
     public Receive createReceive() {
