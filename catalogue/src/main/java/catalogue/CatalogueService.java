@@ -120,7 +120,7 @@ public class CatalogueService extends AbstractActor {
                                 while (res.next()) {
                                     Book bookRetrieved = new Book(res.getInt("book_id"), res.getString("book_title"), res.getString("book_author"), "n/a", 0);
 
-                                    SearchResponse response = new SearchResponse(bookRetrieved, searchRequest.getUserId());
+                                    SearchResponse response = new SearchResponse(searchRequest.getLibraryRef(), bookRetrieved, searchRequest.getUserId());
                                     getSender().tell(response, getSelf());
                                 }
                             } catch (SQLException e) {

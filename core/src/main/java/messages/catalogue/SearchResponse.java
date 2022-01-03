@@ -6,12 +6,14 @@ import core.Book;
 public class SearchResponse implements MySerializable {
     private Book book;
     private int userId;
+    private String libraryRef;
 
     public SearchResponse() {}
 
-    public SearchResponse(Book book, int userId) {
+    public SearchResponse(String libraryRef, Book book, int userId) {
         this.book = book;
         this.userId = userId;
+        this.libraryRef = libraryRef;
     }
 
     public Book getBook() {
@@ -28,5 +30,13 @@ public class SearchResponse implements MySerializable {
 
     public void setUserId(int userId) {
         this.userId = userId;
+    }
+
+    public String getLibraryRef() {
+        return this.libraryRef;
+    }
+
+    public void setLibraryRef(String libraryRef) {
+        this.libraryRef = libraryRef;
     }
 }

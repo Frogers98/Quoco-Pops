@@ -38,25 +38,25 @@ public class CatalogueUnitTest {
         catalogueSystem = null;
     }
 
-//    @Test
-//    public void testBookAddition() {
-//        // Very basic test that sends a bookAddition message to the catalogue service and waits for a string response.
-//        // I've temporarily made the catalogue service send a string message back to the sender if the db write is succesful
-//        // but this should be made more robust
-//        TestKit bookAdditionActor = new TestKit(catalogueSystem);
-//        Book book = new Book(3,
-//                "Python for Dummies",
-//                "John Smith",
-//                "tall_lib",
-//                10);
-//
-//        CatalogueAdditionRequest bookAddition = new CatalogueAdditionRequest(book, 5);
-//        catalogueService.tell(bookAddition, bookAdditionActor.getRef());
-//
-//        bookAdditionActor.awaitCond(bookAdditionActor::msgAvailable);
-//        bookAdditionActor.expectMsgClass(Duration.ofSeconds(60), CatalogueAdditionResponse.class);
-//        return;
-//    }
+    @Test
+    public void testBookAddition() {
+        // Very basic test that sends a bookAddition message to the catalogue service and waits for a string response.
+        // I've temporarily made the catalogue service send a string message back to the sender if the db write is succesful
+        // but this should be made more robust
+        TestKit bookAdditionActor = new TestKit(catalogueSystem);
+        Book book = new Book(3,
+                "Python for Dummies",
+                "John Smith",
+                "tall_lib",
+                10);
+
+        CatalogueAdditionRequest bookAddition = new CatalogueAdditionRequest(book, 5);
+        catalogueService.tell(bookAddition, bookAdditionActor.getRef());
+
+        bookAdditionActor.awaitCond(bookAdditionActor::msgAvailable);
+        bookAdditionActor.expectMsgClass(Duration.ofSeconds(60), CatalogueAdditionResponse.class);
+        return;
+    }
 
 
 
@@ -76,7 +76,7 @@ public class CatalogueUnitTest {
      @Test
      public void testBookSearch() {
      TestKit bookSearchActor = new TestKit(catalogueSystem);
-     SearchRequest bookSearch = new SearchRequest(1, 123);
+     SearchRequest bookSearch = new SearchRequest("dl_lib", 1, 123);
      catalogueService.tell(bookSearch, bookSearchActor.getRef());
 
      bookSearchActor.awaitCond(bookSearchActor::msgAvailable);
