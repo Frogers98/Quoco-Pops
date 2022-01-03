@@ -22,7 +22,7 @@ public class Client extends AbstractActor {
         ActorSelection brokerSelection = clientSystem.actorSelection("akka.tcp://default@127.0.0.1:2551/user/broker");
         brokerSelection.tell("registerClient", clientRef);
         System.out.println("Client started");
-        clientRef.tell("startSystem", null);
+
 
 
     }
@@ -35,6 +35,7 @@ public class Client extends AbstractActor {
                             if (msg.equals("registerBroker")) {
                                 brokerRef = getSender();
                                 System.out.println("registered broker in client");
+                                clientRef.tell("startSystem", null);
                                 // Now that we have the broker ActorRef we can call our test method to try and send a message to it
 //                                testClientMessage();
                             }
