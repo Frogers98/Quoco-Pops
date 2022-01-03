@@ -88,7 +88,7 @@ public class CatalogueUnitTest {
      @Test
      public void testAvailableLocally() {
          TestKit availableLocallyActor = new TestKit(catalogueSystem);
-         CheckAvailabilityRequest req = new CheckAvailabilityRequest("dl_lib", 1);
+         CheckAvailabilityRequest req = new CheckAvailabilityRequest("dl_lib", 1, 22);
 
          catalogueService.tell(req, availableLocallyActor.getRef());
 
@@ -100,7 +100,7 @@ public class CatalogueUnitTest {
 //     @Test
 //     public void testAvailableRemotely() {
 //         TestKit availableRemotelyActor = new TestKit(catalogueSystem);
-//         CheckAvailabilityRequest req = new CheckAvailabilityRequest("phib_lib", 1);
+//         CheckAvailabilityRequest req = new CheckAvailabilityRequest("phib_lib", 1, 54);
 //
 //         catalogueService.tell(req, availableRemotelyActor.getRef());
 //

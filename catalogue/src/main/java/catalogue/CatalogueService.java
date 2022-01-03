@@ -221,7 +221,7 @@ public class CatalogueService extends AbstractActor {
 
                                 if (inStock.containsKey(Request.getLibraryRef())) {
                                     getSender().tell(new AvailableLocallyResponse(Request.getLibraryRef(),
-                                            Request.getBookId(), inStock.get(Request.getLibraryRef())), getSelf());
+                                            Request.getBookId(), inStock.get(Request.getLibraryRef()), Request.getUserId()), getSelf());
                                 } else {
                                     // Add current library
                                     inStock.put(Request.getLibraryRef(), 0);
