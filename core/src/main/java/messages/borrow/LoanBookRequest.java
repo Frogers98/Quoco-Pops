@@ -12,7 +12,7 @@ public class LoanBookRequest implements MySerializable {
     private int finesOwed;
 
 
-    public LoanBookRequest(String libraryRef, int loanID, int userID, int bookID, String loanDate, String returnDate, int finesOwed) {
+    public LoanBookRequest( int loanID, int userID, int bookID, String loanDate, String returnDate, int finesOwed,String libraryRef) {
         this.libraryRef = libraryRef;
         this.loanID = loanID;
         this.userID = userID;
