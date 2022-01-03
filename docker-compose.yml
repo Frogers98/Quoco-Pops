@@ -1,26 +1,11 @@
 version: '3'
 
 services:
-  mysql:
-    image: mysql:5.7
-    # volumes:
-    #   - todo-mysql-data:/var/lib/mysql
-    environment: 
-      MYSQL_ROOT_PASSWORD: secret
-      MYSQL_DATABASE: test
 
   borrow:
-    container_name: borrow
-    build: ./borrow
+    build: borrow
     # image: loanmysql:latest
     network_mode: host
-    depends_on:
-      - mysql
-    environment:
-      MYSQL_HOST: mysql
-      MYSQL_USER: root
-      MYSQL_PASSWORD: secret
-      MYSQL_DB: test
     # broker:
     #     build: broker
     #     # Use host network because of problems with akka host names in Docker

@@ -10,9 +10,9 @@ import org.joda.time.DateTime;
 
 public class LoanService extends AbstractActor {
     static ActorSystem loanSystem;
-    private final static String dBURL = "jdbc:mysql://localhost:3306/test";
-    private final static String dbUsername = "root";
-    private final static String dbPassword = "secret";
+    private final static String dBURL = "jdbc:mysql://test.c2qef7oxk1tu.eu-west-1.rds.amazonaws.com:3306/loans";
+    private final static String dbUsername = "admin";
+    private final static String dbPassword = "Passw0rd1";
     private static ArrayList<String> libraryNames = new ArrayList<>();
 
     public static void main(String[] args){
@@ -27,6 +27,7 @@ public class LoanService extends AbstractActor {
         // selection.tell("registerLoan", ref);
         //TEMPORARY - add tallaght library to libraryNames, library names should really be stored in a database or somewhere else
         libraryNames.add("tallaght_library");
+
         System.out.println("HELLO I WORK");
 
         try (Connection conn = DriverManager.getConnection(dBURL, dbUsername, dbPassword)) {
