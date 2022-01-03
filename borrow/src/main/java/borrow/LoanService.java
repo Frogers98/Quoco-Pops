@@ -10,25 +10,39 @@ import org.joda.time.DateTime;
 
 public class LoanService extends AbstractActor {
     static ActorSystem loanSystem;
-    private final static String dBURL = "jdbc:mysql://localhost:3306/ds_project";
-    private final static String dbUsername = "borrow";
-    private final static String dbPassword = "Passw0rd1";
+    private final static String dBURL = "jdbc:mysql://localhost:3306/test";
+    private final static String dbUsername = "root";
+    private final static String dbPassword = "secret";
     private static ArrayList<String> libraryNames = new ArrayList<>();
 
-
-    public static void main(String[] args) {
+    public static void main(String[] args){
         // Set up actor system, this method should be called initially before anything else in the class
-        loanSystem = ActorSystem.create();
-        // Create an actor for this ActorSystem for this class
-        ActorRef ref = loanSystem.actorOf(Props.create(LoanService.class), "loan");
+        // loanSystem = ActorSystem.create();
+        // // Create an actor for this ActorSystem for this class
+        // ActorRef ref = loanSystem.actorOf(Props.create(LoanService.class), "loan");
 
         // Register this with the broker
-        ActorSelection selection =
-        loanSystem.actorSelection("akka.tcp://default@127.0.0.1:2551/user/broker");
-        selection.tell("registerLoan", ref);
+        // ActorSelection selection =
+        // loanSystem.actorSelection("akka.tcp://default@127.0.0.1:2551/user/broker");
+        // selection.tell("registerLoan", ref);
         //TEMPORARY - add tallaght library to libraryNames, library names should really be stored in a database or somewhere else
         libraryNames.add("tallaght_library");
+        System.out.println("HELLO I WORK");
 
+        try (Connection conn = DriverManager.getConnection(dBURL, dbUsername, dbPassword)) {
+
+            if (conn != null) {
+                System.out.println("Connected to the database!");
+            } else {
+                System.out.println("Failed to make connection!");
+            }
+
+        } catch (SQLException e) {
+            System.err.format("SQL State: %s\n%s", e.getSQLState(), e.getMessage());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        
     }
 
     @Override

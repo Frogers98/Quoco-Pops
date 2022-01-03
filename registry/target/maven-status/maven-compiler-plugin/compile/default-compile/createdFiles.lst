@@ -1,4 +1,4 @@
 Main.class
-actor\RegistryActor.class
-messages\Init.class
-registry\RegistryService.class
+messages/Init.class
+actor/RegistryActor.class
+registry/RegistryService.class
