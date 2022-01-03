@@ -42,6 +42,7 @@ public class Client extends AbstractActor {
                             else if (msg.equals("startSystem")) {
                                 //Test message to add a book to the catalogue service
                                 System.out.println("Beginning to send messages");
+                                System.out.println("broker: " + brokerRef.toString());
                                 Book book = new Book(2,
                                         "php for dummies",
                                         "john doe",
