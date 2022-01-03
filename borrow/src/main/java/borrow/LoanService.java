@@ -37,7 +37,7 @@ public class LoanService extends AbstractActor {
     @Override
     public Receive createReceive() {
         return receiveBuilder()
-                .match(LoanRequest.class,
+                .match(LoanBookRequest.class,
                         LoanAddition -> {
                             try (Connection conn = DriverManager.getConnection(dBURL, dbUsername, dbPassword)) {
                                 String table = "tallaght_library_loans";
@@ -133,23 +133,40 @@ public class LoanService extends AbstractActor {
                                     if (loanLength <= 14) {
                                         totalFine += (loanLength - 7) * rate1;
                                     }
-                    
+
                                     if ((loanLength > 14) && (loanLength <= 21)) {
                                         totalFine += (7 * rate1) + (loanLength - 14) * rate2;
                                     }
-                    
+
                                     if ((loanLength > 21)) {
                                         totalFine += (7 * rate1) + (7 * rate2) + (loanLength - 21) * rate3;
                                     }
                                 }
-                    
+
                                 if (totalFine > 1000) {
-                                    getSender().tell(new CalculateFinesResponse(Request.getLibraryRef(), Request.getId(), 1000), getSelf());
+                                    getSender().tell(
+                                            new CalculateFinesResponse(Request.getLibraryRef(), Request.getId(), 1000),
+                                            getSelf());
                                 } else {
-                                    getSender().tell(new CalculateFinesResponse(Request.getLibraryRef(), Request.getId(), totalFine), getSelf());
+                                    getSender().tell(new CalculateFinesResponse(Request.getLibraryRef(),
+                                            Request.getId(), totalFine), getSelf());
                                 }
                             }
+                        })
+                .match(ReturnBookRequest.class,
+                        msg -> {
+                            try (Connection conn = DriverManager.getConnection(dBURL, dbUsername, dbPassword)) {
+                                String SQL = "DELETE FROM loans WHERE library_ref=\"" + msg.getLibraryRef()
+                                        + "\" AND member_id=" + msg.getMemberId();
+                                PreparedStatement statement = conn.prepareStatement(SQL,
+                                        Statement.RETURN_GENERATED_KEYS);
 
+                                int rowsAffected = statement.executeUpdate();
+
+                                if (rowsAffected > 0) {
+                                    getSender().tell(rowsAffected, getSelf());
+                                }
+                            }
                         })
                 .build();
     }

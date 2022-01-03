@@ -8,7 +8,7 @@ import messages.Init;
 import messages.borrow.AddBorrowingPrivileges;
 import messages.borrow.CalculateFinesRequest;
 import messages.borrow.CalculateFinesResponse;
-import messages.borrow.LoanRequest;
+import messages.borrow.LoanBookRequest;
 import messages.borrow.RemoveBorrowingPrivileges;
 import messages.borrow.RetrieveLoan;
 import messages.catalogue.CatalogueAdditionRequest;
@@ -107,7 +107,7 @@ public class Broker extends AbstractActor {
                             clientRefs.get(msg.getLibraryRef()).tell(msg, getSelf());
                         })
 
-                .match(LoanRequest.class,
+                .match(LoanBookRequest.class,
                         msg -> {
                             clientRefs.put(msg.getLibraryRef(), getSender());
                             actorRefs.get("loan").tell(msg, getSelf());
@@ -120,6 +120,7 @@ public class Broker extends AbstractActor {
                             clientRefs.put(msg.getLibraryRef(), getSender());
                             actorRefs.get("loan").tell(msg, getSelf());
                         })
+
                 .match(String.class,
                         msg -> {
                             // This can take in register_____ messages from each of the services and store

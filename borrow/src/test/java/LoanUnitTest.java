@@ -6,7 +6,7 @@ import akka.actor.ActorSystem;
 import akka.actor.Props;
 import akka.testkit.javadsl.TestKit;
 import borrow.LoanService;
-import messages.borrow.LoanRequest;
+import messages.borrow.LoanBookRequest;
 import messages.borrow.*;
 import org.junit.*;
 

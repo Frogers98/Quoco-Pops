@@ -23,6 +23,17 @@ public class Member {
         return tallaghtLib;
     }
 
+    // Constructor that does not include id -> id is assigned through auto-incrementation in database
+    public Member(String name, char gender, int yearOfBirth, String password, String homeLibrary, String phoneNumber, String email) {
+        this.name = name;
+        this.gender = gender;
+        this.yearOfBirth = yearOfBirth;
+        this.password = password;
+        this.homeLibrary = homeLibrary;
+        this.phoneNumber = phoneNumber;
+        this.email = email;
+    }
+
     public Member(String name, char gender, int yearOfBirth, String password, int id, String homeLibrary, String phoneNumber, String email) {
         this.name = name;
         this.gender = gender;
@@ -34,8 +45,7 @@ public class Member {
         this.email = email;
     }
 
-    public Member() {
-    }
+    public Member() {}
 
     private String name;
     private char gender;
