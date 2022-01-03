@@ -67,7 +67,7 @@ public class Client extends AbstractActor {
 //        CheckAvailabilityRequest availabilityRequest2 = new CheckAvailabilityRequest("dl_lib", 3, 4);
 //        brokerRef.tell(availabilityRequest2, getSelf());
 
-
+                                System.out.println("Finished sending messages");
                             }
                         })
                 .match(SearchResponse.class,
