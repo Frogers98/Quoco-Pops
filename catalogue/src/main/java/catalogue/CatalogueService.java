@@ -34,7 +34,6 @@ import messages.catalogue.CatalogueRemovalResponse;
 import messages.catalogue.CheckAvailabilityRequest;
 import messages.catalogue.DecrementAvailabilityRequest;
 import messages.catalogue.IncrementAvailabilityRequest;
-import messages.catalogue.Library;
 import messages.catalogue.SearchRequest;
 import messages.catalogue.SearchResponse;
 import okhttp3.OkHttpClient;
@@ -80,7 +79,7 @@ public class CatalogueService extends AbstractActor {
         } catch (SQLException e) {
             e.printStackTrace();
         } 
-        
+
         // CREATE LIBRARY TABLE
         try(Connection conn = DriverManager.getConnection(dBURL, dbUsername, dbPassword);
         Statement stmt = conn.createStatement();
@@ -97,35 +96,6 @@ public class CatalogueService extends AbstractActor {
         } catch (SQLException e) {
             e.printStackTrace();
         } 
-        // insert sample
-        List < Library > list = new ArrayList < > ();
-        list.add(new Library(1, "dl_lib", "ChIJHUZDYSMGZ0gRQ9e4ahJXkhI", "Dun Laoghaire Lexicon"));
-        list.add(new Library(2, "tall_lib", "ChIJ3aeghUILZ0gRmJIq_G8l4fg", "Tallaght Library"));
-        list.add(new Library(3, "phib_lib", "ChIJd76ZUn8OZ0gR_qfGtU926_k", "Phibsboro Library"));
-
-        try (Connection conn = DriverManager.getConnection(dBURL, dbUsername, dbPassword)) {
-            String table = "LIBRARIES";
-            String SQL = "INSERT INTO " + table
-                    + " (id, library_ref, place_id, library_name)" +
-                    " VALUES (?,?,?,?)";
-            PreparedStatement statement = conn.prepareStatement(SQL,
-                    Statement.RETURN_GENERATED_KEYS);
-                    conn.setAutoCommit(false);
-                    for (Iterator < Library > iterator = list.iterator(); iterator.hasNext();) {
-                        Library library = (Library) iterator.next();
-                        statement.setInt(1, library.getId());
-                        statement.setString(2, library.getLibrary_ref());
-                        statement.setString(3, library.getPlace_id());
-                        statement.setString(4, library.getLibrary_name());
-                        statement.addBatch();
-                    }
-                    int[] updateCounts = statement.executeBatch();
-                    System.out.println(Arrays.toString(updateCounts));
-                    conn.commit();
-                    conn.setAutoCommit(true);
-                } catch (SQLException e) {
-                    e.printStackTrace();
-                }
 
     }
 

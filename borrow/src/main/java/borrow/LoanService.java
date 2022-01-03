@@ -40,7 +40,7 @@ public class LoanService extends AbstractActor {
                     " member_id INTEGER NOT NULL, " + 
                     " loan_date VARCHAR(255), " +
                     " return_date VARCHAR(255), " +
-                    " fines_owed INTEGER, " + 
+                    " actual_return_date VARCHAR(255), " +
                     " library_ref VARCHAR(255), " + 
                     " PRIMARY KEY ( loan_id ))"; 
             stmt.executeUpdate(sql);
