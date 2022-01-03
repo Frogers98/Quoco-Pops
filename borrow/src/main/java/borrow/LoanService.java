@@ -70,7 +70,7 @@ public class LoanService extends AbstractActor {
                             try (Connection conn = DriverManager.getConnection(dBURL, dbUsername, dbPassword)) {
                                 String table = "LOANS";
                                 String SQL = "INSERT INTO " + table
-                                        + " (loan_id, book_id, member_id, loan_date, return_date, fine, library_ref)" +
+                                        + " (loan_id, book_id, member_id, loan_date, return_date, actual_return_date, library_ref)" +
                                         " VALUES (?,?,?,?,?,?)";
                                 PreparedStatement statement = conn.prepareStatement(SQL,
                                         Statement.RETURN_GENERATED_KEYS);
@@ -82,7 +82,7 @@ public class LoanService extends AbstractActor {
                                 statement.setString(4, borrowDate.toString());
                                 DateTime returnDate = new DateTime().plusDays(7);
                                 statement.setString(5, returnDate.toString());
-                                statement.setInt(6, LoanAddition.getFinesOwed());
+                                statement.setString(6, "");
                                 statement.setString(7, LoanAddition.getLibraryRef());
                                 //getLibraryRef()
                                 // Execute the sql query (returns the rows affected by the query
