@@ -39,7 +39,7 @@ import okhttp3.Response;
 
 public class CatalogueService extends AbstractActor {
     static ActorSystem catalogueSystem;
-    private final static String dBURL = "jdbc:mysql://localhost:3306/ds_project";
+    private final static String dBURL = "jdbc:mysql:/catalogue.cxh5lwdlsqiw.eu-west-1.rds.amazonaws.com:3306/catalogue";
     private final static String dbUsername = "root";
     private final static String dbPassword = "Passw0rd1";
     private static ActorRef catalogueActorRef;
