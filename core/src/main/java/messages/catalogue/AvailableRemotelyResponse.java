@@ -6,13 +6,15 @@ public class AvailableRemotelyResponse {
     String libraryRef;
     int bookId;
     HashMap<String, Integer> whereAvailable;
+    int userId;
 
     public AvailableRemotelyResponse() {}
 
-    public AvailableRemotelyResponse(String libraryRef, int bookId, HashMap<String, Integer> whereAvailable) {
+    public AvailableRemotelyResponse(String libraryRef, int bookId, HashMap<String, Integer> whereAvailable, int userId) {
         this.libraryRef = libraryRef;
         this.bookId = bookId;
         this.whereAvailable = whereAvailable;
+        this.userId = userId;
     }
     
     public String getLibraryRef() {
@@ -39,4 +41,11 @@ public class AvailableRemotelyResponse {
         this.whereAvailable = whereAvailable;
     }
 
+    public void setUserId(int userId) {
+        this.userId = userId;
+    }
+
+    public int getUserId() {
+        return userId;
+    }
 }

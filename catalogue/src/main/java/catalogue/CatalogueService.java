@@ -282,7 +282,7 @@ public class CatalogueService extends AbstractActor {
                                     }
 
                                     getSender().tell(new AvailableRemotelyResponse(Request.getLibraryRef(),
-                                            Request.getBookId(), distances), getSelf());
+                                            Request.getBookId(), distances, Request.getUserId()), getSelf());
                                 }
                             }
                         })
