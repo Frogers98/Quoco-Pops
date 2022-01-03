@@ -38,25 +38,25 @@ public class CatalogueUnitTest {
         catalogueSystem = null;
     }
 
-    @Test
-    public void testBookAddition() {
-        // Very basic test that sends a bookAddition message to the catalogue service and waits for a string response.
-        // I've temporarily made the catalogue service send a string message back to the sender if the db write is succesful
-        // but this should be made more robust
-        TestKit bookAdditionActor = new TestKit(catalogueSystem);
-        Book book = new Book(3,
-                "Python for Dummies",
-                "John Smith",
-                "tall_lib",
-                10);
-
-        CatalogueAdditionRequest bookAddition = new CatalogueAdditionRequest(book, 5);
-        catalogueService.tell(bookAddition, bookAdditionActor.getRef());
-
-        bookAdditionActor.awaitCond(bookAdditionActor::msgAvailable);
-        bookAdditionActor.expectMsgClass(Duration.ofSeconds(60), CatalogueAdditionResponse.class);
-        return;
-    }
+//    @Test
+//    public void testBookAddition() {
+//        // Very basic test that sends a bookAddition message to the catalogue service and waits for a string response.
+//        // I've temporarily made the catalogue service send a string message back to the sender if the db write is succesful
+//        // but this should be made more robust
+//        TestKit bookAdditionActor = new TestKit(catalogueSystem);
+//        Book book = new Book(3,
+//                "Python for Dummies",
+//                "John Smith",
+//                "tall_lib",
+//                10);
+//
+//        CatalogueAdditionRequest bookAddition = new CatalogueAdditionRequest(book, 5);
+//        catalogueService.tell(bookAddition, bookAdditionActor.getRef());
+//
+//        bookAdditionActor.awaitCond(bookAdditionActor::msgAvailable);
+//        bookAdditionActor.expectMsgClass(Duration.ofSeconds(60), CatalogueAdditionResponse.class);
+//        return;
+//    }
 
 
 
@@ -76,7 +76,7 @@ public class CatalogueUnitTest {
      @Test
      public void testBookSearch() {
      TestKit bookSearchActor = new TestKit(catalogueSystem);
-     SearchRequest bookSearch = new SearchRequest("dl_lib", 1, 123);
+     SearchRequest bookSearch = new SearchRequest("phib_lib", 2, 123);
      catalogueService.tell(bookSearch, bookSearchActor.getRef());
 
      bookSearchActor.awaitCond(bookSearchActor::msgAvailable);
@@ -85,53 +85,53 @@ public class CatalogueUnitTest {
      return;
      }
 
-    // @Test
-    // public void testAvailableLocally() {
-    //     TestKit availableLocallyActor = new TestKit(catalogueSystem);
-    //     CheckAvailabilityRequest req = new CheckAvailabilityRequest("dl_lib", 1);
+     @Test
+     public void testAvailableLocally() {
+         TestKit availableLocallyActor = new TestKit(catalogueSystem);
+         CheckAvailabilityRequest req = new CheckAvailabilityRequest("dl_lib", 1);
 
-    //     catalogueService.tell(req, availableLocallyActor.getRef());
+         catalogueService.tell(req, availableLocallyActor.getRef());
 
-    //     availableLocallyActor.awaitCond(availableLocallyActor::msgAvailable);
-    //     availableLocallyActor.expectMsgClass(Duration.ZERO, AvailableLocallyResponse.class);
-    //     return;
-    // }
+         availableLocallyActor.awaitCond(availableLocallyActor::msgAvailable);
+         availableLocallyActor.expectMsgClass(Duration.ZERO, AvailableLocallyResponse.class);
+         return;
+     }
 
-    // @Test
-    // public void testAvailableRemotely() {
-    //     TestKit availableRemotelyActor = new TestKit(catalogueSystem);
-    //     CheckAvailabilityRequest req = new CheckAvailabilityRequest("tall_lib", 1);
-
-    //     catalogueService.tell(req, availableRemotelyActor.getRef());
-
-    //     availableRemotelyActor.awaitCond(availableRemotelyActor::msgAvailable);
-    //     availableRemotelyActor.expectMsgClass(Duration.ZERO, AvailableRemotelyResponse.class);
-    //     return;
-    // }
-
-//    @Test
-//    public void testIncrementAvailability() {
-//        TestKit incrementAvailabilityActor = new TestKit(catalogueSystem);
-//        IncrementAvailabilityRequest req = new IncrementAvailabilityRequest("tall_lib", 1);
+//     @Test
+//     public void testAvailableRemotely() {
+//         TestKit availableRemotelyActor = new TestKit(catalogueSystem);
+//         CheckAvailabilityRequest req = new CheckAvailabilityRequest("phib_lib", 1);
 //
-//        catalogueService.tell(req, incrementAvailabilityActor.getRef());
+//         catalogueService.tell(req, availableRemotelyActor.getRef());
 //
-//        incrementAvailabilityActor.awaitCond(incrementAvailabilityActor::msgAvailable);
-//        incrementAvailabilityActor.expectMsg(Duration.ZERO, 1);
-//        return;
-//    }
+//         availableRemotelyActor.awaitCond(availableRemotelyActor::msgAvailable);
+//         availableRemotelyActor.expectMsgClass(Duration.ZERO, AvailableRemotelyResponse.class);
+//         return;
+//     }
 
-    // @Test
-    // public void testDecrementAvailability() {
-    //     TestKit decrementAvailabilityActor = new TestKit(catalogueSystem);
-    //     DecrementAvailabilityRequest req = new DecrementAvailabilityRequest("talll_lib", 1);
+    @Test
+    public void testIncrementAvailability() {
+        TestKit incrementAvailabilityActor = new TestKit(catalogueSystem);
+        IncrementAvailabilityRequest req = new IncrementAvailabilityRequest("tall_lib", 1);
 
-    //     catalogueService.tell(req, decrementAvailabilityActor.getRef());
+        catalogueService.tell(req, incrementAvailabilityActor.getRef());
 
-    //     decrementAvailabilityActor.awaitCond(decrementAvailabilityActor::msgAvailable);
-    //     decrementAvailabilityActor.expectMsg(Duration.ZERO, 1);
-    //     return;
-    // }
+        incrementAvailabilityActor.awaitCond(incrementAvailabilityActor::msgAvailable);
+        incrementAvailabilityActor.expectMsg(Duration.ZERO, 1);
+        return;
+    }
+
+     @Test
+     public void testDecrementAvailability() {
+         TestKit decrementAvailabilityActor = new TestKit(catalogueSystem);
+         DecrementAvailabilityRequest req = new DecrementAvailabilityRequest("tall_lib", 1);
+
+         catalogueService.tell(req, decrementAvailabilityActor.getRef());
+
+         decrementAvailabilityActor.awaitCond(decrementAvailabilityActor::msgAvailable);
+         decrementAvailabilityActor.expectMsg(Duration.ZERO, 1);
+         return;
+     }
 
 
 }
