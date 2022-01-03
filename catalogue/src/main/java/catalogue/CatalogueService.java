@@ -89,7 +89,7 @@ public class CatalogueService extends AbstractActor {
                                 while (res.next()) {
                                     Book bookRetrieved = new Book(res.getInt("book_id"), res.getString("book_title"), res.getString("book_author"), libraryName, res.getInt("total_copies"));
                                     SearchResponse response = new SearchResponse(
-                                            res.getString("library"),
+                                            res.getString("library_ref"),
                                             bookRetrieved,
                                             res.getInt("available_copies"),
                                             searchRequest.getUserId()
@@ -112,7 +112,7 @@ public class CatalogueService extends AbstractActor {
                             // try with block to instantiate database stuff so it will close itself when
                             // finished
                             try (Connection conn = DriverManager.getConnection(dBURL, dbUsername, dbPassword)) {
-                                String SQL = "INSERT into catalogue (book_id, book_title, book_author, available_copies, total_copies, library)" +
+                                String SQL = "INSERT into catalogue (book_id, book_title, book_author, available_copies, total_copies, library_ref)" +
                                         " VALUES (?,?,?,?,?,?)";
                                 PreparedStatement statement = conn.prepareStatement(SQL, Statement.RETURN_GENERATED_KEYS);
                                 statement.setInt(1, book.getBookID());
@@ -152,7 +152,7 @@ public class CatalogueService extends AbstractActor {
                             // finished
                             try (Connection conn = DriverManager.getConnection(dBURL, dbUsername, dbPassword)) {
 
-                                String SQL = "DELETE FROM catalogue WHERE book_id = ? AND library=?";
+                                String SQL = "DELETE FROM catalogue WHERE book_id = ? AND library_ref=?";
                                 PreparedStatement statement = conn.prepareStatement(SQL, Statement.RETURN_GENERATED_KEYS);
                                 statement.setInt(1, bookRemoval.getBookID());
                                 statement.setString(2, libraryName);
