@@ -56,6 +56,42 @@ public class CatalogueService extends AbstractActor {
         ActorSelection brokerSelection = catalogueSystem
                 .actorSelection("akka.tcp://default@127.0.0.1:2551/user/broker");
         brokerSelection.tell("registerCatalogue", catalogueActorRef);
+
+        // Open a connection
+        try(Connection conn = DriverManager.getConnection(dBURL, dbUsername, dbPassword);
+        Statement stmt = conn.createStatement();
+        ) 
+        {		      
+            String sql = "CREATE TABLE IF NOT EXISTS CATALOGUE " +
+                    "(id INTEGER NOT NULL AUTO_INCREMENT, " +
+                    " book_id INTEGER NOT NULL, " + 
+                    " book_title VARCHAR(255), " + 
+                    " book_author VARCHAR(255), " + 
+                    " available_copies INTEGER NOT NULL, " + 
+                    " total_copies INTEGER NOT NULL, " + 
+                    " library_ref VARCHAR(255), " + 
+                    " PRIMARY KEY ( id ))"; 
+            stmt.executeUpdate(sql);
+            System.out.println("Created REGISTRATION in given database...");   	  
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } 
+        // Open a connection
+        try(Connection conn = DriverManager.getConnection(dBURL, dbUsername, dbPassword);
+        Statement stmt = conn.createStatement();
+        ) 
+        {		      
+            String sql = "CREATE TABLE IF NOT EXISTS LIBRARIES " +
+                    "(id INTEGER NOT NULL, " +
+                    " library_ref VARCHAR(45), " + 
+                    " place_id VARCHAR(255) NOT NULL, " + 
+                    " library_name VARCHAR(45) NOT NULL, " + 
+                    " PRIMARY KEY ( id ))"; 
+            stmt.executeUpdate(sql);
+            System.out.println("Created REGISTRATION in given database...");   	  
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } 
     }
 
     @Override

@@ -13,10 +13,10 @@ import org.joda.time.DateTime;
 
 public class LoanService extends AbstractActor {
     static ActorSystem loanSystem;
-    private final static String dBURL = "jdbc:mysql://localhost:3306/ds_project";
-    private final static String dbUsername = "borrow";
+    private final static String dBURL = "jdbc:mysql://test.c2qef7oxk1tu.eu-west-1.rds.amazonaws.com:3306/loans";
+    private final static String dbUsername = "admin";
     private final static String dbPassword = "Passw0rd1";
-    private static ArrayList<String> libraryNames = new ArrayList<>();
+
 
     public static void main(String[] args) {
         // Set up actor system, this method should be called initially before anything
@@ -28,10 +28,38 @@ public class LoanService extends AbstractActor {
         // Register this with the broker
         ActorSelection selection = loanSystem.actorSelection("akka.tcp://default@127.0.0.1:2551/user/broker");
         selection.tell("registerLoan", ref);
-        // TEMPORARY - add tallaght library to libraryNames, library names should really
-        // be stored in a database or somewhere else
-        libraryNames.add("tallaght_library");
-
+        // Open a connection
+        //( int loanID, int userID, int bookID, String loanDate, String returnDate, int finesOwed,String libraryRef)
+        try(Connection conn = DriverManager.getConnection(dBURL, dbUsername, dbPassword);
+        Statement stmt = conn.createStatement();
+        ) 
+        {		      
+            String sql = "CREATE TABLE IF NOT EXISTS LOANS " +
+                    "(loan_id INTEGER NOT NULL AUTO_INCREMENT, " +
+                    " book_id INTEGER NOT NULL, " + 
+                    " member_id INTEGER NOT NULL, " + 
+                    " loan_date VARCHAR(255), " +
+                    " return_date VARCHAR(255), " +
+                    " fines_owed INTEGER, " + 
+                    " library_ref VARCHAR(255), " + 
+                    " PRIMARY KEY ( loan_id ))"; 
+            stmt.executeUpdate(sql);
+            System.out.println("Created LOANS in given database...");   	  
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } 
+        try(Connection conn = DriverManager.getConnection(dBURL, dbUsername, dbPassword);
+        Statement stmt = conn.createStatement();
+        ) 
+        {		      
+            String sql = "CREATE TABLE IF NOT EXISTS VALID " +
+                    "(member_id INTEGER NOT NULL, " +
+                    " PRIMARY KEY ( member_id ))"; 
+            stmt.executeUpdate(sql);
+            System.out.println("Created VALID in given database...");   	  
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } 
     }
 
     @Override
@@ -40,10 +68,10 @@ public class LoanService extends AbstractActor {
                 .match(LoanBookRequest.class,
                         LoanAddition -> {
                             try (Connection conn = DriverManager.getConnection(dBURL, dbUsername, dbPassword)) {
-                                String table = "tallaght_library_loans";
+                                String table = "LOANS";
                                 String SQL = "INSERT INTO " + table
-                                        + " (loanID, bookID, memberID, loanDate, returnDate)" +
-                                        " VALUES (?,?,?,?,?)";
+                                        + " (loan_id, book_id, member_id, loan_date, return_date, fine, library_ref)" +
+                                        " VALUES (?,?,?,?,?,?)";
                                 PreparedStatement statement = conn.prepareStatement(SQL,
                                         Statement.RETURN_GENERATED_KEYS);
                                 statement.setInt(1, LoanAddition.getUserID());
@@ -54,6 +82,9 @@ public class LoanService extends AbstractActor {
                                 statement.setString(4, borrowDate.toString());
                                 DateTime returnDate = new DateTime().plusDays(7);
                                 statement.setString(5, returnDate.toString());
+                                statement.setInt(6, LoanAddition.getFinesOwed());
+                                statement.setString(7, LoanAddition.getLibraryRef());
+                                //getLibraryRef()
                                 // Execute the sql query (returns the rows affected by the query
                                 int rowsAffected = statement.executeUpdate();
 
