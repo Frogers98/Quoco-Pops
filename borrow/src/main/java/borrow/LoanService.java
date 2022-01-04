@@ -46,6 +46,7 @@ public class LoanService extends AbstractActor {
 
         // Register Actor with the Broker
         ActorSelection selection = loanSystem.actorSelection("akka.tcp://default@127.0.0.1:2551/user/broker");
+        System.out.println(selection.toString());
         selection.tell("registerLoan", ref);
 
         // Open a database connection
