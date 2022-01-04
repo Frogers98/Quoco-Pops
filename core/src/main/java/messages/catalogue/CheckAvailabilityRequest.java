@@ -3,12 +3,14 @@ package messages.catalogue;
 public class CheckAvailabilityRequest {
     private String libraryRef;
     private int bookId;
+    private int userId;
 
     public CheckAvailabilityRequest() {}
 
-    public CheckAvailabilityRequest(String libraryRef, int bookId) {
+    public CheckAvailabilityRequest(String libraryRef, int bookId, int userId) {
         this.libraryRef = libraryRef;
         this.bookId = bookId;
+        this.userId = userId;
     }
 
     public String getLibraryRef() {
@@ -25,6 +27,14 @@ public class CheckAvailabilityRequest {
 
     public void setBookId(int bookId) {
         this.bookId = bookId;
+    }
+
+    public void setUserId(int userId) {
+        this.userId = userId;
+    }
+
+    public int getUserId() {
+        return userId;
     }
 
     

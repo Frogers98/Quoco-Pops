@@ -4,6 +4,8 @@ import java.util.HashMap;
 
 import akka.actor.AbstractActor;
 import akka.actor.ActorRef;
+import akka.actor.ActorSystem;
+import akka.actor.Props;
 import messages.Init;
 import messages.borrow.AddBorrowingPrivileges;
 import messages.borrow.CalculateFinesRequest;
@@ -32,14 +34,24 @@ public class Broker extends AbstractActor {
 
     private static HashMap<String, ActorRef> clientRefs = new HashMap<>();
 
+    private static ActorSystem brokerSystem;
+
+    public static void main(String[] args) {
+        brokerSystem = ActorSystem.create();
+        ActorRef brokerRef = brokerSystem.actorOf(Props.create(Broker.class), "broker");
+        actorRefs.put("broker", brokerRef);
+        System.out.println("Broker started");
+    }
+
+
     @Override
     public Receive createReceive() {
         return receiveBuilder()
-                .match(Init.class,
-                        msg -> {
-                            System.out.println("Broker initialised");
-                            brokerRef = getSender();
-                        })
+//                .match(Init.class,
+//                        msg -> {
+//                            System.out.println("Broker initialised");
+//                            brokerRef = getSender();
+//                        })
 
                 .match(CalculateFinesRequest.class,
                         msg -> {
@@ -86,24 +98,28 @@ public class Broker extends AbstractActor {
 
                 .match(CatalogueAdditionRequest.class,
                         msg -> {
+                            System.out.println("catalogue addition request received");
                             clientRefs.put(msg.getBook().getLibraryName(), getSender());
                             actorRefs.get("catalogue").tell(msg, getSelf());
                         })
 
                 .match(CatalogueRemovalRequest.class,
                         msg -> {
+                            System.out.println("catalogue removal request received");
                             clientRefs.put(msg.getLibraryRef(), getSender());
                             actorRefs.get("catalogue").tell(msg, getSelf());
                         })
 
                 .match(SearchRequest.class,
                         msg -> {
+                            System.out.println("Search request received");
                             clientRefs.put(msg.getLibraryRef(), getSender());
                             actorRefs.get("catalogue").tell(msg, getSelf());
                         })
 
                 .match(SearchResponse.class,
                         msg -> {
+                            System.out.println("search response received");
                             clientRefs.get(msg.getLibraryRef()).tell(msg, getSelf());
                         })
 
@@ -141,6 +157,10 @@ public class Broker extends AbstractActor {
                             if (msg.equals("registerLoan")) {
                                 System.out.println(getSender().toString());
                                 actorRefs.put("loan", getSender());
+                            }
+                            if (msg.equals("registerClient")) {
+                                System.out.println(getSender().toString());
+                                getSender().tell("registerBroker", getSelf());
                             }
                         })
                 .build();

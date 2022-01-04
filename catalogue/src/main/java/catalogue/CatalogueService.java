@@ -42,7 +42,7 @@ import okhttp3.Response;
 
 public class CatalogueService extends AbstractActor {
     static ActorSystem catalogueSystem;
-    private final static String dBURL = "jdbc:mysql://localhost:3306/ds_project";
+    private final static String dBURL = "jdbc:mysql://catalogue.cxh5lwdlsqiw.eu-west-1.rds.amazonaws.com:3306/catalogue";
     private final static String dbUsername = "root";
     private final static String dbPassword = "Passw0rd1";
     private static ActorRef catalogueActorRef;
@@ -104,41 +104,25 @@ public class CatalogueService extends AbstractActor {
         return receiveBuilder()
                 .match(SearchRequest.class,
                         // Do a lookup in the database for the book by the book id and send a
-                        // SearchResponse message
-                        // back to the broker
-                        // This should loop through all the library names in the system (currently
-                        // represented in an
-                        // ArrayList) and return a SearchResponse object for each library to the sender
-                        // No current support for a search for one specific library, this needs to be
-                        // added either here somehow
-                        // or possibly with a different class for searching a specific library
+                        // SearchResponse message back to the broker containing a Book object
 
-                        // N.B. Current error with looping through libraries because of lack of error
-                        // handling and using the ArrayList
-                        // Hardcoded tallaght library as the only library to search for now and working
                         searchRequest -> {
                             // try with block to instantiate database stuff so it will close itself when
                             // finished
                             try (Connection conn = DriverManager.getConnection(dBURL, dbUsername, dbPassword)) {
                                 // Search for the book in the catalogue table
-                                String libraryName = searchRequest.getLibraryRef();
                                 String SQL = "SELECT * FROM catalogue WHERE book_id =?";
                                 PreparedStatement statement = conn.prepareStatement(SQL, Statement.RETURN_GENERATED_KEYS);
                                 statement.setInt(1, searchRequest.getBookId());
                                 ResultSet res = statement.executeQuery();
                                 // Create a SearchResponse object with the result and send it back to the broker
+                                // Return n/a for library name and 0 for num copies as this info won't be shown to user
                                 while (res.next()) {
-                                    Book bookRetrieved = new Book(res.getInt("book_id"), res.getString("book_title"), res.getString("book_author"), libraryName, res.getInt("total_copies"));
-                                    SearchResponse response = new SearchResponse(
-                                            res.getString("library_ref"),
-                                            bookRetrieved,
-                                            res.getInt("available_copies"),
-                                            searchRequest.getUserId()
-                                    );
-                                    System.out.println("book found in " + libraryName + ". title: " + res.getString("book_title"));
+                                    Book bookRetrieved = new Book(res.getInt("book_id"), res.getString("book_title"), res.getString("book_author"), "n/a", 0);
+
+                                    SearchResponse response = new SearchResponse(searchRequest.getLibraryRef(), bookRetrieved, searchRequest.getUserId());
                                     getSender().tell(response, getSelf());
                                 }
-                                //END FOR LOOP}
                             } catch (SQLException e) {
                                 e.printStackTrace();
                             }
@@ -146,6 +130,7 @@ public class CatalogueService extends AbstractActor {
                         })
                 .match(CatalogueAdditionRequest.class,
                         bookAddition -> {
+                            System.out.println("In Catalogue Addition Request");
                             // Get the library this book is being added to so we add it to the right table
                             Book book = bookAddition.getBook();
                             String libraryName = book.getLibraryName();
@@ -153,8 +138,9 @@ public class CatalogueService extends AbstractActor {
                             // try with block to instantiate database stuff so it will close itself when
                             // finished
                             try (Connection conn = DriverManager.getConnection(dBURL, dbUsername, dbPassword)) {
-                                String SQL = "INSERT into catalogue (book_id, book_title, book_author, available_copies, total_copies, library_ref)" +
-                                        " VALUES (?,?,?,?,?,?)";
+                                System.out.println("In try statement");
+                                String SQL = "INSERT into catalogue (book_id, book_title, book_author, available_copies, total_copies, library_ref) VALUES (?,?,?,?,?,?)";
+                                System.out.println("SQL STATEMENT: " + SQL);
                                 PreparedStatement statement = conn.prepareStatement(SQL, Statement.RETURN_GENERATED_KEYS);
                                 statement.setInt(1, book.getBookID());
                                 statement.setString(2, book.getBookTitle());
@@ -235,7 +221,7 @@ public class CatalogueService extends AbstractActor {
 
                                 if (inStock.containsKey(Request.getLibraryRef())) {
                                     getSender().tell(new AvailableLocallyResponse(Request.getLibraryRef(),
-                                            Request.getBookId(), inStock.get(Request.getLibraryRef())), getSelf());
+                                            Request.getBookId(), inStock.get(Request.getLibraryRef()), Request.getUserId()), getSelf());
                                 } else {
                                     // Add current library
                                     inStock.put(Request.getLibraryRef(), 0);
@@ -296,7 +282,7 @@ public class CatalogueService extends AbstractActor {
                                     }
 
                                     getSender().tell(new AvailableRemotelyResponse(Request.getLibraryRef(),
-                                            Request.getBookId(), distances), getSelf());
+                                            Request.getBookId(), distances, Request.getUserId()), getSelf());
                                 }
                             }
                         })
