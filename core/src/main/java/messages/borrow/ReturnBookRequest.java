@@ -11,8 +11,10 @@ public class ReturnBookRequest implements MySerializable {
     public ReturnBookRequest() {}
 
     public ReturnBookRequest(int loanId, String libraryRef, int bookId, int memberId) {
+        this.loanId = loanId;
         this.libraryRef = libraryRef;
         this.bookId = bookId;
+        this.memberId = memberId;
     }
 
     public String getLibraryRef() {

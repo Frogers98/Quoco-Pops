@@ -4,8 +4,7 @@ import akka.actor.*;
 import core.Book;
 import core.Member;
 import messages.OperationStatusResponse;
-import messages.borrow.LoanBookRequest;
-import messages.borrow.RetrieveLoan;
+import messages.borrow.*;
 import messages.catalogue.*;
 import messages.registry.*;
 
@@ -97,13 +96,22 @@ public class Client extends AbstractActor {
                                 // UpdatePasswordRequest passwordRequest = new UpdatePasswordRequest("tall_lib", 1, "123", "LisaNeedsBraces");
                                 // brokerRef.tell(passwordRequest, getSelf());
 
-                                // Test message to loan a book (Operation status request should be returned as this represents
-                                // a user scanning a physical book in person at a machine in the library
-//                                LoanBookRequest loan = new LoanBookRequest(77, 23, " 2021-12-01")
+//                                 Test message to loan a book (Operation status request should be returned as this represents
+//                                 a user scanning a physical book in person at a machine in the library)
+                                LoanBookRequest loan = new LoanBookRequest(77, 1, " dl_lib");
+                                brokerRef.tell(loan, getSelf());
 
-                                // Test message to retrieve info about a loan
-//                                RetrieveLoan retrieveLoanInfo = new RetrieveLoan("tall_lib", 1, 1);
+//                                 Test message to retrieve info about a loan
+                                RetrieveLoan retrieveLoanInfo = new RetrieveLoan("tall_lib", 1, 45);
+                                brokerRef.tell(retrieveLoanInfo, getSelf());
 
+                                // Test message to calculate fines on a loan
+                                CalculateFinesRequest finesRequest = new CalculateFinesRequest("dl_lib", 21);
+                                brokerRef.tell(finesRequest, getSelf());
+
+                                // Test message to return a book (an OperationStatus message should be returned)
+                                ReturnBookRequest returnBookRequest = new ReturnBookRequest(3, "phib_lib", 25, 64);
+                                brokerRef.tell(returnBookRequest, getSelf());
 
                                 System.out.println("Finished sending messages");
                             }
@@ -159,7 +167,7 @@ public class Client extends AbstractActor {
                 .match(OperationStatusResponse.class,
                         operationStatusResponse ->  {
                             System.out.println("\n**********\nOperation Status response for user: " + operationStatusResponse.getMemberId() +
-                                    operationStatusResponse.getMessage() + "*********");
+                                    operationStatusResponse.getMessage() + "\n*********");
                         })
                 .match(RetrieveMemberDetailsResponse.class,
                         memberDetailsResponse ->  {
@@ -171,10 +179,23 @@ public class Client extends AbstractActor {
                                     "\nPassword: " + member.getPassword() +
                                     "\nHome Library: " + member.getHomeLibrary() +
                                     "\nPhone Number: " + member.getPhoneNumber() +
-                                    "\nEmail: " + member.getEmail() + "**********");
+                                    "\nEmail: " + member.getEmail() + "\n**********");
                         })
-
-
+                .match(LoanSearchResponse.class,
+                        loanSearchResponse ->  {
+                            System.out.println("\n**********\nLoan Search Response for user: " + loanSearchResponse.getUserID()+
+                                    "\nLoan ID: " + loanSearchResponse.getLoanID() +
+                                    "\nBook ID" + loanSearchResponse.getBookID() +
+                                    "\nLoan Date: " + loanSearchResponse.getLoanDate() +
+                                    "\nReturn Date: " + loanSearchResponse.getReturnDate() +
+                                    "\n*********");
+                        })
+                .match(CalculateFinesResponse.class,
+                        calculateFinesResponse ->  {
+                            System.out.println("\n**********\nLoan Search Response for user: " + calculateFinesResponse.getId()+
+                                    "\nTotal amount owed across all loans is: " + calculateFinesResponse.getTotal() +
+                                    "\n*********");
+                        })
 
                 .build();
     }
