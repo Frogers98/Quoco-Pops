@@ -36,7 +36,7 @@ public class RegistryUnitTest {
     @Test
     public void testMemberRegistration() {
         TestKit memberRegistrationActor = new TestKit(registrySystem);
-        Member member = new Member("Jane Slevin", Member.getFemaleChar(), 1994, "123", 1, Member.getTallaghtLib(), "12345678", "jane@email.com");
+        Member member = new Member("Jane Slevin", Member.getFemaleChar(), 1994, "123", 100, "tall_lib", "12345678", "jane@email.com");
         RegisterMemberRequest memberRegistration = new RegisterMemberRequest(member.getHomeLibrary(), member);
 
         registryService.tell(memberRegistration, memberRegistrationActor.getRef());
@@ -50,7 +50,7 @@ public class RegistryUnitTest {
     @Test
     public void testMemberDeletion() {
         TestKit memberDeletionActor = new TestKit(registrySystem);
-        DeleteMemberRequest memberDeletion = new DeleteMemberRequest("tallaght_library", 7);
+        DeleteMemberRequest memberDeletion = new DeleteMemberRequest("tall_lib", 100);
 
         registryService.tell(memberDeletion, memberDeletionActor.getRef());
 
@@ -63,7 +63,7 @@ public class RegistryUnitTest {
     @Test
     public void testRetrieveMemberDetails() {
         TestKit memberRetrievalActor = new TestKit(registrySystem);
-        RetrieveMemberDetailsRequest memberRetrieval = new RetrieveMemberDetailsRequest("tallaght_library", 9);
+        RetrieveMemberDetailsRequest memberRetrieval = new RetrieveMemberDetailsRequest("tall_lib", 1);
 
         registryService.tell(memberRetrieval, memberRetrievalActor.getRef());
 
@@ -75,7 +75,7 @@ public class RegistryUnitTest {
     @Test 
     public void testPasswordUpdate() {
         TestKit passwordUpdateActor = new TestKit(registrySystem);
-        UpdatePasswordRequest passwordUpdate = new UpdatePasswordRequest("tallaght_library", 9, "123", "456");
+        UpdatePasswordRequest passwordUpdate = new UpdatePasswordRequest("tall_lib", 1, "123", "456");
 
         registryService.tell(passwordUpdate, passwordUpdateActor.getRef());
 

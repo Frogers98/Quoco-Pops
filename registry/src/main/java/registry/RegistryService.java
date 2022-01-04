@@ -63,20 +63,20 @@ public class RegistryService extends AbstractActor {
                 .match(RegisterMemberRequest.class,
                         Request -> {
                             try (Connection conn = DriverManager.getConnection(dBURL, dbUsername, dbPassword)) {
-                                String query = "INSERT INTO REGISTRATION (name, gender, year_of_birth, password, library_ref, email, phone_no) VALUES (?, ?, ?, ?, ?, ?, ?)";
+                                String query = "INSERT INTO REGISTRATION (id, name, gender, year_of_birth, password, library_ref, email, phone_no) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
                                 PreparedStatement statement = conn.prepareStatement(query,
                                         Statement.RETURN_GENERATED_KEYS);
-                                statement.setString(1, Request.getMember().getName());
-                                statement.setString(2, String.valueOf(Request.getMember().getGender()));
-                                statement.setInt(3, Request.getMember().getYearOfBirth());
-                                statement.setString(4, Request.getMember().getPassword());
-                                statement.setString(5, Request.getMember().getHomeLibrary());
-                                statement.setString(6, Request.getMember().getEmail());
-                                statement.setString(7, Request.getMember().getPhoneNumber());
+                                statement.setInt(1, Request.getMember().getId());
+                                statement.setString(2, Request.getMember().getName());
+                                statement.setString(3, String.valueOf(Request.getMember().getGender()));
+                                statement.setInt(4, Request.getMember().getYearOfBirth());
+                                statement.setString(5, Request.getMember().getPassword());
+                                statement.setString(6, Request.getMember().getHomeLibrary());
+                                statement.setString(7, Request.getMember().getEmail());
+                                statement.setString(8, Request.getMember().getPhoneNumber());
 
                                 int rowsAffected = statement.executeUpdate();
-                                // conn.close();
-
+                                
                                 if (rowsAffected > 0) {
                                     getSender().tell(
                                             new OperationStatusResponse(Request.getLibraryRef(),
@@ -122,8 +122,7 @@ public class RegistryService extends AbstractActor {
                                         ResultSet.CONCUR_UPDATABLE);
                                 ResultSet resultSet = statement.executeQuery(query);
                                 resultSet.absolute(1);
-                                // conn.close();
-
+                                
                                 Member member = new Member(resultSet.getString("name"),
                                         resultSet.getString("gender").charAt(0),
                                         resultSet.getInt("year_of_birth"), resultSet.getString("password"),
