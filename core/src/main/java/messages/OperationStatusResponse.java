@@ -1,6 +1,6 @@
 package messages;
 
-public class OperationStatusResponse {
+public class OperationStatusResponse implements MySerializable {
     String libraryRef;
     int memberId;
     String message;

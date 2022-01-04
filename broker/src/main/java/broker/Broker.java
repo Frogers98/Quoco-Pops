@@ -6,7 +6,7 @@ import akka.actor.AbstractActor;
 import akka.actor.ActorRef;
 import akka.actor.ActorSystem;
 import akka.actor.Props;
-import messages.Init;
+import messages.OperationStatusResponse;
 import messages.borrow.AddBorrowingPrivileges;
 import messages.borrow.CalculateFinesRequest;
 import messages.borrow.CalculateFinesResponse;
@@ -153,6 +153,12 @@ public class Broker extends AbstractActor {
                             System.out.println("retrieve loan message received");
                             clientRefs.put(msg.getLibraryRef(), getSender());
                             actorRefs.get("loan").tell(msg, getSelf());
+                        })
+
+                .match(OperationStatusResponse.class,
+                        msg -> {
+                            System.out.println("operation status response received");
+                            clientRefs.get(msg.getLibraryRef()).tell(msg, getSelf());
                         })
 
                 .match(String.class,

@@ -86,6 +86,7 @@ public class LoanService extends AbstractActor {
         return receiveBuilder()
                 .match(LoanBookRequest.class,
                         LoanAddition -> {
+                            System.out.println("Received loan addition request");
                             try (Connection conn = DriverManager.getConnection(dBURL, dbUsername, dbPassword)) {
 
                                 // Check if registered member
@@ -136,6 +137,7 @@ public class LoanService extends AbstractActor {
                         })
                 .match(RetrieveLoan.class,
                         RetrieveLoan -> {
+                            System.out.println("Received retrieve loan");
                             try (Connection conn = DriverManager.getConnection(dBURL, dbUsername, dbPassword)) {
 
                                 // Use loanID to retrieve loan information
@@ -181,6 +183,7 @@ public class LoanService extends AbstractActor {
                         })
                 .match(CalculateFinesRequest.class,
                         Request -> {
+                            System.out.println("received calculate fines request");
                             ArrayList<Integer> loanLengths = new ArrayList<Integer>();
 
                             int rate1 = 15;
@@ -242,6 +245,7 @@ public class LoanService extends AbstractActor {
                         })
                 .match(ReturnBookRequest.class,
                         Request -> {
+                            System.out.println("Received returnbookrequest");
                             try (Connection conn = DriverManager.getConnection(dBURL, dbUsername, dbPassword)) {
                                 DateTime currentDateTime = new DateTime();
 
