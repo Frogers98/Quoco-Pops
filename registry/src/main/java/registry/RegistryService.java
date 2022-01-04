@@ -6,12 +6,16 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.time.Duration;
 
 import akka.actor.AbstractActor;
 import akka.actor.ActorRef;
 import akka.actor.ActorSelection;
 import akka.actor.ActorSystem;
+import akka.actor.OneForOneStrategy;
 import akka.actor.Props;
+import akka.actor.SupervisorStrategy;
+import akka.japi.pf.DeciderBuilder;
 import core.Member;
 import messages.OperationStatusResponse;
 import messages.registry.DeleteMemberRequest;
@@ -57,9 +61,24 @@ public class RegistryService extends AbstractActor {
         }
     }
 
+    private static SupervisorStrategy strategy = new OneForOneStrategy(
+            10,
+            Duration.ofMinutes(1),
+            DeciderBuilder.match(SQLException.class, e -> SupervisorStrategy.restart())
+                    .build());
+
+    @Override
+    public SupervisorStrategy supervisorStrategy() {
+        return strategy;
+    }
+
     @Override
     public Receive createReceive() {
         return receiveBuilder()
+                .match(Props.class, props -> {
+                    getSender().tell(getContext().actorOf(props), getSelf());
+                })
+                
                 .match(RegisterMemberRequest.class,
                         Request -> {
                             try (Connection conn = DriverManager.getConnection(dBURL, dbUsername, dbPassword)) {
@@ -76,7 +95,7 @@ public class RegistryService extends AbstractActor {
                                 statement.setString(8, Request.getMember().getPhoneNumber());
 
                                 int rowsAffected = statement.executeUpdate();
-                                
+
                                 if (rowsAffected > 0) {
                                     getSender().tell(
                                             new OperationStatusResponse(Request.getLibraryRef(),
@@ -122,7 +141,7 @@ public class RegistryService extends AbstractActor {
                                         ResultSet.CONCUR_UPDATABLE);
                                 ResultSet resultSet = statement.executeQuery(query);
                                 resultSet.absolute(1);
-                                
+
                                 Member member = new Member(resultSet.getString("name"),
                                         resultSet.getString("gender").charAt(0),
                                         resultSet.getInt("year_of_birth"), resultSet.getString("password"),
@@ -135,7 +154,7 @@ public class RegistryService extends AbstractActor {
 
                             }
                         })
-                        
+
                 .match(UpdatePasswordRequest.class,
                         Request -> {
                             try (Connection conn = DriverManager.getConnection(dBURL, dbUsername, dbPassword)) {
