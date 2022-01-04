@@ -26,11 +26,12 @@ import messages.borrow.ReturnBookRequest;
 import messages.borrow.LoanSearchResponse;
 
 public class LoanService extends AbstractActor {
-    static ActorSystem loanSystem;
     private final static String dBURL =
     "jdbc:mysql://test.c2qef7oxk1tu.eu-west-1.rds.amazonaws.com:3306/loans";
     private final static String dbUsername = "admin";
     private final static String dbPassword = "Passw0rd1";
+    private static ActorSystem loanSystem;
+    private static ActorRef ref;
 
     // private final static String dBURL = "jdbc:mysql://localhost:3306/ds_project";
     // private final static String dbUsername = "root";
@@ -42,7 +43,7 @@ public class LoanService extends AbstractActor {
         loanSystem = ActorSystem.create();
 
         // Create an Actor for this ActorSystem
-        ActorRef ref = loanSystem.actorOf(Props.create(LoanService.class), "loan");
+        ref = loanSystem.actorOf(Props.create(LoanService.class), "loan");
 
         // Register Actor with the Broker
         ActorSelection selection = loanSystem.actorSelection("akka.tcp://default@127.0.0.1:2551/user/broker");
