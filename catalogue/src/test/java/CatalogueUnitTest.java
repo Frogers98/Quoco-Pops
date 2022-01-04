@@ -73,29 +73,29 @@ public class CatalogueUnitTest {
 //    }
 
 
-     @Test
-     public void testBookSearch() {
-     TestKit bookSearchActor = new TestKit(catalogueSystem);
-     SearchRequest bookSearch = new SearchRequest("phib_lib", 2, 123);
-     catalogueService.tell(bookSearch, bookSearchActor.getRef());
+//      @Test
+//      public void testBookSearch() {
+//      TestKit bookSearchActor = new TestKit(catalogueSystem);
+//      SearchRequest bookSearch = new SearchRequest("phib_lib", 2, 123);
+//      catalogueService.tell(bookSearch, bookSearchActor.getRef());
 
-     bookSearchActor.awaitCond(bookSearchActor::msgAvailable);
-     bookSearchActor.expectMsgClass(Duration.ofSeconds(60), SearchResponse.class);
+//      bookSearchActor.awaitCond(bookSearchActor::msgAvailable);
+//      bookSearchActor.expectMsgClass(Duration.ofSeconds(60), SearchResponse.class);
 
-     return;
-     }
+//      return;
+//      }
 
-     @Test
-     public void testAvailableLocally() {
-         TestKit availableLocallyActor = new TestKit(catalogueSystem);
-         CheckAvailabilityRequest req = new CheckAvailabilityRequest("dl_lib", 1, 22);
+//      @Test
+//      public void testAvailableLocally() {
+//          TestKit availableLocallyActor = new TestKit(catalogueSystem);
+//          CheckAvailabilityRequest req = new CheckAvailabilityRequest("dl_lib", 1, 22);
 
-         catalogueService.tell(req, availableLocallyActor.getRef());
+//          catalogueService.tell(req, availableLocallyActor.getRef());
 
-         availableLocallyActor.awaitCond(availableLocallyActor::msgAvailable);
-         availableLocallyActor.expectMsgClass(Duration.ZERO, AvailableLocallyResponse.class);
-         return;
-     }
+//          availableLocallyActor.awaitCond(availableLocallyActor::msgAvailable);
+//          availableLocallyActor.expectMsgClass(Duration.ZERO, AvailableLocallyResponse.class);
+//          return;
+//      }
 
 //     @Test
 //     public void testAvailableRemotely() {
@@ -109,29 +109,29 @@ public class CatalogueUnitTest {
 //         return;
 //     }
 
-    @Test
-    public void testIncrementAvailability() {
-        TestKit incrementAvailabilityActor = new TestKit(catalogueSystem);
-        IncrementAvailabilityRequest req = new IncrementAvailabilityRequest("tall_lib", 1);
+//     @Test
+//     public void testIncrementAvailability() {
+//         TestKit incrementAvailabilityActor = new TestKit(catalogueSystem);
+//         IncrementAvailabilityRequest req = new IncrementAvailabilityRequest("tall_lib", 1);
 
-        catalogueService.tell(req, incrementAvailabilityActor.getRef());
+//         catalogueService.tell(req, incrementAvailabilityActor.getRef());
 
-        incrementAvailabilityActor.awaitCond(incrementAvailabilityActor::msgAvailable);
-        incrementAvailabilityActor.expectMsg(Duration.ZERO, 1);
-        return;
-    }
+//         incrementAvailabilityActor.awaitCond(incrementAvailabilityActor::msgAvailable);
+//         incrementAvailabilityActor.expectMsg(Duration.ZERO, 1);
+//         return;
+//     }
 
-     @Test
-     public void testDecrementAvailability() {
-         TestKit decrementAvailabilityActor = new TestKit(catalogueSystem);
-         DecrementAvailabilityRequest req = new DecrementAvailabilityRequest("tall_lib", 1);
+//      @Test
+//      public void testDecrementAvailability() {
+//          TestKit decrementAvailabilityActor = new TestKit(catalogueSystem);
+//          DecrementAvailabilityRequest req = new DecrementAvailabilityRequest("tall_lib", 1);
 
-         catalogueService.tell(req, decrementAvailabilityActor.getRef());
+//          catalogueService.tell(req, decrementAvailabilityActor.getRef());
 
-         decrementAvailabilityActor.awaitCond(decrementAvailabilityActor::msgAvailable);
-         decrementAvailabilityActor.expectMsg(Duration.ZERO, 1);
-         return;
-     }
+//          decrementAvailabilityActor.awaitCond(decrementAvailabilityActor::msgAvailable);
+//          decrementAvailabilityActor.expectMsg(Duration.ZERO, 1);
+//          return;
+//      }
 
 
 }

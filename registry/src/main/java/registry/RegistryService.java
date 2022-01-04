@@ -23,7 +23,7 @@ import registry.RegistryService;
 
 public class RegistryService extends AbstractActor {
     private final static String dBURL = "jdbc:mysql://registry.cayveqvorwmz.eu-west-1.rds.amazonaws.com/registry";
-    private final static String dbUsername = "root";
+    private final static String dbUsername = "admin";
     private final static String dbPassword = "Passw0rd1";
     private static ActorSystem registrySystem;
     private static ActorRef registryActorRef;
@@ -75,7 +75,7 @@ public class RegistryService extends AbstractActor {
                                 statement.setString(7, Request.getMember().getPhoneNumber());
 
                                 int rowsAffected = statement.executeUpdate();
-                                conn.close();
+                                // conn.close();
 
                                 if (rowsAffected > 0) {
                                     getSender().tell(
@@ -100,7 +100,7 @@ public class RegistryService extends AbstractActor {
                                 statement.setInt(1, Request.getId());
 
                                 int rowsAffected = statement.executeUpdate();
-                                conn.close();
+                                // conn.close();
                                 if (rowsAffected > 0) {
                                     getSender().tell(new OperationStatusResponse(Request.getLibraryRef(),
                                             Request.getId(), "Member deleted successfully"), getSelf());
@@ -122,7 +122,7 @@ public class RegistryService extends AbstractActor {
                                         ResultSet.CONCUR_UPDATABLE);
                                 ResultSet resultSet = statement.executeQuery(query);
                                 resultSet.absolute(1);
-                                conn.close();
+                                // conn.close();
 
                                 Member member = new Member(resultSet.getString("name"),
                                         resultSet.getString("gender").charAt(0),

@@ -4,22 +4,17 @@ import messages.MySerializable;
 
 public class LoanBookRequest implements MySerializable {
     private String libraryRef;
-    private int loanID;
     private int userID;
     private int bookID;
     private String loanDate;
     private String returnDate;
-    private int finesOwed;
 
-
-    public LoanBookRequest( int loanID, int userID, int bookID, String loanDate, String returnDate, int finesOwed,String libraryRef) {
+    public LoanBookRequest(int userID, int bookID, String loanDate, String returnDate, String libraryRef) {
         this.libraryRef = libraryRef;
-        this.loanID = loanID;
         this.userID = userID;
         this.bookID = bookID;
         this.loanDate = loanDate;
         this.returnDate = returnDate;
-        this.finesOwed = finesOwed;
     }
 
     public String getLibraryRef() {
@@ -28,14 +23,6 @@ public class LoanBookRequest implements MySerializable {
 
     public void setLibraryRef(String libraryRef) {
         this.libraryRef = libraryRef;
-    }
-
-    public int getLoanID() {
-        return loanID;
-    }
-
-    public void setLoanID(int loanID) {
-        this.loanID = loanID;
     }
 
     public int getUserID() {
@@ -68,14 +55,6 @@ public class LoanBookRequest implements MySerializable {
     
     public void setReturnDate(String returnDate) {
         this.returnDate = returnDate;
-    }
-
-    public int getFinesOwed() {
-        return this.finesOwed;
-    }
-
-    public void setFinesOwed(int finesOwed) {
-        this.finesOwed = finesOwed;
     }
 }
 

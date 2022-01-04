@@ -1,6 +1,6 @@
 package messages.borrow;
 
-public class SearchResponse {
+public class LoanSearchResponse {
     private int loanID;
     private int userID;
     private int bookID;
@@ -9,7 +9,7 @@ public class SearchResponse {
     private String actualReturnDate;
     private String libraryRef;
 
-    public SearchResponse(int loanID, int userID, int bookID, String loanDate, String returnDate,
+    public LoanSearchResponse(int loanID, int userID, int bookID, String loanDate, String returnDate,
             String actualReturnDate, String libraryRef) {
         this.loanID = loanID;
         this.userID = userID;

@@ -6,6 +6,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.sql.Types;
 import java.util.ArrayList;
 
 import org.joda.time.DateTime;
@@ -22,7 +23,7 @@ import messages.borrow.CalculateFinesResponse;
 import messages.borrow.LoanBookRequest;
 import messages.borrow.RetrieveLoan;
 import messages.borrow.ReturnBookRequest;
-import messages.borrow.SearchResponse;
+import messages.borrow.LoanSearchResponse;
 
 public class LoanService extends AbstractActor {
     static ActorSystem loanSystem;
@@ -86,31 +87,31 @@ public class LoanService extends AbstractActor {
                             try (Connection conn = DriverManager.getConnection(dBURL, dbUsername, dbPassword)) {
 
                                 // Check if registered member
-                                String SQL1 = "SELECT * FROM VALID WHERE id=1";
+                                String SQL1 = "SELECT * FROM VALID WHERE member_id=?";
 
                                 PreparedStatement statement1 = conn.prepareStatement(SQL1,
                                         Statement.RETURN_GENERATED_KEYS);
+                                statement1.setInt(1, LoanAddition.getUserID());
                                 ResultSet res1 = statement1.executeQuery();
 
                                 if (res1.next()) {
-                                    String SQL = "INSERT INTO LOANS (loan_id, book_id, member_id, loan_date, return_date, actual_return_date, library_ref)"
+                                    String SQL = "INSERT INTO LOANS (book_id, member_id, loan_date, return_date, actual_return_date, library_ref)"
                                             +
-                                            " VALUES (?,?,?,?,?,?,?)";
+                                            " VALUES (?,?,?,?,?,?)";
                                     PreparedStatement statement = conn.prepareStatement(SQL,
                                             Statement.RETURN_GENERATED_KEYS);
-                                    statement.setInt(1, LoanAddition.getLoanID());
-                                    statement.setInt(2, LoanAddition.getBookID());
-                                    statement.setInt(3, LoanAddition.getUserID());
+                                    // statement.setInt(1, LoanAddition.getLoanID());
+                                    statement.setInt(1, LoanAddition.getBookID());
+                                    statement.setInt(2, LoanAddition.getUserID());
 
                                     DateTime borrowDate = new DateTime();
-                                    System.out.println("helllloooooo" + borrowDate);
-                                    statement.setString(4, borrowDate.toString());
+                                    statement.setString(3, borrowDate.toString());
 
                                     DateTime returnDate = new DateTime().plusDays(7);
-                                    statement.setString(5, returnDate.toString());
+                                    statement.setString(4, returnDate.toString());
 
-                                    statement.setString(6, "");
-                                    statement.setString(7, LoanAddition.getLibraryRef());
+                                    statement.setInt(5, Types.NULL);
+                                    statement.setString(6, LoanAddition.getLibraryRef());
 
                                     // Execute the sql query (returns the rows affected by the query)
                                     int rowsAffected = statement.executeUpdate();
@@ -136,7 +137,7 @@ public class LoanService extends AbstractActor {
                             try (Connection conn = DriverManager.getConnection(dBURL, dbUsername, dbPassword)) {
 
                                 // Use loanID to retrieve loan information
-                                String SQL = "SELECT * FROM LOANS WHERE loan_id =?";
+                                String SQL = "SELECT * FROM LOANS WHERE loan_id=?";
                                 PreparedStatement statement = conn.prepareStatement(SQL,
                                         Statement.RETURN_GENERATED_KEYS);
                                 statement.setInt(1, RetrieveLoan.getLoanID());
@@ -144,7 +145,7 @@ public class LoanService extends AbstractActor {
                                 // Create a SearchResponse object with the result and send it back to the Broker
                                 // (loanID, bookID, memberID, loanDate, returnDate)
                                 while (res.next()) {
-                                    SearchResponse response = new SearchResponse(
+                                    LoanSearchResponse response = new LoanSearchResponse(
                                             res.getInt("loan_id"),
                                             res.getInt("book_id"),
                                             res.getInt("member_id"),
@@ -182,13 +183,13 @@ public class LoanService extends AbstractActor {
                                 while (res.next()) {
                                     DateTime loanDate = DateTime.parse(res.getString("loan_date"));
                                     DateTime untilDate;
-                                    if (res.getString("actual_return_date").isEmpty()) {
+
+                                    if (res.getString("actual_return_date") == null) {
                                         untilDate = new DateTime();
                                     } else {
                                         untilDate = DateTime.parse(res.getString("actual_return_date"));
                                     }
 
-                                    // int days = (int) ChronoUnit.DAYS.between(loanDate, untilDate);
                                     int days = Days.daysBetween(loanDate.toLocalDate(), untilDate.toLocalDate())
                                             .getDays();
 
@@ -227,8 +228,8 @@ public class LoanService extends AbstractActor {
                             try (Connection conn = DriverManager.getConnection(dBURL, dbUsername, dbPassword)) {
                                 DateTime currentDateTime = new DateTime();
 
-                                String SQL = "UPDATE LOANS SET actual_return_date=" + currentDateTime
-                                        + " WHERE loan_id=" + Request.getLoanId();
+                                String SQL = "UPDATE LOANS SET actual_return_date=\"" + currentDateTime.toString()
+                                        + "\" WHERE loan_id=" + Request.getLoanId();
                                 PreparedStatement statement = conn.prepareStatement(SQL,
                                         Statement.RETURN_GENERATED_KEYS);
 
