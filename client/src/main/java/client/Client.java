@@ -4,6 +4,8 @@ import akka.actor.*;
 import core.Book;
 import core.Member;
 import messages.OperationStatusResponse;
+import messages.borrow.LoanBookRequest;
+import messages.borrow.RetrieveLoan;
 import messages.catalogue.*;
 import messages.registry.*;
 
@@ -94,6 +96,13 @@ public class Client extends AbstractActor {
                                 // Test message to update password
                                 UpdatePasswordRequest passwordRequest = new UpdatePasswordRequest("tall_lib", 1, "123", "LisaNeedsBraces");
                                 brokerRef.tell(passwordRequest, getSelf());
+
+                                // Test message to loan a book (Operation status request should be returned as this represents
+                                // a user scanning a physical book in person at a machine in the library
+//                                LoanBookRequest loan = new LoanBookRequest(77, 23, " 2021-12-01")
+
+                                // Test message to retrieve info about a loan
+//                                RetrieveLoan retrieveLoanInfo = new RetrieveLoan("tall_lib", 1, 1);
 
 
                                 System.out.println("Finished sending messages");
