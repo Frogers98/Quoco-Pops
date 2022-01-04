@@ -55,10 +55,10 @@ public class Client extends AbstractActor {
 //                                        5);
 //                                CatalogueAdditionRequest bookAddition = new CatalogueAdditionRequest(book, 1);
 //                                brokerRef.tell(bookAddition, getSelf());
-
-                                // Test message to delete a book from the catalogue service
-                                // CatalogueRemovalRequest bookRemoval = new CatalogueRemovalRequest(3, "tall_lib", 2);
-                                // brokerRef.tell(bookRemoval, getSelf());
+//
+//                                 //Test message to delete a book from the catalogue service
+//                                 CatalogueRemovalRequest bookRemoval = new CatalogueRemovalRequest(3, "tall_lib", 2);
+//                                 brokerRef.tell(bookRemoval, getSelf());
 
                                 // Test message to search for a book using the catalogue service
                                 SearchRequest searchRequest = new SearchRequest("phib_lib", 2, 123);
