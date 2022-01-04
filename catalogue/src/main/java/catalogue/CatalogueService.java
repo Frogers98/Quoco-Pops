@@ -164,7 +164,9 @@ public class CatalogueService extends AbstractActor {
                                     getSender().tell(response, getSelf());
                                 }
                             } catch (SQLException e) {
-                                e.printStackTrace();
+                                System.out.println("Tried to add book " + bookAddition.getBook() + "to " + libraryName + " but it already existed");
+                                CatalogueAdditionResponse response = new CatalogueAdditionResponse(bookAddition.getUserId(), false, libraryName);
+                                getSender().tell(response, getSelf());
                             }
                         })
 
@@ -193,6 +195,9 @@ public class CatalogueService extends AbstractActor {
                                 } else {
                                     CatalogueRemovalResponse response = new CatalogueRemovalResponse(bookRemoval.getBookID(), false, libraryName);
                                 }
+                            } catch(SQLException e) {
+                                System.out.println("Tried to delete book: " + bookRemoval.getBookID() + "in " + bookRemoval.getLibraryRef() + " but book was not in table");
+                                CatalogueRemovalResponse response = new CatalogueRemovalResponse(bookRemoval.getBookID(), false, libraryName);
                             }
                         })
                             .match(CheckAvailabilityRequest.class,
@@ -289,7 +294,7 @@ public class CatalogueService extends AbstractActor {
                         msg -> {
                             if (msg.equals("registerBroker")) {
                                 brokerRef = getSender();
-                                startScheduler();
+//                                startScheduler();
                                 System.out.println("registered broker in catalogue service");
                             }
                         })
@@ -330,16 +335,16 @@ public class CatalogueService extends AbstractActor {
                 .build();
     }
 
-    public static void startScheduler() {
-        // This method starts a scheduler that will be started one the broker starts up
-        // it should send a string to the broker every 3 seconds after an initial 5
-        // second wait.
-        Cancellable cancellable = catalogueSystem
-                .scheduler()
-                .schedule(
-                        Duration.ofMillis(5000), Duration.ofMillis(3000), brokerRef, "testScheduler",
-                        catalogueSystem.dispatcher(), null);
-    }
+//    public static void startScheduler() {
+//        // This method starts a scheduler that will be started one the broker starts up
+//        // it should send a string to the broker every 3 seconds after an initial 5
+//        // second wait.
+//        Cancellable cancellable = catalogueSystem
+//                .scheduler()
+//                .schedule(
+//                        Duration.ofMillis(5000), Duration.ofMillis(3000), brokerRef, "testScheduler",
+//                        catalogueSystem.dispatcher(), null);
+//    }
 
     // This cancels further Ticks to be sent
     // cancellable.cancel();
