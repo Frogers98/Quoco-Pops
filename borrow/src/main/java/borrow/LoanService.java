@@ -145,16 +145,31 @@ public class LoanService extends AbstractActor {
                                 // Create a SearchResponse object with the result and send it back to the Broker
                                 // (loanID, bookID, memberID, loanDate, returnDate)
                                 while (res.next()) {
+                                    int loanID = res.getInt("loan_id");
+                                    int bookID = res.getInt("book_id");
+                                    int memberID = res.getInt("member_id");
+                                    String loanDate = res.getString("loan_date");
+                                    String returnDate = res.getString("return_date");
+                                    String actualReturnDate;
+
+                                    if (res.getString("actual_return_date") == null) {
+                                        actualReturnDate = "Still on loan";
+                                    } else {
+                                        actualReturnDate = res.getString("actual_return_date");
+                                    }
+
+                                    String libraryRef = res.getString("library_ref");
+
                                     LoanSearchResponse response = new LoanSearchResponse(
-                                            res.getInt("loan_id"),
-                                            res.getInt("book_id"),
-                                            res.getInt("member_id"),
-                                            res.getString("loan_date"),
-                                            res.getString("return_date"),
-                                            res.getString("actual_return_date"),
-                                            res.getString("library_ref"));
+                                            loanID,
+                                            bookID,
+                                            memberID,
+                                            loanDate,
+                                            returnDate,
+                                            actualReturnDate,
+                                            libraryRef);
                                     // System.out.println(
-                                    //         "loan from LOANS. Return Date: " + res.getString("return_date"));
+                                    // "loan from LOANS. Return Date: " + res.getString("return_date"));
                                     getSender().tell(response, getSelf());
                                 }
                             } catch (SQLException e) {
