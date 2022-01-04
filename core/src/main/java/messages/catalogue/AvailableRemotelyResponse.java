@@ -2,7 +2,9 @@ package messages.catalogue;
 
 import java.util.HashMap;
 
-public class AvailableRemotelyResponse {
+import messages.MySerializable;
+
+public class AvailableRemotelyResponse implements MySerializable {
     String libraryRef;
     int bookId;
     HashMap<String, Integer> whereAvailable;
