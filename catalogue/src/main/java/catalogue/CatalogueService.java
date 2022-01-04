@@ -117,12 +117,12 @@ public class CatalogueService extends AbstractActor {
                                 ResultSet res = statement.executeQuery();
                                 // Create a SearchResponse object with the result and send it back to the broker
                                 // Return n/a for library name and 0 for num copies as this info won't be shown to user
-                                while (res.next()) {
+                                    res.first();
                                     Book bookRetrieved = new Book(res.getInt("book_id"), res.getString("book_title"), res.getString("book_author"), "n/a", 0);
 
                                     SearchResponse response = new SearchResponse(searchRequest.getLibraryRef(), bookRetrieved, searchRequest.getUserId());
                                     getSender().tell(response, getSelf());
-                                }
+
                             } catch (SQLException e) {
                                 e.printStackTrace();
                             }
