@@ -31,15 +31,19 @@ public class RegistryService extends AbstractActor {
     private final static String dbPassword = "Passw0rd1";
     private static ActorSystem registrySystem;
     private static ActorRef registryActorRef;
-    private static ActorRef brokeRef;
+    private static ActorRef brokerRef;
 
-    private ActorRef counter;
+    private static ActorRef registerMemberChild;
+    private static ActorRef deleteMemberChild;
+    private static ActorRef retrieveMemberDetailsChild;
+    private static ActorRef updatePasswordChild;
 
     public static void main(String[] args) {
 
         registrySystem = ActorSystem.create();
 
         registryActorRef = registrySystem.actorOf(Props.create(RegistryService.class), "registry");
+        registryActorRef.tell("createChildren", registryActorRef);
 
         ActorSelection brokerSelection = registrySystem.actorSelection("akka.tcp://default@127.0.0.1:2551/user/broker");
         brokerSelection.tell("registerRegistry", registryActorRef);
@@ -72,174 +76,253 @@ public class RegistryService extends AbstractActor {
 
     @Override
     public SupervisorStrategy supervisorStrategy() {
+        System.out.println("HIIIIIIIIIIIII");
         return strategy;
     }
 
-    static class RegisterMemberChild extends AbstractActor {
+    public static class RegisterMemberChild extends AbstractActor {
+        int checkState = 0;
+
         @Override
         public Receive createReceive() {
             return receiveBuilder()
-            .match(SQLException.class, exception -> {
-                throw exception;
-            })
-            .match(RegisterMemberRequest.class, 
-            Request -> {
-                System.out.println("ANNNNNDDDDD HEEEERE");
-                try (Connection conn = DriverManager.getConnection(dBURL, dbUsername, dbPassword)) {
-                    String query = "INSERT INTO REGISTRATION (id, name, gender, year_of_birth, password, library_ref, email, phone_no) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
-                    PreparedStatement statement = conn.prepareStatement(query,
-                            Statement.RETURN_GENERATED_KEYS);
-                    statement.setInt(1, Request.getMember().getId());
-                    statement.setString(2, Request.getMember().getName());
-                    statement.setString(3, String.valueOf(Request.getMember().getGender()));
-                    statement.setInt(4, Request.getMember().getYearOfBirth());
-                    statement.setString(5, Request.getMember().getPassword());
-                    statement.setString(6, Request.getMember().getHomeLibrary());
-                    statement.setString(7, Request.getMember().getEmail());
-                    statement.setString(8, Request.getMember().getPhoneNumber());
+                    .match(SQLException.class, exception -> {
+                        throw exception;
+                    })
+                    .match(Integer.class, i -> {
+                        checkState = i;
+                        System.out.println("ANNNNNDDDDD HEEEERE");
+                        System.out.println(checkState);
+                    })
+                    .matchEquals("get", msg -> getSender().tell(checkState, getSelf()))
+                    .match(RegisterMemberRequest.class,
+                            Request -> {
 
-                    int rowsAffected = statement.executeUpdate();
+                                try (Connection conn = DriverManager.getConnection(dBURL, dbUsername, dbPassword)) {
+                                    String query = "INSERT INTO REGISTRATION (id, name, gender, year_of_birth, password, library_ref, email, phone_no) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+                                    PreparedStatement statement = conn.prepareStatement(query,
+                                            Statement.RETURN_GENERATED_KEYS);
+                                    statement.setInt(1, Request.getMember().getId());
+                                    statement.setString(2, Request.getMember().getName());
+                                    statement.setString(3, String.valueOf(Request.getMember().getGender()));
+                                    statement.setInt(4, Request.getMember().getYearOfBirth());
+                                    statement.setString(5, Request.getMember().getPassword());
+                                    statement.setString(6, Request.getMember().getHomeLibrary());
+                                    statement.setString(7, Request.getMember().getEmail());
+                                    statement.setString(8, Request.getMember().getPhoneNumber());
 
-                    if (rowsAffected > 0) {
-                        getSender().tell(
-                                new OperationStatusResponse(Request.getLibraryRef(),
-                                        Request.getMember().getId(), "Member added successfully"),
-                                getSelf());
-                    } else {
-                        getSender().tell(new OperationStatusResponse(Request.getLibraryRef(),
-                                Request.getMember().getId(), "Operation unsuccessful"), getSelf());
-                    }
-                } catch (SQLException e) {
-                    getSelf().tell(new SQLException(), getSelf());
-                    e.printStackTrace();
-                }
-            })
-            .build();
+                                    int rowsAffected = statement.executeUpdate();
+
+                                    if (rowsAffected > 0) {
+                                        // getSelf().tell(new SQLException(), ActorRef.noSender());
+                                        getSender().tell(
+                                                new OperationStatusResponse(Request.getLibraryRef(),
+                                                        Request.getMember().getId(), "Member added successfully"),
+                                                getSelf());
+                                    } else {
+                                        getSender().tell(new OperationStatusResponse(Request.getLibraryRef(),
+                                                Request.getMember().getId(), "Operation unsuccessful"), getSelf());
+                                    }
+                                } catch (SQLException e) {
+                                    getSelf().tell(new SQLException(), getSelf());
+                                    e.printStackTrace();
+                                }
+                            })
+                    .build();
+        }
+    }
+
+    public static class DeleteMemberChild extends AbstractActor {
+        int checkState = 0;
+
+        @Override
+        public Receive createReceive() {
+            return receiveBuilder()
+                    .match(SQLException.class, exception -> {
+                        throw exception;
+                    })
+                    .match(Integer.class, i -> {
+                        checkState = i;
+                        System.out.println("ANNNNNDDDDD HEEEERE");
+                        System.out.println(checkState);
+                    })
+                    .matchEquals("get", s -> getSender().tell(checkState, getSelf()))
+                    .match(DeleteMemberRequest.class,
+                            Request -> {
+
+                                try (Connection conn = DriverManager.getConnection(dBURL, dbUsername, dbPassword)) {
+                                    String query = "DELETE FROM REGISTRATION WHERE id=?";
+                                    PreparedStatement statement = conn.prepareStatement(query,
+                                            Statement.RETURN_GENERATED_KEYS);
+                                    statement.setInt(1, Request.getId());
+
+                                    int rowsAffected = statement.executeUpdate();
+                                    if (rowsAffected > 0) {
+                                        getSender().tell(new OperationStatusResponse(Request.getLibraryRef(),
+                                                Request.getId(), "Member deleted successfully"), getSelf());
+                                    } else {
+                                        getSender().tell(new OperationStatusResponse(Request.getLibraryRef(),
+                                                Request.getId(), "Operation unsuccessful"), getSelf());
+                                    }
+
+                                } catch (SQLException e) {
+                                    getSelf().tell(new SQLException(), getSelf());
+                                    e.printStackTrace();
+                                }
+                            })
+                    .build();
+        }
+    }
+
+    public static class RetrieveMemberDetailsChild extends AbstractActor {
+        int checkState = 0;
+
+        @Override
+        public Receive createReceive() {
+            return receiveBuilder()
+                    .match(SQLException.class, exception -> {
+                        throw exception;
+                    })
+                    .match(Integer.class, i -> {
+                        checkState = i;
+                        System.out.println("ANNNNNDDDDD HEEEERE");
+                        System.out.println(checkState);
+                    })
+                    .matchEquals("get", s -> getSender().tell(checkState, getSelf()))
+                    .match(RetrieveMemberDetailsRequest.class,
+                            Request -> {
+
+                                try (Connection conn = DriverManager.getConnection(dBURL, dbUsername, dbPassword)) {
+                                    String query = "SELECT * FROM REGISTRATION WHERE id=" + Request.getId();
+
+                                    Statement statement = conn.createStatement(ResultSet.TYPE_SCROLL_SENSITIVE,
+                                            ResultSet.CONCUR_UPDATABLE);
+                                    ResultSet resultSet = statement.executeQuery(query);
+                                    resultSet.absolute(1);
+
+                                    Member member = new Member(resultSet.getString("name"),
+                                            resultSet.getString("gender").charAt(0),
+                                            resultSet.getInt("year_of_birth"), resultSet.getString("password"),
+                                            resultSet.getInt("id"),
+                                            resultSet.getString("library_ref"), resultSet.getString("phone_no"),
+                                            resultSet.getString("email"));
+
+                                    getSender().tell(new RetrieveMemberDetailsResponse(Request.getLibraryRef(), member),
+                                            getSelf());
+
+                                } catch (SQLException e) {
+                                    getSelf().tell(new SQLException(), getSelf());
+                                    e.printStackTrace();
+                                }
+                            })
+                    .build();
+        }
+    }
+
+    public static class UpdatePasswordChild extends AbstractActor {
+        int checkState = 0;
+
+        @Override
+        public Receive createReceive() {
+            return receiveBuilder()
+                    .match(SQLException.class, exception -> {
+                        throw exception;
+                    })
+                    .match(Integer.class, i -> {
+                        checkState = i;
+                        System.out.println("ANNNNNDDDDD HEEEERE");
+                        System.out.println(checkState);
+                    })
+                    .matchEquals("get", s -> getSender().tell(checkState, getSelf()))
+                    .match(UpdatePasswordRequest.class,
+                            Request -> {
+
+                                try (Connection conn = DriverManager.getConnection(dBURL, dbUsername, dbPassword)) {
+                                    String query = "SELECT password FROM REGISTRATION WHERE id=" + Request.getId();
+
+                                    Statement statement = conn.createStatement(ResultSet.TYPE_SCROLL_SENSITIVE,
+                                            ResultSet.CONCUR_UPDATABLE);
+                                    ResultSet resultSet = statement.executeQuery(query);
+                                    resultSet.absolute(1);
+
+                                    if (resultSet.getString("password").equals(Request.getOldPassword())) {
+                                        String query2 = "UPDATE REGISTRATION SET password = ? WHERE id=?";
+                                        PreparedStatement statement2 = conn.prepareStatement(query2,
+                                                Statement.RETURN_GENERATED_KEYS);
+                                        statement2.setString(1, Request.getNewPassword());
+                                        statement2.setInt(2, Request.getId());
+                                        int rowsAffected = statement2.executeUpdate();
+
+                                        if (rowsAffected > 0) {
+                                            getSender().tell(new OperationStatusResponse(Request.getLibraryRef(),
+                                                    Request.getId(), "Password changed"), getSelf());
+                                        } else {
+                                            getSender().tell(new OperationStatusResponse(Request.getLibraryRef(),
+                                                    Request.getId(), "Operation unsuccessful"), getSelf());
+                                        }
+                                    }
+                                } catch (SQLException e) {
+                                    getSelf().tell(new SQLException(), getSelf());
+                                    e.printStackTrace();
+                                }
+                            })
+                    .build();
         }
     }
 
     @Override
     public Receive createReceive() {
         return receiveBuilder()
-                .match(Props.class, props -> {
-                    getSender().tell(getContext().actorOf(props), getSelf());
-                })
+                .matchEquals("sendBrokerRef", msg -> brokerRef = getSender())
                 .match(OperationStatusResponse.class, Response -> {
-                    brokeRef.tell(Response, getSelf());
+                    brokerRef.tell(Response, getSelf());
                 })
+
+                .match(RetrieveMemberDetailsResponse.class, Response -> {
+                    brokerRef.tell(Response, getSelf());
+                })
+                .match(
+                        Props.class,
+                        props -> {
+                            getSender().tell(getContext().actorOf(props), getSelf());
+                        })
+
+                .matchEquals(
+                        "createChildren", msg -> {
+                            registerMemberChild = getContext().actorOf(Props.create(RegisterMemberChild.class),
+                                    "registerMemberChild");
+                            deleteMemberChild = getContext().actorOf(Props.create(DeleteMemberChild.class),
+                                    "deleteMemberChild");
+                            retrieveMemberDetailsChild = getContext().actorOf(
+                                    Props.create(RetrieveMemberDetailsChild.class),
+                                    "retrieveMemberDetailsChild");
+                            updatePasswordChild = getContext().actorOf(Props.create(UpdatePasswordChild.class),
+                                    "updatePasswordChild");
+                        })
 
                 .match(RegisterMemberRequest.class,
                         Request -> {
-                            counter = getContext().actorOf(Props.create(RegisterMemberChild.class), "registerMemberChild");
-                            brokeRef = getSender();
-                            counter.tell(Request, getSelf());
+                            brokerRef = getSender();
+                            registerMemberChild.tell(Request, getSelf());
                             System.out.println("HEEEEEEEEEEEREEEEEEEEEEEEE");
-
-                            // try (Connection conn = DriverManager.getConnection(dBURL, dbUsername, dbPassword)) {
-                            //     String query = "INSERT INTO REGISTRATION (id, name, gender, year_of_birth, password, library_ref, email, phone_no) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
-                            //     PreparedStatement statement = conn.prepareStatement(query,
-                            //             Statement.RETURN_GENERATED_KEYS);
-                            //     statement.setInt(1, Request.getMember().getId());
-                            //     statement.setString(2, Request.getMember().getName());
-                            //     statement.setString(3, String.valueOf(Request.getMember().getGender()));
-                            //     statement.setInt(4, Request.getMember().getYearOfBirth());
-                            //     statement.setString(5, Request.getMember().getPassword());
-                            //     statement.setString(6, Request.getMember().getHomeLibrary());
-                            //     statement.setString(7, Request.getMember().getEmail());
-                            //     statement.setString(8, Request.getMember().getPhoneNumber());
-
-                            //     int rowsAffected = statement.executeUpdate();
-
-                            //     if (rowsAffected > 0) {
-                            //         getSender().tell(
-                            //                 new OperationStatusResponse(Request.getLibraryRef(),
-                            //                         Request.getMember().getId(), "Member added successfully"),
-                            //                 getSelf());
-                            //     } else {
-                            //         getSender().tell(new OperationStatusResponse(Request.getLibraryRef(),
-                            //                 Request.getMember().getId(), "Operation unsuccessful"), getSelf());
-                            //     }
-                            // } catch (SQLException e) {
-                            //     e.printStackTrace();
-                            // }
                         })
 
                 .match(DeleteMemberRequest.class,
                         Request -> {
-                            try (Connection conn = DriverManager.getConnection(dBURL, dbUsername, dbPassword)) {
-                                String query = "DELETE FROM REGISTRATION WHERE id=?";
-                                PreparedStatement statement = conn.prepareStatement(query,
-                                        Statement.RETURN_GENERATED_KEYS);
-                                statement.setInt(1, Request.getId());
-
-                                int rowsAffected = statement.executeUpdate();
-                                // conn.close();
-                                if (rowsAffected > 0) {
-                                    getSender().tell(new OperationStatusResponse(Request.getLibraryRef(),
-                                            Request.getId(), "Member deleted successfully"), getSelf());
-                                } else {
-                                    getSender().tell(new OperationStatusResponse(Request.getLibraryRef(),
-                                            Request.getId(), "Operation unsuccessful"), getSelf());
-                                }
-                            } catch (SQLException e) {
-                                e.printStackTrace();
-                            }
+                            deleteMemberChild.tell(Request, getSelf());
                         })
 
                 .match(RetrieveMemberDetailsRequest.class,
                         Request -> {
-                            try (Connection conn = DriverManager.getConnection(dBURL, dbUsername, dbPassword)) {
-                                String query = "SELECT * FROM REGISTRATION WHERE id=" + Request.getId();
+                            retrieveMemberDetailsChild.tell(Request, getSelf());
 
-                                Statement statement = conn.createStatement(ResultSet.TYPE_SCROLL_SENSITIVE,
-                                        ResultSet.CONCUR_UPDATABLE);
-                                ResultSet resultSet = statement.executeQuery(query);
-                                resultSet.absolute(1);
-
-                                Member member = new Member(resultSet.getString("name"),
-                                        resultSet.getString("gender").charAt(0),
-                                        resultSet.getInt("year_of_birth"), resultSet.getString("password"),
-                                        resultSet.getInt("id"),
-                                        resultSet.getString("library_ref"), resultSet.getString("phone_no"),
-                                        resultSet.getString("email"));
-
-                                getSender().tell(new RetrieveMemberDetailsResponse(Request.getLibraryRef(), member),
-                                        getSelf());
-
-                            }
                         })
 
                 .match(UpdatePasswordRequest.class,
                         Request -> {
-                            try (Connection conn = DriverManager.getConnection(dBURL, dbUsername, dbPassword)) {
-                                String query = "SELECT password FROM REGISTRATION WHERE id=" + Request.getId();
-
-                                Statement statement = conn.createStatement(ResultSet.TYPE_SCROLL_SENSITIVE,
-                                        ResultSet.CONCUR_UPDATABLE);
-                                ResultSet resultSet = statement.executeQuery(query);
-                                resultSet.absolute(1);
-
-                                if (resultSet.getString("password").equals(Request.getOldPassword())) {
-                                    String query2 = "UPDATE REGISTRATION SET password = ? WHERE id=?";
-                                    PreparedStatement statement2 = conn.prepareStatement(query2,
-                                            Statement.RETURN_GENERATED_KEYS);
-                                    statement2.setString(1, Request.getNewPassword());
-                                    statement2.setInt(2, Request.getId());
-                                    int rowsAffected = statement2.executeUpdate();
-
-                                    if (rowsAffected > 0) {
-                                        getSender().tell(new OperationStatusResponse(Request.getLibraryRef(),
-                                                Request.getId(), "Password changed"), getSelf());
-                                    } else {
-                                        getSender().tell(new OperationStatusResponse(Request.getLibraryRef(),
-                                                Request.getId(), "Operation unsuccessful"), getSelf());
-                                    }
-                                }
-                            } catch (SQLException e) {
-                                e.printStackTrace();
-                            }
-
+                            updatePasswordChild.tell(Request, getSelf());
                         })
+
                 .build();
     }
 
