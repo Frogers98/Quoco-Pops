@@ -47,8 +47,8 @@ public class RegistryActor extends AbstractActor {
         }).
         match(CalculateFinesRequest.class,
         msg -> {
-            int finesOwed = service.calculateFinesOwed(msg.getId());
-            getSender().tell(new CalculateFinesResponse(msg.getLibraryRef(), msg.getId(), finesOwed), getSelf());
+            int finesOwed = service.calculateFinesOwed(msg.getMemberId());
+            getSender().tell(new CalculateFinesResponse(msg.getLibraryRef(), msg.getMemberId(), finesOwed), getSelf());
         }).build();
     }
     
