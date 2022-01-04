@@ -87,7 +87,9 @@ public class RegistryService extends AbstractActor {
                                             Request.getMember().getId(), "Operation unsuccessful"), getSelf());
                                 }
                             } catch (SQLException e) {
-                                e.printStackTrace();
+                                System.out.println("Tried to add user: " + Request.getMember() + " but user was already in table");
+                                getSender().tell(new OperationStatusResponse(Request.getLibraryRef(),
+                                        Request.getMember().getId(), "Operation unsuccessful"), getSelf());
                             }
                         })
 
@@ -109,7 +111,9 @@ public class RegistryService extends AbstractActor {
                                             Request.getId(), "Operation unsuccessful"), getSelf());
                                 }
                             } catch (SQLException e) {
-                                e.printStackTrace();
+                                System.out.println("Tried to delete user: " + Request.getId() + " but user was not in table");
+                                getSender().tell(new OperationStatusResponse(Request.getLibraryRef(),
+                                        Request.getId(), "Operation unsuccessful"), getSelf());
                             }
                         })
 

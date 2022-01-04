@@ -51,12 +51,14 @@ public class Broker extends AbstractActor {
 
                 .match(CalculateFinesRequest.class,
                         msg -> {
+                            System.out.println("calculate fines request received");
                             clientRefs.put(msg.getLibraryRef(), getSender());
                             actorRefs.get("registry").tell(msg, getSelf());
                         })
 
                 .match(CalculateFinesResponse.class,
                         msg -> {
+                            System.out.println("Calculate fines response received");
                             clientRefs.get(msg.getLibraryRef()).tell(msg, getSelf());
                         })
 
@@ -139,6 +141,7 @@ public class Broker extends AbstractActor {
 
                 .match(LoanBookRequest.class,
                         msg -> {
+                            System.out.println("loan book request received");
                             clientRefs.put(msg.getLibraryRef(), getSender());
                             actorRefs.get("loan").tell(msg, getSelf());
                             actorRefs.get("catalogue").tell(
@@ -147,6 +150,7 @@ public class Broker extends AbstractActor {
 
                 .match(RetrieveLoan.class,
                         msg -> {
+                            System.out.println("retrieve loan message received");
                             clientRefs.put(msg.getLibraryRef(), getSender());
                             actorRefs.get("loan").tell(msg, getSelf());
                         })
