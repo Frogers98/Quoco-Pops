@@ -97,17 +97,17 @@ public class CatalogueUnitTest {
 //          return;
 //      }
 
-    @Test
-    public void testAvailableRemotely() {
-        TestKit availableRemotelyActor = new TestKit(catalogueSystem);
-        CheckAvailabilityRequest req = new CheckAvailabilityRequest("tall_lib", 9, 54);
+    // @Test
+    // public void testAvailableRemotely() {
+    //     TestKit availableRemotelyActor = new TestKit(catalogueSystem);
+    //     CheckAvailabilityRequest req = new CheckAvailabilityRequest("tall_lib", 9, 54);
 
-        catalogueService.tell(req, availableRemotelyActor.getRef());
+    //     catalogueService.tell(req, availableRemotelyActor.getRef());
 
-        availableRemotelyActor.awaitCond(availableRemotelyActor::msgAvailable);
-        availableRemotelyActor.expectMsgClass(Duration.ofSeconds(6), AvailableRemotelyResponse.class);
-        return;
-    }
+    //     availableRemotelyActor.awaitCond(availableRemotelyActor::msgAvailable);
+    //     availableRemotelyActor.expectMsgClass(Duration.ofSeconds(6), AvailableRemotelyResponse.class);
+    //     return;
+    // }
 
 //     @Test
 //     public void testIncrementAvailability() {

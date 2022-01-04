@@ -33,19 +33,19 @@ public class RegistryUnitTest {
         registrySystem = null;
     }
 
-    // @Test
-    // public void testMemberRegistration() {
-    //     TestKit memberRegistrationActor = new TestKit(registrySystem);
-    //     Member member = new Member("Jane Slevin", Member.getFemaleChar(), 1994, "123", 100, "tall_lib", "12345678", "jane@email.com");
-    //     RegisterMemberRequest memberRegistration = new RegisterMemberRequest(member.getHomeLibrary(), member);
+    @Test
+    public void testMemberRegistration() {
+        TestKit memberRegistrationActor = new TestKit(registrySystem);
+        Member member = new Member("Jane Slevin", Member.getFemaleChar(), 1994, "123", 103, "tall_lib", "12345678", "jane@email.com");
+        RegisterMemberRequest memberRegistration = new RegisterMemberRequest(member.getHomeLibrary(), member);
 
-    //     registryService.tell(memberRegistration, memberRegistrationActor.getRef());
+        registryService.tell(memberRegistration, memberRegistrationActor.getRef());
 
 
-    //     memberRegistrationActor.awaitCond(memberRegistrationActor::msgAvailable);
-    //     memberRegistrationActor.expectMsgClass(Duration.ZERO, OperationStatusResponse.class);
-    //     return;
-    // }
+        memberRegistrationActor.awaitCond(memberRegistrationActor::msgAvailable);
+        memberRegistrationActor.expectMsgClass(Duration.ZERO, OperationStatusResponse.class);
+        return;
+    }
 
     // @Test
     // public void testMemberDeletion() {

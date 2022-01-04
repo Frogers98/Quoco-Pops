@@ -31,6 +31,9 @@ public class RegistryService extends AbstractActor {
     private final static String dbPassword = "Passw0rd1";
     private static ActorSystem registrySystem;
     private static ActorRef registryActorRef;
+    private static ActorRef brokeRef;
+
+    private ActorRef counter;
 
     public static void main(String[] args) {
 
@@ -72,16 +75,45 @@ public class RegistryService extends AbstractActor {
         return strategy;
     }
 
-    static class Child extends AbstractActor {
-        int state = 0;
-
+    static class RegisterMemberChild extends AbstractActor {
         @Override
         public Receive createReceive() {
             return receiveBuilder()
-            .match(Exception.class, exception -> {
+            .match(SQLException.class, exception -> {
                 throw exception;
             })
-            .match(Integer.class, i -> state = i)
+            .match(RegisterMemberRequest.class, 
+            Request -> {
+                System.out.println("ANNNNNDDDDD HEEEERE");
+                try (Connection conn = DriverManager.getConnection(dBURL, dbUsername, dbPassword)) {
+                    String query = "INSERT INTO REGISTRATION (id, name, gender, year_of_birth, password, library_ref, email, phone_no) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+                    PreparedStatement statement = conn.prepareStatement(query,
+                            Statement.RETURN_GENERATED_KEYS);
+                    statement.setInt(1, Request.getMember().getId());
+                    statement.setString(2, Request.getMember().getName());
+                    statement.setString(3, String.valueOf(Request.getMember().getGender()));
+                    statement.setInt(4, Request.getMember().getYearOfBirth());
+                    statement.setString(5, Request.getMember().getPassword());
+                    statement.setString(6, Request.getMember().getHomeLibrary());
+                    statement.setString(7, Request.getMember().getEmail());
+                    statement.setString(8, Request.getMember().getPhoneNumber());
+
+                    int rowsAffected = statement.executeUpdate();
+
+                    if (rowsAffected > 0) {
+                        getSender().tell(
+                                new OperationStatusResponse(Request.getLibraryRef(),
+                                        Request.getMember().getId(), "Member added successfully"),
+                                getSelf());
+                    } else {
+                        getSender().tell(new OperationStatusResponse(Request.getLibraryRef(),
+                                Request.getMember().getId(), "Operation unsuccessful"), getSelf());
+                    }
+                } catch (SQLException e) {
+                    getSelf().tell(new SQLException(), getSelf());
+                    e.printStackTrace();
+                }
+            })
             .build();
         }
     }
@@ -92,36 +124,44 @@ public class RegistryService extends AbstractActor {
                 .match(Props.class, props -> {
                     getSender().tell(getContext().actorOf(props), getSelf());
                 })
+                .match(OperationStatusResponse.class, Response -> {
+                    brokeRef.tell(Response, getSelf());
+                })
 
                 .match(RegisterMemberRequest.class,
                         Request -> {
-                            try (Connection conn = DriverManager.getConnection(dBURL, dbUsername, dbPassword)) {
-                                String query = "INSERT INTO REGISTRATION (id, name, gender, year_of_birth, password, library_ref, email, phone_no) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
-                                PreparedStatement statement = conn.prepareStatement(query,
-                                        Statement.RETURN_GENERATED_KEYS);
-                                statement.setInt(1, Request.getMember().getId());
-                                statement.setString(2, Request.getMember().getName());
-                                statement.setString(3, String.valueOf(Request.getMember().getGender()));
-                                statement.setInt(4, Request.getMember().getYearOfBirth());
-                                statement.setString(5, Request.getMember().getPassword());
-                                statement.setString(6, Request.getMember().getHomeLibrary());
-                                statement.setString(7, Request.getMember().getEmail());
-                                statement.setString(8, Request.getMember().getPhoneNumber());
+                            counter = getContext().actorOf(Props.create(RegisterMemberChild.class), "registerMemberChild");
+                            brokeRef = getSender();
+                            counter.tell(Request, getSelf());
+                            System.out.println("HEEEEEEEEEEEREEEEEEEEEEEEE");
 
-                                int rowsAffected = statement.executeUpdate();
+                            // try (Connection conn = DriverManager.getConnection(dBURL, dbUsername, dbPassword)) {
+                            //     String query = "INSERT INTO REGISTRATION (id, name, gender, year_of_birth, password, library_ref, email, phone_no) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+                            //     PreparedStatement statement = conn.prepareStatement(query,
+                            //             Statement.RETURN_GENERATED_KEYS);
+                            //     statement.setInt(1, Request.getMember().getId());
+                            //     statement.setString(2, Request.getMember().getName());
+                            //     statement.setString(3, String.valueOf(Request.getMember().getGender()));
+                            //     statement.setInt(4, Request.getMember().getYearOfBirth());
+                            //     statement.setString(5, Request.getMember().getPassword());
+                            //     statement.setString(6, Request.getMember().getHomeLibrary());
+                            //     statement.setString(7, Request.getMember().getEmail());
+                            //     statement.setString(8, Request.getMember().getPhoneNumber());
 
-                                if (rowsAffected > 0) {
-                                    getSender().tell(
-                                            new OperationStatusResponse(Request.getLibraryRef(),
-                                                    Request.getMember().getId(), "Member added successfully"),
-                                            getSelf());
-                                } else {
-                                    getSender().tell(new OperationStatusResponse(Request.getLibraryRef(),
-                                            Request.getMember().getId(), "Operation unsuccessful"), getSelf());
-                                }
-                            } catch (SQLException e) {
-                                e.printStackTrace();
-                            }
+                            //     int rowsAffected = statement.executeUpdate();
+
+                            //     if (rowsAffected > 0) {
+                            //         getSender().tell(
+                            //                 new OperationStatusResponse(Request.getLibraryRef(),
+                            //                         Request.getMember().getId(), "Member added successfully"),
+                            //                 getSelf());
+                            //     } else {
+                            //         getSender().tell(new OperationStatusResponse(Request.getLibraryRef(),
+                            //                 Request.getMember().getId(), "Operation unsuccessful"), getSelf());
+                            //     }
+                            // } catch (SQLException e) {
+                            //     e.printStackTrace();
+                            // }
                         })
 
                 .match(DeleteMemberRequest.class,
