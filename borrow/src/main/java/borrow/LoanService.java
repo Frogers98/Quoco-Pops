@@ -47,7 +47,7 @@ public class LoanService extends AbstractActor {
 
         // Register Actor with the Broker
         ActorSelection selection = loanSystem.actorSelection("akka.tcp://default@127.0.0.1:2551/user/broker");
-        System.out.println(selection.toString());
+//        System.out.println(selection.toString());
         selection.tell("registerLoan", ref);
 
         // Open a database connection
@@ -65,7 +65,7 @@ public class LoanService extends AbstractActor {
                     " library_ref VARCHAR(255), " +
                     " PRIMARY KEY ( loan_id ))";
             stmt.executeUpdate(sql);
-            System.out.println("Created LOANS in given database...");
+//            System.out.println("Created LOANS in given database...");
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -75,7 +75,7 @@ public class LoanService extends AbstractActor {
                     "(member_id INTEGER NOT NULL, " +
                     " PRIMARY KEY ( member_id ))";
             stmt.executeUpdate(sql);
-            System.out.println("Created VALID in given database...");
+//            System.out.println("Created VALID in given database...");
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -86,7 +86,7 @@ public class LoanService extends AbstractActor {
         return receiveBuilder()
                 .match(LoanBookRequest.class,
                         LoanAddition -> {
-                            System.out.println("Received loan addition request");
+//                            System.out.println("Received loan addition request");
                             try (Connection conn = DriverManager.getConnection(dBURL, dbUsername, dbPassword)) {
 
                                 // Check if registered member
@@ -137,7 +137,7 @@ public class LoanService extends AbstractActor {
                         })
                 .match(RetrieveLoan.class,
                         RetrieveLoan -> {
-                            System.out.println("Received retrieve loan");
+//                            System.out.println("Received retrieve loan");
                             try (Connection conn = DriverManager.getConnection(dBURL, dbUsername, dbPassword)) {
 
                                 // Use loanID to retrieve loan information
@@ -183,7 +183,7 @@ public class LoanService extends AbstractActor {
                         })
                 .match(CalculateFinesRequest.class,
                         Request -> {
-                            System.out.println("received calculate fines request");
+//                            System.out.println("received calculate fines request");
                             ArrayList<Integer> loanLengths = new ArrayList<Integer>();
 
                             int rate1 = 15;
@@ -245,7 +245,7 @@ public class LoanService extends AbstractActor {
                         })
                 .match(ReturnBookRequest.class,
                         Request -> {
-                            System.out.println("Received returnbookrequest");
+//                            System.out.println("Received returnbookrequest");
                             try (Connection conn = DriverManager.getConnection(dBURL, dbUsername, dbPassword)) {
                                 DateTime currentDateTime = new DateTime();
 

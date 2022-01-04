@@ -51,7 +51,7 @@ public class RegistryService extends AbstractActor {
                     " phone_no VARCHAR(255), " +
                     " PRIMARY KEY ( id ))";
             stmt.executeUpdate(sql);
-            System.out.println("Created REGISTRATION in given database...");
+//            System.out.println("Created REGISTRATION in given database...");
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -87,7 +87,7 @@ public class RegistryService extends AbstractActor {
                                             Request.getMember().getId(), "Operation unsuccessful"), getSelf());
                                 }
                             } catch (SQLException e) {
-                                System.out.println("Tried to add user: " + Request.getMember() + " but user was already in table");
+//                                System.out.println("Tried to add user: " + Request.getMember() + " but user was already in table");
                                 getSender().tell(new OperationStatusResponse(Request.getLibraryRef(),
                                         Request.getMember().getId(), "Operation unsuccessful"), getSelf());
                             }
@@ -111,7 +111,7 @@ public class RegistryService extends AbstractActor {
                                             Request.getId(), "Operation unsuccessful"), getSelf());
                                 }
                             } catch (SQLException e) {
-                                System.out.println("Tried to delete user: " + Request.getId() + " but user was not in table");
+//                                System.out.println("Tried to delete user: " + Request.getId() + " but user was not in table");
                                 getSender().tell(new OperationStatusResponse(Request.getLibraryRef(),
                                         Request.getId(), "Operation unsuccessful"), getSelf());
                             }

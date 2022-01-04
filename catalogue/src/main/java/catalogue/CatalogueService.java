@@ -74,7 +74,7 @@ public class CatalogueService extends AbstractActor {
                     " library_ref VARCHAR(255), " +
                     " PRIMARY KEY ( id ))";
             stmt.executeUpdate(sql);
-            System.out.println("Created CATALOGUE in given database...");
+//            System.out.println("Created CATALOGUE in given database...");
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -90,7 +90,7 @@ public class CatalogueService extends AbstractActor {
                     " library_name VARCHAR(45) NOT NULL, " +
                     " PRIMARY KEY ( id ))";
             stmt.executeUpdate(sql);
-            System.out.println("Created LIBRARIES in given database...");
+//            System.out.println("Created LIBRARIES in given database...");
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -128,7 +128,7 @@ public class CatalogueService extends AbstractActor {
                         })
                 .match(CatalogueAdditionRequest.class,
                         bookAddition -> {
-                            System.out.println("In Catalogue Addition Request");
+//                            System.out.println("In Catalogue Addition Request");
                             // Get the library this book is being added to so we add it to the right table
                             Book book = bookAddition.getBook();
                             String libraryName = book.getLibraryName();
@@ -136,9 +136,9 @@ public class CatalogueService extends AbstractActor {
                             // try with block to instantiate database stuff so it will close itself when
                             // finished
                             try (Connection conn = DriverManager.getConnection(dBURL, dbUsername, dbPassword)) {
-                                System.out.println("In try statement");
+//                                System.out.println("In try statement");
                                 String SQL = "INSERT into catalogue (book_id, book_title, book_author, available_copies, total_copies, library_ref) VALUES (?,?,?,?,?,?)";
-                                System.out.println("SQL STATEMENT: " + SQL);
+//                                System.out.println("SQL STATEMENT: " + SQL);
                                 PreparedStatement statement = conn.prepareStatement(SQL, Statement.RETURN_GENERATED_KEYS);
                                 statement.setInt(1, book.getBookID());
                                 statement.setString(2, book.getBookTitle());
@@ -162,7 +162,7 @@ public class CatalogueService extends AbstractActor {
                                     getSender().tell(response, getSelf());
                                 }
                             } catch (SQLException e) {
-                                System.out.println("Tried to add book " + bookAddition.getBook() + "to " + libraryName + " but it already existed");
+//                                System.out.println("Tried to add book " + bookAddition.getBook() + "to " + libraryName + " but it already existed");
                                 CatalogueAdditionResponse response = new CatalogueAdditionResponse(bookAddition.getUserId(), false, libraryName);
                                 getSender().tell(response, getSelf());
                             }
@@ -172,7 +172,7 @@ public class CatalogueService extends AbstractActor {
                         bookRemoval -> {
                             // bookID is a unique value in the table so we can remove the row from
                             // the appropriate table with matching bookID
-                            System.out.println("IN CATALOGUE REMOVAL");
+//                            System.out.println("IN CATALOGUE REMOVAL");
                             String libraryName = bookRemoval.getLibraryRef();
 
                             // try with block to instantiate database stuff so it will close itself when
@@ -194,14 +194,14 @@ public class CatalogueService extends AbstractActor {
                                     CatalogueRemovalResponse response = new CatalogueRemovalResponse(bookRemoval.getBookID(), false, libraryName);
                                 }
                             } catch (SQLException e) {
-                                System.out.println("Tried to delete book: " + bookRemoval.getBookID() + "in " + bookRemoval.getLibraryRef() + " but book was not in table");
+//                                System.out.println("Tried to delete book: " + bookRemoval.getBookID() + "in " + bookRemoval.getLibraryRef() + " but book was not in table");
                                 CatalogueRemovalResponse response = new CatalogueRemovalResponse(bookRemoval.getBookID(), false, libraryName);
                             }
                         })
 
                 .match(CheckAvailabilityRequest.class,
                         Request -> {
-                            System.out.println("In CheckAvailabilityRequest");
+//                            System.out.println("In CheckAvailabilityRequest");
                             HashMap<String, Integer> inStock = new HashMap<>();
                             HashMap<String, String> libraryLocations = new HashMap<>();
                             String currentLibrary = Request.getLibraryRef();
@@ -295,7 +295,7 @@ public class CatalogueService extends AbstractActor {
                             if (msg.equals("registerBroker")) {
                                 brokerRef = getSender();
 //                                startScheduler();
-                                System.out.println("registered broker in catalogue service");
+//                                System.out.println("registered broker in catalogue service");
                             }
                         })
 
