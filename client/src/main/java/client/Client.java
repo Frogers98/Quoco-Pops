@@ -48,17 +48,17 @@ public class Client extends AbstractActor {
                                 //Test message to add a book to the catalogue service
                                 System.out.println("Beginning to send messages");
                                 System.out.println("broker: " + brokerRef.toString());
-//                                Book book = new Book(2,
-//                                        "php for dummies",
-//                                        "john doe",
-//                                        "tall_lib",
-//                                        5);
-//                                CatalogueAdditionRequest bookAddition = new CatalogueAdditionRequest(book, 1);
-//                                brokerRef.tell(bookAddition, getSelf());
-//
-//                                 //Test message to delete a book from the catalogue service
-//                                 CatalogueRemovalRequest bookRemoval = new CatalogueRemovalRequest(3, "tall_lib", 2);
-//                                 brokerRef.tell(bookRemoval, getSelf());
+                                Book book = new Book(2,
+                                        "php for dummies",
+                                        "john doe",
+                                        "tall_lib",
+                                        5);
+                                CatalogueAdditionRequest bookAddition = new CatalogueAdditionRequest(book, 1);
+                                brokerRef.tell(bookAddition, getSelf());
+
+                                 //Test message to delete a book from the catalogue service
+                                 CatalogueRemovalRequest bookRemoval = new CatalogueRemovalRequest(3, "tall_lib", 2);
+                                 brokerRef.tell(bookRemoval, getSelf());
 
                                 // Test message to search for a book using the catalogue service
                                 SearchRequest searchRequest = new SearchRequest("phib_lib", 2, 123);
@@ -92,21 +92,21 @@ public class Client extends AbstractActor {
                                 RetrieveMemberDetailsRequest memberDetailsRequest = new RetrieveMemberDetailsRequest("tall_lib", 1);
                                 brokerRef.tell(memberDetailsRequest, getSelf());
 
-                                // Test message to update password
-                                // UpdatePasswordRequest passwordRequest = new UpdatePasswordRequest("tall_lib", 1, "123", "LisaNeedsBraces");
-                                // brokerRef.tell(passwordRequest, getSelf());
+//                                 Test message to update password
+                                 UpdatePasswordRequest passwordRequest = new UpdatePasswordRequest("tall_lib", 1, "123", "LisaNeedsBraces");
+                                 brokerRef.tell(passwordRequest, getSelf());
 
 //                                 Test message to loan a book (Operation status request should be returned as this represents
 //                                 a user scanning a physical book in person at a machine in the library)
-                                LoanBookRequest loan = new LoanBookRequest(77, 1, " dl_lib");
+                                LoanBookRequest loan = new LoanBookRequest(2, 1, " dl_lib");
                                 brokerRef.tell(loan, getSelf());
 
 //                                 Test message to retrieve info about a loan
-                                RetrieveLoan retrieveLoanInfo = new RetrieveLoan("tall_lib", 1, 45);
+                                RetrieveLoan retrieveLoanInfo = new RetrieveLoan("tall_lib", 1, 1);
                                 brokerRef.tell(retrieveLoanInfo, getSelf());
 
                                 // Test message to calculate fines on a loan
-                                CalculateFinesRequest finesRequest = new CalculateFinesRequest("dl_lib", 21);
+                                CalculateFinesRequest finesRequest = new CalculateFinesRequest("dl_lib", 3);
                                 brokerRef.tell(finesRequest, getSelf());
 
                                 // Test message to return a book (an OperationStatus message should be returned)
@@ -119,7 +119,7 @@ public class Client extends AbstractActor {
                 .match(SearchResponse.class,
                         searchResponse -> {
                             Book returnedBook = searchResponse.getBook();
-                            System.out.println("\n**********Search response for user: " + searchResponse.getUserId() +
+                            System.out.println("\n**********\nSEARCH RESPONSE FOR USER " + searchResponse.getUserId() +
                                     "\nTitle: " + returnedBook.getBookTitle() +
                                     "\nAuthor: " + returnedBook.getBookAuthor() +
                                     "\nBook ID code: " + returnedBook.getBookID() +
@@ -128,7 +128,7 @@ public class Client extends AbstractActor {
                 .match(CatalogueAdditionResponse.class,
                         // Ideally we would have error handling for if a book addition is unsuccessful
                         additionResponse -> {
-                            System.out.println("\n**********Book addition response for user: " + additionResponse.getUserId());
+                            System.out.println("\n**********\nBOOK ADDITION RESPONSE FOR USER " + additionResponse.getUserId());
                             if (additionResponse.isSuccessfulAction()) {
                                 System.out.println("\nBook addition was successful");
                             } else {
@@ -139,7 +139,7 @@ public class Client extends AbstractActor {
                 // Ideally we would have error handling for if a book addition is unsuccessful
                 .match(CatalogueRemovalResponse.class,
                         removalResponse -> {
-                            System.out.println("\n**********Book removal response for user: " + removalResponse.getUserId());
+                            System.out.println("\n**********\nBOOK REMOVAL RESPONSE FOR USER " + removalResponse.getUserId());
                             if (removalResponse.isSuccessfulAction()) {
                                 System.out.println("\nBook removal was successful");
                             } else {
@@ -149,12 +149,12 @@ public class Client extends AbstractActor {
                         })
                 .match(AvailableLocallyResponse.class,
                         availLocalResponse -> {
-                            System.out.println("\n*********\nAvailability response for user: " + availLocalResponse.getUserId() + ", your request is available locally at " + availLocalResponse.getLibraryRef() +
+                            System.out.println("\n*********\nAVAILABILITY RESPONSE FOR USER" + availLocalResponse.getUserId() + ", your request is available locally at " + availLocalResponse.getLibraryRef() +
                                     "\nThere are currently " + availLocalResponse.getCopiesAvailable() + "copies of book id " + availLocalResponse.getBookId() + "available.\n*********");
                         })
                 .match(AvailableRemotelyResponse.class,
                         availableRemoteResponse -> {
-                            System.out.println("\n**********\nAvailability response for user: " + availableRemoteResponse.getUserId() +
+                            System.out.println("\n**********\nAVAILABILITY RESPONSE FOR USER " + availableRemoteResponse.getUserId() +
                             ", your request is not available locally at " + availableRemoteResponse.getLibraryRef() +
                                     "\nbut can be found in the following locations at these distances:\n");
                             for (Map.Entry<String, Integer> entry : availableRemoteResponse.getWhereAvailable().entrySet()) {
@@ -166,13 +166,13 @@ public class Client extends AbstractActor {
                         })
                 .match(OperationStatusResponse.class,
                         operationStatusResponse ->  {
-                            System.out.println("\n**********\nOperation Status response for user: " + operationStatusResponse.getMemberId() +
-                                    operationStatusResponse.getMessage() + "\n*********");
+                            System.out.println("\n**********\nOPERATION STATUS RESPONSE FOR USER" + operationStatusResponse.getMemberId() +
+                              "\n" + operationStatusResponse.getMessage() + "\n*********");
                         })
                 .match(RetrieveMemberDetailsResponse.class,
                         memberDetailsResponse ->  {
                     Member member = memberDetailsResponse.getMember();
-                            System.out.println("\n**********\nMember details response for user: " + member.getId() +
+                            System.out.println("\n**********\nMEMBER DETAILS RESPONSE FOR USER " + member.getId() +
                                     "\nName: " + member.getName() +
                                     "\nGender: " + member.getGender() +
                                     "\nYear of Birth: " + member.getYearOfBirth() +
@@ -183,7 +183,7 @@ public class Client extends AbstractActor {
                         })
                 .match(LoanSearchResponse.class,
                         loanSearchResponse ->  {
-                            System.out.println("\n**********\nLoan Search Response for user: " + loanSearchResponse.getUserID()+
+                            System.out.println("\n**********\nLOAN SEARCH RESPONSE FOR USER " + loanSearchResponse.getUserID()+
                                     "\nLoan ID: " + loanSearchResponse.getLoanID() +
                                     "\nBook ID" + loanSearchResponse.getBookID() +
                                     "\nLoan Date: " + loanSearchResponse.getLoanDate() +
@@ -192,7 +192,7 @@ public class Client extends AbstractActor {
                         })
                 .match(CalculateFinesResponse.class,
                         calculateFinesResponse ->  {
-                            System.out.println("\n**********\nLoan Search Response for user: " + calculateFinesResponse.getId()+
+                            System.out.println("\n**********\nCALCULATE FINES RESPONSE FOR USER  " + calculateFinesResponse.getId()+
                                     "\nTotal amount owed across all loans is: " + calculateFinesResponse.getTotal() +
                                     "\n*********");
                         })

@@ -7,12 +7,7 @@ import akka.actor.ActorRef;
 import akka.actor.ActorSystem;
 import akka.actor.Props;
 import messages.OperationStatusResponse;
-import messages.borrow.AddBorrowingPrivileges;
-import messages.borrow.CalculateFinesRequest;
-import messages.borrow.CalculateFinesResponse;
-import messages.borrow.LoanBookRequest;
-import messages.borrow.RemoveBorrowingPrivileges;
-import messages.borrow.RetrieveLoan;
+import messages.borrow.*;
 import messages.catalogue.*;
 import messages.registry.DeleteMemberRequest;
 import messages.registry.RegisterMemberRequest;
@@ -53,7 +48,7 @@ public class Broker extends AbstractActor {
                         msg -> {
                             System.out.println("calculate fines request received");
                             clientRefs.put(msg.getLibraryRef(), getSender());
-                            actorRefs.get("registry").tell(msg, getSelf());
+                            actorRefs.get("loan").tell(msg, getSelf());
                         })
 
                 .match(CalculateFinesResponse.class,
@@ -125,7 +120,6 @@ public class Broker extends AbstractActor {
 
                         })
 
-
                 .match(SearchRequest.class,
                         msg -> {
                             System.out.println("Search request received");
@@ -147,12 +141,23 @@ public class Broker extends AbstractActor {
                             actorRefs.get("catalogue").tell(
                                     new DecrementAvailabilityRequest(msg.getLibraryRef(), msg.getBookID()), getSelf());
                         })
+                .match(LoanSearchResponse.class,
+                        msg -> {
+                            System.out.println("loan search response received");
+                            clientRefs.get(msg.getLibraryRef()).tell(msg, getSelf());
+                        })
 
                 .match(RetrieveLoan.class,
                         msg -> {
                             System.out.println("retrieve loan message received");
                             clientRefs.put(msg.getLibraryRef(), getSender());
                             actorRefs.get("loan").tell(msg, getSelf());
+                        })
+                .match(CheckAvailabilityRequest.class,
+                        msg -> {
+                            System.out.println("check availability request message received");
+                            clientRefs.put(msg.getLibraryRef(), getSender());
+                            actorRefs.get("catalogue").tell(msg, getSelf());
                         })
 
                 .match(OperationStatusResponse.class,

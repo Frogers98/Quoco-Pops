@@ -61,41 +61,39 @@ public class CatalogueService extends AbstractActor {
         brokerSelection.tell("registerCatalogue", catalogueActorRef);
 
         // Open a connection
-        try(Connection conn = DriverManager.getConnection(dBURL, dbUsername, dbPassword);
-        Statement stmt = conn.createStatement();
-        ) 
-        {		      
+        try (Connection conn = DriverManager.getConnection(dBURL, dbUsername, dbPassword);
+             Statement stmt = conn.createStatement();
+        ) {
             String sql = "CREATE TABLE IF NOT EXISTS catalogue " +
                     "(id INTEGER NOT NULL AUTO_INCREMENT, " +
-                    " book_id INTEGER NOT NULL, " + 
-                    " book_title VARCHAR(255), " + 
-                    " book_author VARCHAR(255), " + 
-                    " available_copies INTEGER NOT NULL, " + 
-                    " total_copies INTEGER NOT NULL, " + 
-                    " library_ref VARCHAR(255), " + 
-                    " PRIMARY KEY ( id ))"; 
+                    " book_id INTEGER NOT NULL, " +
+                    " book_title VARCHAR(255), " +
+                    " book_author VARCHAR(255), " +
+                    " available_copies INTEGER NOT NULL, " +
+                    " total_copies INTEGER NOT NULL, " +
+                    " library_ref VARCHAR(255), " +
+                    " PRIMARY KEY ( id ))";
             stmt.executeUpdate(sql);
-            System.out.println("Created CATALOGUE in given database...");   	  
+            System.out.println("Created CATALOGUE in given database...");
         } catch (SQLException e) {
             e.printStackTrace();
-        } 
+        }
 
         // CREATE LIBRARY TABLE
-        try(Connection conn = DriverManager.getConnection(dBURL, dbUsername, dbPassword);
-        Statement stmt = conn.createStatement();
-        ) 
-        {		      
+        try (Connection conn = DriverManager.getConnection(dBURL, dbUsername, dbPassword);
+             Statement stmt = conn.createStatement();
+        ) {
             String sql = "CREATE TABLE IF NOT EXISTS libraries " +
                     "(id INTEGER NOT NULL, " +
-                    " library_ref VARCHAR(45), " + 
-                    " place_id VARCHAR(255) NOT NULL, " + 
-                    " library_name VARCHAR(45) NOT NULL, " + 
-                    " PRIMARY KEY ( id ))"; 
+                    " library_ref VARCHAR(45), " +
+                    " place_id VARCHAR(255) NOT NULL, " +
+                    " library_name VARCHAR(45) NOT NULL, " +
+                    " PRIMARY KEY ( id ))";
             stmt.executeUpdate(sql);
-            System.out.println("Created LIBRARIES in given database...");   	  
+            System.out.println("Created LIBRARIES in given database...");
         } catch (SQLException e) {
             e.printStackTrace();
-        } 
+        }
 
     }
 
@@ -117,11 +115,11 @@ public class CatalogueService extends AbstractActor {
                                 ResultSet res = statement.executeQuery();
                                 // Create a SearchResponse object with the result and send it back to the broker
                                 // Return n/a for library name and 0 for num copies as this info won't be shown to user
-                                    res.next();
-                                    Book bookRetrieved = new Book(res.getInt("book_id"), res.getString("book_title"), res.getString("book_author"), "n/a", 0);
+                                res.next();
+                                Book bookRetrieved = new Book(res.getInt("book_id"), res.getString("book_title"), res.getString("book_author"), "n/a", 0);
 
-                                    SearchResponse response = new SearchResponse(searchRequest.getLibraryRef(), bookRetrieved, searchRequest.getUserId());
-                                    getSender().tell(response, getSelf());
+                                SearchResponse response = new SearchResponse(searchRequest.getLibraryRef(), bookRetrieved, searchRequest.getUserId());
+                                getSender().tell(response, getSelf());
 
                             } catch (SQLException e) {
                                 e.printStackTrace();
@@ -195,13 +193,15 @@ public class CatalogueService extends AbstractActor {
                                 } else {
                                     CatalogueRemovalResponse response = new CatalogueRemovalResponse(bookRemoval.getBookID(), false, libraryName);
                                 }
-                            } catch(SQLException e) {
+                            } catch (SQLException e) {
                                 System.out.println("Tried to delete book: " + bookRemoval.getBookID() + "in " + bookRemoval.getLibraryRef() + " but book was not in table");
                                 CatalogueRemovalResponse response = new CatalogueRemovalResponse(bookRemoval.getBookID(), false, libraryName);
                             }
                         })
-                            .match(CheckAvailabilityRequest.class,
+
+                .match(CheckAvailabilityRequest.class,
                         Request -> {
+                            System.out.println("In CheckAvailabilityRequest");
                             HashMap<String, Integer> inStock = new HashMap<>();
                             HashMap<String, String> libraryLocations = new HashMap<>();
                             String currentLibrary = Request.getLibraryRef();
@@ -221,7 +221,7 @@ public class CatalogueService extends AbstractActor {
                                         inStock.put(library, availableCopies);
                                     }
                                 }
-                                
+
                                 if (inStock.containsKey(Request.getLibraryRef())) {
                                     getSender().tell(new AvailableLocallyResponse(Request.getLibraryRef(),
                                             Request.getBookId(), inStock.get(Request.getLibraryRef()), Request.getUserId()), getSelf());
@@ -247,7 +247,7 @@ public class CatalogueService extends AbstractActor {
                                         String libraryRef = res2.getString("library_ref");
                                         String libraryName = res2.getString("library_name");
                                         String libraryLocation = res2.getString("place_id");
-                                        
+
                                         if (libraryRef.equals(currentLibrary)) {
                                             currentLibrary = libraryName;
                                         }
