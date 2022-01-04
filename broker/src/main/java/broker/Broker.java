@@ -13,11 +13,7 @@ import messages.borrow.CalculateFinesResponse;
 import messages.borrow.LoanBookRequest;
 import messages.borrow.RemoveBorrowingPrivileges;
 import messages.borrow.RetrieveLoan;
-import messages.catalogue.CatalogueAdditionRequest;
-import messages.catalogue.CatalogueRemovalRequest;
-import messages.catalogue.DecrementAvailabilityRequest;
-import messages.catalogue.SearchRequest;
-import messages.catalogue.SearchResponse;
+import messages.catalogue.*;
 import messages.registry.DeleteMemberRequest;
 import messages.registry.RegisterMemberRequest;
 import messages.registry.RetrieveMemberDetailsRequest;
@@ -102,6 +98,11 @@ public class Broker extends AbstractActor {
                             clientRefs.put(msg.getBook().getLibraryName(), getSender());
                             actorRefs.get("catalogue").tell(msg, getSelf());
                         })
+                .match(CatalogueAdditionResponse.class,
+                        msg -> {
+                            System.out.println("catalogue addition response received");
+                            clientRefs.get(msg.getLibraryRef()).tell(msg, getSelf());
+                        })
 
                 .match(CatalogueRemovalRequest.class,
                         msg -> {
@@ -109,6 +110,14 @@ public class Broker extends AbstractActor {
                             clientRefs.put(msg.getLibraryRef(), getSender());
                             actorRefs.get("catalogue").tell(msg, getSelf());
                         })
+
+                .match(CatalogueRemovalResponse.class,
+                        msg -> {
+                            System.out.println("catalogue addition response received");
+                            clientRefs.get(msg.getLibraryRef()).tell(msg, getSelf());
+
+                        })
+
 
                 .match(SearchRequest.class,
                         msg -> {

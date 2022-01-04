@@ -3,12 +3,14 @@ package messages.catalogue;
 public class CatalogueRemovalResponse {
     private boolean successfulAction = false;
     private int userId;
+    private String libraryRef;
 
     public CatalogueRemovalResponse () {}
 
-    public CatalogueRemovalResponse (int userId, boolean successfulAction) {
+    public CatalogueRemovalResponse (int userId, boolean successfulAction, String libraryRef) {
         this.userId = userId;
         this.successfulAction = successfulAction;
+        this.libraryRef = libraryRef;
     }
 
     public boolean isSuccessfulAction() {
@@ -25,5 +27,13 @@ public class CatalogueRemovalResponse {
 
     public void setUserId(int userId) {
         this.userId = userId;
+    }
+
+    public String getLibraryRef() {
+        return this.libraryRef;
+    }
+
+    public void setLibraryRef(String libraryRef) {
+        this.libraryRef = libraryRef;
     }
 }

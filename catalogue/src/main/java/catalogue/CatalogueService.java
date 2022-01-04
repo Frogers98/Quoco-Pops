@@ -65,7 +65,7 @@ public class CatalogueService extends AbstractActor {
         Statement stmt = conn.createStatement();
         ) 
         {		      
-            String sql = "CREATE TABLE IF NOT EXISTS CATALOGUE " +
+            String sql = "CREATE TABLE IF NOT EXISTS catalogue " +
                     "(id INTEGER NOT NULL AUTO_INCREMENT, " +
                     " book_id INTEGER NOT NULL, " + 
                     " book_title VARCHAR(255), " + 
@@ -85,7 +85,7 @@ public class CatalogueService extends AbstractActor {
         Statement stmt = conn.createStatement();
         ) 
         {		      
-            String sql = "CREATE TABLE IF NOT EXISTS LIBRARIES " +
+            String sql = "CREATE TABLE IF NOT EXISTS libraries " +
                     "(id INTEGER NOT NULL, " +
                     " library_ref VARCHAR(45), " + 
                     " place_id VARCHAR(255) NOT NULL, " + 
@@ -157,10 +157,10 @@ public class CatalogueService extends AbstractActor {
                                 // sending a
                                 // test bookAddition to this service
                                 if (rowsAffected > 0) {
-                                    CatalogueAdditionResponse response = new CatalogueAdditionResponse(bookAddition.getUserId(), true);
+                                    CatalogueAdditionResponse response = new CatalogueAdditionResponse(bookAddition.getUserId(), true, libraryName);
                                     getSender().tell(response, getSelf());
                                 } else {
-                                    CatalogueAdditionResponse response = new CatalogueAdditionResponse(bookAddition.getUserId(), false);
+                                    CatalogueAdditionResponse response = new CatalogueAdditionResponse(bookAddition.getUserId(), false, libraryName);
                                     getSender().tell(response, getSelf());
                                 }
                             } catch (SQLException e) {
@@ -188,16 +188,14 @@ public class CatalogueService extends AbstractActor {
                                 int rowsAffected = statement.executeUpdate();
                                 // if at least one row was affected send a string back to the sender to indicate success
                                 if (rowsAffected > 0) {
-                                    CatalogueRemovalResponse response = new CatalogueRemovalResponse(bookRemoval.getBookID(), true);
+                                    CatalogueRemovalResponse response = new CatalogueRemovalResponse(bookRemoval.getBookID(), true, libraryName);
                                     getSender().tell(response, getSelf());
-                                }
-                                else {
-                                    CatalogueRemovalResponse response = new CatalogueRemovalResponse(bookRemoval.getBookID(), false);
+                                } else {
+                                    CatalogueRemovalResponse response = new CatalogueRemovalResponse(bookRemoval.getBookID(), false, libraryName);
                                 }
                             }
                         })
-
-                .match(CheckAvailabilityRequest.class,
+                            .match(CheckAvailabilityRequest.class,
                         Request -> {
                             HashMap<String, Integer> inStock = new HashMap<>();
                             HashMap<String, String> libraryLocations = new HashMap<>();
