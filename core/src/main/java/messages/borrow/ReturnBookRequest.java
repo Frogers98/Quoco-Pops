@@ -1,6 +1,8 @@
 package messages.borrow;
 
-public class ReturnBookRequest {
+import messages.MySerializable;
+
+public class ReturnBookRequest implements MySerializable {
     private int loanId;
     private String libraryRef;
     private int bookId;

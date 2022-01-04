@@ -1,6 +1,8 @@
 package messages.catalogue;
 
-public class CheckAvailabilityRequest {
+import messages.MySerializable;
+
+public class CheckAvailabilityRequest implements MySerializable {
     private String libraryRef;
     private int bookId;
     private int userId;

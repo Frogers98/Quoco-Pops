@@ -1,6 +1,8 @@
 package messages.catalogue;
 
-public class CatalogueRemovalResponse {
+import messages.MySerializable;
+
+public class CatalogueRemovalResponse implements MySerializable {
     private boolean successfulAction = false;
     private int userId;
     private String libraryRef;

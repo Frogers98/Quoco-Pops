@@ -1,6 +1,8 @@
 package messages.catalogue;
 
-public class CatalogueAdditionResponse {
+import messages.MySerializable;
+
+public class CatalogueAdditionResponse implements MySerializable {
     private boolean successfulAction = false;
     private int userId;
     private String libraryRef;

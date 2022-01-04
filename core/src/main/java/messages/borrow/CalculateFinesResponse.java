@@ -1,6 +1,8 @@
 package messages.borrow;
 
-public class CalculateFinesResponse {
+import messages.MySerializable;
+
+public class CalculateFinesResponse implements MySerializable {
     private String libraryRef;
     private int id;
     private int total;

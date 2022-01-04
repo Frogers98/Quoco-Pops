@@ -56,8 +56,8 @@ public class Client extends AbstractActor {
 //                                brokerRef.tell(bookAddition, getSelf());
 
                                 // Test message to delete a book from the catalogue service
-                                CatalogueRemovalRequest bookRemoval = new CatalogueRemovalRequest(3, "tall_lib", 2);
-                                brokerRef.tell(bookRemoval, getSelf());
+                                // CatalogueRemovalRequest bookRemoval = new CatalogueRemovalRequest(3, "tall_lib", 2);
+                                // brokerRef.tell(bookRemoval, getSelf());
 
                                 // Test message to search for a book using the catalogue service
                                 SearchRequest searchRequest = new SearchRequest("phib_lib", 2, 123);
@@ -72,28 +72,28 @@ public class Client extends AbstractActor {
                                 brokerRef.tell(availabilityRequest2, getSelf());
 
                                 // Test message to register a user
-                                Member registerMember = new Member(
-                                        "Grandpa Simpson",
-                                        'M',
-                                        1944,
-                                        "SoITiedAnOnionToMyBeltWhichWasTheStyleAtTheTime",
-                                        "phib_lib",
-                                        "67891234",
-                                        "grandpa@email.com");
-                                RegisterMemberRequest memberRequest = new RegisterMemberRequest(registerMember.getHomeLibrary(), registerMember);
-                                brokerRef.tell(memberRequest, getSelf());
+                                // Member registerMember = new Member(
+                                //         "Grandpa Simpson",
+                                //         'M',
+                                //         1944,
+                                //         "SoITiedAnOnionToMyBeltWhichWasTheStyleAtTheTime",
+                                //         "phib_lib",
+                                //         "67891234",
+                                //         "grandpa@email.com");
+                                // RegisterMemberRequest memberRequest = new RegisterMemberRequest(registerMember.getHomeLibrary(), registerMember);
+                                // brokerRef.tell(memberRequest, getSelf());
 
                                 // Test message to unregister a user
-                                DeleteMemberRequest memberDeletion = new DeleteMemberRequest("phib_lib", 5);
-                                brokerRef.tell(memberDeletion, getSelf());
+                                // DeleteMemberRequest memberDeletion = new DeleteMemberRequest("phib_lib", 5);
+                                // brokerRef.tell(memberDeletion, getSelf());
 
                                 // Test message to retrieve member details
                                 RetrieveMemberDetailsRequest memberDetailsRequest = new RetrieveMemberDetailsRequest("tall_lib", 1);
                                 brokerRef.tell(memberDetailsRequest, getSelf());
 
                                 // Test message to update password
-                                UpdatePasswordRequest passwordRequest = new UpdatePasswordRequest("tall_lib", 1, "123", "LisaNeedsBraces");
-                                brokerRef.tell(passwordRequest, getSelf());
+                                // UpdatePasswordRequest passwordRequest = new UpdatePasswordRequest("tall_lib", 1, "123", "LisaNeedsBraces");
+                                // brokerRef.tell(passwordRequest, getSelf());
 
 
                                 System.out.println("Finished sending messages");

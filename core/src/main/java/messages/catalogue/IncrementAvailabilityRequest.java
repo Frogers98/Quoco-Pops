@@ -1,6 +1,8 @@
 package messages.catalogue;
 
-public class IncrementAvailabilityRequest {
+import messages.MySerializable;
+
+public class IncrementAvailabilityRequest implements MySerializable {
     String libraryRef;
     int bookId;
 
