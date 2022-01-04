@@ -72,13 +72,27 @@ public class RegistryService extends AbstractActor {
         return strategy;
     }
 
+    static class Child extends AbstractActor {
+        int state = 0;
+
+        @Override
+        public Receive createReceive() {
+            return receiveBuilder()
+            .match(Exception.class, exception -> {
+                throw exception;
+            })
+            .match(Integer.class, i -> state = i)
+            .build();
+        }
+    }
+
     @Override
     public Receive createReceive() {
         return receiveBuilder()
                 .match(Props.class, props -> {
                     getSender().tell(getContext().actorOf(props), getSelf());
                 })
-                
+
                 .match(RegisterMemberRequest.class,
                         Request -> {
                             try (Connection conn = DriverManager.getConnection(dBURL, dbUsername, dbPassword)) {
