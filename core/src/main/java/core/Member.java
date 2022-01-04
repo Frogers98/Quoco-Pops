@@ -5,8 +5,6 @@ public class Member {
     private static final char FEMALE = 'F';
     private static final char UNKNOWN = 'U';
 
-    private static final String tallaghtLib = "tall1";
-
     public static char getMaleChar() {
         return MALE;
     }
@@ -17,10 +15,6 @@ public class Member {
 
     public static char getUnknownChar() {
         return UNKNOWN;
-    }
-
-    public static String getTallaghtLib() {
-        return tallaghtLib;
     }
 
     // Constructor that does not include id -> id is assigned through auto-incrementation in database

@@ -7,7 +7,8 @@ public class RetrieveLoan implements MySerializable {
     private int loanID;
     private int userID;
 
-    public RetrieveLoan(int loanID, int userID) {
+    public RetrieveLoan(String libraryRef, int loanID, int userID) {
+        this.libraryRef = libraryRef;
         this.loanID = loanID;
         this.userID = userID;
     }

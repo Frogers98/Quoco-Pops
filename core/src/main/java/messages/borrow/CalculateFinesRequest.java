@@ -4,21 +4,21 @@ import messages.MySerializable;
 
 public class CalculateFinesRequest implements MySerializable {
     private String libraryRef;
-    private int id;
+    private int memberId;
 
     public CalculateFinesRequest() {}
 
-    public CalculateFinesRequest(String libraryRef, int id) {
-        this.id = id;
+    public CalculateFinesRequest(String libraryRef, int memberId) {
+        this.memberId = memberId;
         this.libraryRef = libraryRef;
     }
 
-    public int getId() {
-        return id;
+    public int getMemberId() {
+        return memberId;
     }
 
-    public void setId(int id) {
-        this.id = id;
+    public void setMemberId(int memberId) {
+        this.memberId = memberId;
     }
 
     public String getLibraryRef() {
