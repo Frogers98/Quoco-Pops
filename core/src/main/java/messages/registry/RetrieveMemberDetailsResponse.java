@@ -1,8 +1,9 @@
 package messages.registry;
 
 import core.Member;
+import messages.MySerializable;
 
-public class RetrieveMemberDetailsResponse {
+public class RetrieveMemberDetailsResponse implements MySerializable {
     String libraryRef;
     Member memberDetails;
 

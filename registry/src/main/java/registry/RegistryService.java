@@ -6,143 +6,172 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
-import java.time.temporal.ChronoUnit;
-import java.util.ArrayList;
 
+import akka.actor.AbstractActor;
+import akka.actor.ActorRef;
+import akka.actor.ActorSelection;
+import akka.actor.ActorSystem;
+import akka.actor.Props;
 import core.Member;
+import messages.OperationStatusResponse;
+import messages.registry.DeleteMemberRequest;
+import messages.registry.RegisterMemberRequest;
+import messages.registry.RetrieveMemberDetailsRequest;
+import messages.registry.RetrieveMemberDetailsResponse;
+import messages.registry.UpdatePasswordRequest;
+import registry.RegistryService;
 
-public class RegistryService {
-
-    private final static String dBURL = "jdbc:mysql://localhost:3306/ds_project";
-    private final static String dbUsername = "root";
+public class RegistryService extends AbstractActor {
+    private final static String dBURL = "jdbc:mysql://registry.cayveqvorwmz.eu-west-1.rds.amazonaws.com/registry";
+    private final static String dbUsername = "admin";
     private final static String dbPassword = "Passw0rd1";
+    private static ActorSystem registrySystem;
+    private static ActorRef registryActorRef;
 
-    public void registerMember(Member info) throws SQLException {
-        try (Connection conn = DriverManager.getConnection(dBURL, dbUsername, dbPassword)) {
-            String table = "tallaght_library_members";
-            String query = "INSERT INTO " + table
-                    + " (name, gender, year_of_birth, password, home_library, email, phone_no) VALUES (?, ?, ?, ?, ?, ?, ?)";
-            PreparedStatement statement = conn.prepareStatement(query, Statement.RETURN_GENERATED_KEYS);
-            statement.setString(1, info.getName());
-            statement.setString(2, String.valueOf(info.getGender()));
-            statement.setInt(3, info.getYearOfBirth());
-            statement.setString(4, info.getPassword());
-            statement.setString(5, info.getHomeLibrary());
-            statement.setString(6, info.getEmail());
-            statement.setString(7, info.getPhoneNumber());
+    public static void main(String[] args) {
 
-            int rowsAffected = statement.executeUpdate();
+        registrySystem = ActorSystem.create();
 
-            System.out.println(rowsAffected + " member(s) added");
-            conn.close();
+        registryActorRef = registrySystem.actorOf(Props.create(RegistryService.class), "registry");
+
+        ActorSelection brokerSelection = registrySystem.actorSelection("akka.tcp://default@127.0.0.1:2551/user/broker");
+        brokerSelection.tell("registerRegistry", registryActorRef);
+
+        // Open a connection
+        try (Connection conn = DriverManager.getConnection(dBURL, dbUsername, dbPassword);
+                Statement stmt = conn.createStatement();) {
+            String sql = "CREATE TABLE IF NOT EXISTS REGISTRATION " +
+                    "(id INTEGER NOT NULL, " +
+                    " name VARCHAR(255) NOT NULL, " +
+                    " gender VARCHAR(255), " +
+                    " year_of_birth INTEGER, " +
+                    " password VARCHAR(255) NOT NULL, " +
+                    " library_ref VARCHAR(255) NOT NULL, " +
+                    " email VARCHAR(255), " +
+                    " phone_no VARCHAR(255), " +
+                    " PRIMARY KEY ( id ))";
+            stmt.executeUpdate(sql);
+            System.out.println("Created REGISTRATION in given database...");
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
     }
 
-    public void deleteMember(int id) throws SQLException {
-        try (Connection conn = DriverManager.getConnection(dBURL, dbUsername, dbPassword)) {
-            String table = "tallaght_library_members";
-            String query = "DELETE FROM " + table + " WHERE id=?";
-            PreparedStatement statement = conn.prepareStatement(query, Statement.RETURN_GENERATED_KEYS);
-            statement.setInt(1, id);
+    @Override
+    public Receive createReceive() {
+        return receiveBuilder()
+                .match(RegisterMemberRequest.class,
+                        Request -> {
+                            try (Connection conn = DriverManager.getConnection(dBURL, dbUsername, dbPassword)) {
+                                String query = "INSERT INTO REGISTRATION (id, name, gender, year_of_birth, password, library_ref, email, phone_no) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+                                PreparedStatement statement = conn.prepareStatement(query,
+                                        Statement.RETURN_GENERATED_KEYS);
+                                statement.setInt(1, Request.getMember().getId());
+                                statement.setString(2, Request.getMember().getName());
+                                statement.setString(3, String.valueOf(Request.getMember().getGender()));
+                                statement.setInt(4, Request.getMember().getYearOfBirth());
+                                statement.setString(5, Request.getMember().getPassword());
+                                statement.setString(6, Request.getMember().getHomeLibrary());
+                                statement.setString(7, Request.getMember().getEmail());
+                                statement.setString(8, Request.getMember().getPhoneNumber());
 
-            int rowsAffected = statement.executeUpdate();
-            System.out.println(rowsAffected + " member(s) deleted");
-            conn.close();
+                                int rowsAffected = statement.executeUpdate();
+                                
+                                if (rowsAffected > 0) {
+                                    getSender().tell(
+                                            new OperationStatusResponse(Request.getLibraryRef(),
+                                                    Request.getMember().getId(), "Member added successfully"),
+                                            getSelf());
+                                } else {
+                                    getSender().tell(new OperationStatusResponse(Request.getLibraryRef(),
+                                            Request.getMember().getId(), "Operation unsuccessful"), getSelf());
+                                }
+                            } catch (SQLException e) {
+                                System.out.println("Tried to add user: " + Request.getMember() + " but user was already in table");
+                                getSender().tell(new OperationStatusResponse(Request.getLibraryRef(),
+                                        Request.getMember().getId(), "Operation unsuccessful"), getSelf());
+                            }
+                        })
 
-        }
-    }
+                .match(DeleteMemberRequest.class,
+                        Request -> {
+                            try (Connection conn = DriverManager.getConnection(dBURL, dbUsername, dbPassword)) {
+                                String query = "DELETE FROM REGISTRATION WHERE id=?";
+                                PreparedStatement statement = conn.prepareStatement(query,
+                                        Statement.RETURN_GENERATED_KEYS);
+                                statement.setInt(1, Request.getId());
 
-    public Member retrieveMemberDetails(int id) throws SQLException {
-        try (Connection conn = DriverManager.getConnection(dBURL, dbUsername, dbPassword)) {
-            String table = "tallaght_library_members";
-            String query = "SELECT * FROM " + table + " WHERE id=" + id;
+                                int rowsAffected = statement.executeUpdate();
+                                // conn.close();
+                                if (rowsAffected > 0) {
+                                    getSender().tell(new OperationStatusResponse(Request.getLibraryRef(),
+                                            Request.getId(), "Member deleted successfully"), getSelf());
+                                } else {
+                                    getSender().tell(new OperationStatusResponse(Request.getLibraryRef(),
+                                            Request.getId(), "Operation unsuccessful"), getSelf());
+                                }
+                            } catch (SQLException e) {
+                                System.out.println("Tried to delete user: " + Request.getId() + " but user was not in table");
+                                getSender().tell(new OperationStatusResponse(Request.getLibraryRef(),
+                                        Request.getId(), "Operation unsuccessful"), getSelf());
+                            }
+                        })
 
-            Statement statement = conn.createStatement(ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_UPDATABLE);
-            ResultSet resultSet = statement.executeQuery(query);
-            resultSet.absolute(1);
+                .match(RetrieveMemberDetailsRequest.class,
+                        Request -> {
+                            try (Connection conn = DriverManager.getConnection(dBURL, dbUsername, dbPassword)) {
+                                String query = "SELECT * FROM REGISTRATION WHERE id=" + Request.getId();
 
-            Member member = new Member(resultSet.getString("name"), resultSet.getString("gender").charAt(0),
-            resultSet.getInt("year_of_birth"), resultSet.getString("password"), resultSet.getInt("id"),
-            resultSet.getString("home_library"), resultSet.getString("phone_no"), resultSet.getString("email"));
+                                Statement statement = conn.createStatement(ResultSet.TYPE_SCROLL_SENSITIVE,
+                                        ResultSet.CONCUR_UPDATABLE);
+                                ResultSet resultSet = statement.executeQuery(query);
+                                resultSet.absolute(1);
+                                
+                                Member member = new Member(resultSet.getString("name"),
+                                        resultSet.getString("gender").charAt(0),
+                                        resultSet.getInt("year_of_birth"), resultSet.getString("password"),
+                                        resultSet.getInt("id"),
+                                        resultSet.getString("library_ref"), resultSet.getString("phone_no"),
+                                        resultSet.getString("email"));
 
-            System.out.println("Member with id " + id + " retrieved");
+                                getSender().tell(new RetrieveMemberDetailsResponse(Request.getLibraryRef(), member),
+                                        getSelf());
 
-            conn.close();
-            return member;
-        }
-    }
+                            }
+                        })
+                        
+                .match(UpdatePasswordRequest.class,
+                        Request -> {
+                            try (Connection conn = DriverManager.getConnection(dBURL, dbUsername, dbPassword)) {
+                                String query = "SELECT password FROM REGISTRATION WHERE id=" + Request.getId();
 
-    public Boolean updatePassword(int id, String oldPassword, String newPassword) throws SQLException {
-        try (Connection conn = DriverManager.getConnection(dBURL, dbUsername, dbPassword)) {
-            String table = "tallaght_library_members";
-            String query = "SELECT password FROM " + table + " WHERE id =" + id;
+                                Statement statement = conn.createStatement(ResultSet.TYPE_SCROLL_SENSITIVE,
+                                        ResultSet.CONCUR_UPDATABLE);
+                                ResultSet resultSet = statement.executeQuery(query);
+                                resultSet.absolute(1);
 
-            Statement statement = conn.createStatement(ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_UPDATABLE);
-            ResultSet resultSet = statement.executeQuery(query);
-            resultSet.absolute(1);
+                                if (resultSet.getString("password").equals(Request.getOldPassword())) {
+                                    String query2 = "UPDATE REGISTRATION SET password = ? WHERE id=?";
+                                    PreparedStatement statement2 = conn.prepareStatement(query2,
+                                            Statement.RETURN_GENERATED_KEYS);
+                                    statement2.setString(1, Request.getNewPassword());
+                                    statement2.setInt(2, Request.getId());
+                                    int rowsAffected = statement2.executeUpdate();
 
-            if (resultSet.getString("password").equals(oldPassword)) {
-                String query2 = "UPDATE " + table + " SET password = ? WHERE id = ?";
-                PreparedStatement statement2 = conn.prepareStatement(query2, Statement.RETURN_GENERATED_KEYS);
-                statement2.setString(1, newPassword);
-                statement2.setInt(2, id);
-                int rowsAffected = statement2.executeUpdate();
-                Boolean success = (rowsAffected > 0) ? true : false;
-                return success;
-            } else {
-                return false;
-            }
-        }
+                                    if (rowsAffected > 0) {
+                                        getSender().tell(new OperationStatusResponse(Request.getLibraryRef(),
+                                                Request.getId(), "Password changed"), getSelf());
+                                    } else {
+                                        getSender().tell(new OperationStatusResponse(Request.getLibraryRef(),
+                                                Request.getId(), "Operation unsuccessful"), getSelf());
+                                    }
+                                }
+                            } catch (SQLException e) {
+                                e.printStackTrace();
+                            }
 
-    }
-
-    public int calculateFinesOwed(int id) throws SQLException {
-        ArrayList<Integer> loanLengths = new ArrayList<Integer>();
-
-        int rate1 = 15;
-        int rate2 = 30;
-        int rate3 = 60;
-
-        int totalFine = 0;
-        LocalTime currentTime = LocalTime.now();
-        try (Connection conn = DriverManager.getConnection(dBURL, dbUsername, dbPassword)) {
-            String table = "tallaght_library_fines";
-            String query = "SELECT * FROM " + table + " WHERE id = ?";
-            PreparedStatement statement = conn.prepareStatement(query, Statement.RETURN_GENERATED_KEYS);
-            statement.setInt(1, id);
-            ResultSet res = statement.executeQuery();
-            while (res.next()) {
-                LocalDateTime checkOutTime = LocalDateTime.parse(res.getString("checkout_date"));
-                int days = (int) ChronoUnit.DAYS.between(checkOutTime, currentTime);
-
-                if (days > 7) {
-                    loanLengths.add(days);
-                }
-            }
-
-            for (int loanLength : loanLengths) {
-                if (loanLength <= 14) {
-                    totalFine += (loanLength - 7) * rate1;
-                }
-
-                if ((loanLength > 14) && (loanLength <= 21)) {
-                    totalFine += (7 * rate1) + (loanLength - 14) * rate2;
-                }
-
-                if ((loanLength > 21)) {
-                    totalFine += (7 * rate1) + (7 * rate2) + (loanLength - 21) * rate3;
-                }
-            }
-
-            if (totalFine > 1000) {
-                return 1000;
-            } else {
-                return totalFine;
-            }
-        }
-
+                        })
+                .build();
     }
 
 }

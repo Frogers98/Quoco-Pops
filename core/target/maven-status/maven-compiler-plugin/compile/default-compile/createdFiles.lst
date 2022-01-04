@@ -1,32 +1,28 @@
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-messages\catalogue\MySerializable.class
-=======
->>>>>>> 40bce1eef273904e60d927665e1344c83324b21d
-messages\catalogue\CatalogueAddition.class
-messages\catalogue\CatalogueRemoval.class
-messages\core\MySerializable.class
-=======
-messages\catalogue\CatalogueRemovalRequest.class
-messages\registry\RetrieveMemberDetailsResponse.class
-messages\registry\RegisterMemberRequest.class
-messages\catalogue\CatalogueAdditionRequest.class
-messages\registry\CalculateFinesRequest.class
-core\Book.class
-messages\MySerializable.class
->>>>>>> origin/broker_traditional
-messages\catalogue\SearchRequest.class
-messages\registry\RetrieveMemberDetailsRequest.class
-messages\registry\DeleteMemberRequest.class
-messages\catalogue\SearchResponse.class
-<<<<<<< HEAD
-=======
-messages/borrow/LoanAddition.class
+messages/registry/RetrieveMemberDetailsRequest.class
+messages/registry/RetrieveMemberDetailsResponse.class
+messages/catalogue/AvailableRemotelyResponse.class
+messages/borrow/AddBorrowingPrivileges.class
 messages/MySerializable.class
->>>>>>> borrowing
-=======
-messages\registry\CalculateFinesResponse.class
-core\Member.class
-messages\registry\UpdatePasswordRequest.class
->>>>>>> origin/broker_traditional
+core/Book.class
+messages/registry/DeleteMemberRequest.class
+messages/catalogue/IncrementAvailabilityRequest.class
+messages/OperationStatusResponse.class
+messages/borrow/RetrieveLoan.class
+messages/catalogue/CatalogueRemovalRequest.class
+messages/borrow/LoanSearchResponse.class
+messages/catalogue/AvailableLocallyResponse.class
+messages/borrow/RemoveBorrowingPrivileges.class
+core/Member.class
+messages/catalogue/CheckAvailabilityRequest.class
+messages/catalogue/SearchRequest.class
+messages/borrow/ReturnBookRequest.class
+messages/catalogue/SearchResponse.class
+messages/registry/RegisterMemberRequest.class
+messages/catalogue/CatalogueAdditionResponse.class
+messages/borrow/LoanBookRequest.class
+messages/catalogue/DecrementAvailabilityRequest.class
+messages/catalogue/CatalogueAdditionRequest.class
+messages/borrow/CalculateFinesResponse.class
+messages/catalogue/CatalogueRemovalResponse.class
+messages/registry/UpdatePasswordRequest.class
+messages/borrow/CalculateFinesRequest.class

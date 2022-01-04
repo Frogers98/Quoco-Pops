@@ -4,24 +4,16 @@ import messages.MySerializable;
 import core.Book;
 
 public class SearchResponse implements MySerializable {
-    private String libraryRef;
     private Book book;
-    private int copiesAvailable;
+    private int userId;
+    private String libraryRef;
 
     public SearchResponse() {}
 
-    public SearchResponse(String libraryRef, Book book, int copiesAvailable) {
-        this.libraryRef = libraryRef;
+    public SearchResponse(String libraryRef, Book book, int userId) {
         this.book = book;
-        this.copiesAvailable = copiesAvailable;
-    }
-
-    public void setLibraryRef(String libraryRef) {
+        this.userId = userId;
         this.libraryRef = libraryRef;
-    }
-
-    public String getLibraryRef() {
-        return libraryRef;
     }
 
     public Book getBook() {
@@ -32,11 +24,19 @@ public class SearchResponse implements MySerializable {
         this.book = book;
     }
 
-    public int getCopiesAvailable() {
-        return this.copiesAvailable;
+    public int getUserId() {
+        return userId;
     }
 
-    public void setCopiesAvailable(int copiesAvailable) {
-        this.copiesAvailable = copiesAvailable;
+    public void setUserId(int userId) {
+        this.userId = userId;
+    }
+
+    public String getLibraryRef() {
+        return this.libraryRef;
+    }
+
+    public void setLibraryRef(String libraryRef) {
+        this.libraryRef = libraryRef;
     }
 }
