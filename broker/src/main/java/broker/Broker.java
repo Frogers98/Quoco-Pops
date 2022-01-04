@@ -62,17 +62,20 @@ public class Broker extends AbstractActor {
 
                 .match(RetrieveMemberDetailsRequest.class,
                         msg -> {
+                            System.out.println("retrive member details request received");
                             clientRefs.put(msg.getLibraryRef(), getSender());
                             actorRefs.get("registry").tell(msg, getSelf());
                         })
 
                 .match(RetrieveMemberDetailsResponse.class,
                         msg -> {
+                            System.out.println("retrieve member details response received");
                             clientRefs.get(msg.getLibraryRef()).tell(msg, getSelf());
                         })
 
                 .match(RegisterMemberRequest.class,
                         msg -> {
+                            System.out.println("Register member request received");
                             clientRefs.put(msg.getLibraryRef(), getSender());
                             actorRefs.get("registry").tell(msg, getSelf());
                             actorRefs.get("loan").tell(new AddBorrowingPrivileges(msg.getMember().getId()),
@@ -81,6 +84,7 @@ public class Broker extends AbstractActor {
 
                 .match(DeleteMemberRequest.class,
                         msg -> {
+                            System.out.println("Delete Member Request received");
                             clientRefs.put(msg.getLibraryRef(), getSender());
                             actorRefs.get("registry").tell(msg, getSelf());
                             actorRefs.get("loan").tell(new RemoveBorrowingPrivileges(msg.getId()), getSelf());
@@ -88,6 +92,7 @@ public class Broker extends AbstractActor {
 
                 .match(UpdatePasswordRequest.class,
                         msg -> {
+                            System.out.println("update password request received");
                             clientRefs.put(msg.getLibraryRef(), getSender());
                             actorRefs.get("registry").tell(msg, getSelf());
                         })
