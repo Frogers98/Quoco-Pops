@@ -218,7 +218,7 @@ public class CatalogueService extends AbstractActor {
                                         inStock.put(library, availableCopies);
                                     }
                                 }
-
+                                
                                 if (inStock.containsKey(Request.getLibraryRef())) {
                                     getSender().tell(new AvailableLocallyResponse(Request.getLibraryRef(),
                                             Request.getBookId(), inStock.get(Request.getLibraryRef()), Request.getUserId()), getSelf());
@@ -244,7 +244,7 @@ public class CatalogueService extends AbstractActor {
                                         String libraryRef = res2.getString("library_ref");
                                         String libraryName = res2.getString("library_name");
                                         String libraryLocation = res2.getString("place_id");
-
+                                        
                                         if (libraryRef.equals(currentLibrary)) {
                                             currentLibrary = libraryName;
                                         }
