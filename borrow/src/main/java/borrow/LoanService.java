@@ -86,7 +86,7 @@ public class LoanService extends AbstractActor {
                             try (Connection conn = DriverManager.getConnection(dBURL, dbUsername, dbPassword)) {
 
                                 // Check if registered member
-                                String SQL1 = "SELECT * FROM valid WHERE id=1";
+                                String SQL1 = "SELECT * FROM VALID WHERE id=1";
 
                                 PreparedStatement statement1 = conn.prepareStatement(SQL1,
                                         Statement.RETURN_GENERATED_KEYS);

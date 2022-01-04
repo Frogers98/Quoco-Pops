@@ -2,7 +2,6 @@ import akka.actor.ActorSystem;
 
 import akka.testkit.javadsl.TestKit;
 import core.Member;
-import messages.Init;
 import messages.registry.DeleteMemberRequest;
 import messages.registry.RegisterMemberRequest;
 import messages.registry.RetrieveMemberDetailsRequest;
@@ -12,8 +11,6 @@ import registry.RegistryService;
 import akka.actor.ActorRef;
 import akka.actor.Props;
 import org.junit.*;
-
-import actor.RegistryActor;
 
 import java.time.Duration;
 
@@ -25,9 +22,8 @@ public class RegistryUnitTest {
     public static void setup() {
         registrySystem = ActorSystem.create();
 
-        registryService = registrySystem.actorOf(Props.create(RegistryActor.class), "testRegistry");
+        registryService = registrySystem.actorOf(Props.create(RegistryService.class), "testRegistry");
         
-        registryService.tell(new Init(new RegistryService()), null);
     }
 
     @AfterClass
