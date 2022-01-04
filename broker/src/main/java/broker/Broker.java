@@ -160,7 +160,7 @@ public class Broker extends AbstractActor {
                             // This can take in register_____ messages from each of the services and store
                             // it in a hash map
                             // with the key as the name of the service
-                            System.out.println("Message received:" + msg);
+                            System.out.println("Message received: " + msg);
                             // if (!msg.startsWith("register"))
                             // return;
                             if (msg.equals("registerCatalogue")) {

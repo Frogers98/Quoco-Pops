@@ -13,7 +13,7 @@
 
     <properties>
         <main.class>borrow.LoanService</main.class>
-        <akka.version>2.6.17</akka.version>
+        <akka.version>2.6.0-M3</akka.version>
         <maven.compiler.source>11</maven.compiler.source>
         <maven.compiler.target>11</maven.compiler.target>
     </properties>
