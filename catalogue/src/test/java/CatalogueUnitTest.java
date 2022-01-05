@@ -49,10 +49,10 @@ public class CatalogueUnitTest {
 //                "John Smith",
 //                "tall_lib",
 //                10);
-//
+
 //        CatalogueAdditionRequest bookAddition = new CatalogueAdditionRequest(book, 5);
 //        catalogueService.tell(bookAddition, bookAdditionActor.getRef());
-//
+
 //        bookAdditionActor.awaitCond(bookAdditionActor::msgAvailable);
 //        bookAdditionActor.expectMsgClass(Duration.ofSeconds(60), CatalogueAdditionResponse.class);
 //        return;
@@ -85,17 +85,17 @@ public class CatalogueUnitTest {
 //      return;
 //      }
 
-      @Test
-      public void testAvailableLocally() {
-          TestKit availableLocallyActor = new TestKit(catalogueSystem);
-          CheckAvailabilityRequest req = new CheckAvailabilityRequest("dl_lib", 1, 22);
+    //   @Test
+    //   public void testAvailableLocally() {
+    //       TestKit availableLocallyActor = new TestKit(catalogueSystem);
+    //       CheckAvailabilityRequest req = new CheckAvailabilityRequest("dl_lib", 1, 22);
 
-          catalogueService.tell(req, availableLocallyActor.getRef());
+    //       catalogueService.tell(req, availableLocallyActor.getRef());
 
-          availableLocallyActor.awaitCond(availableLocallyActor::msgAvailable);
-          availableLocallyActor.expectMsgClass(Duration.ZERO, AvailableLocallyResponse.class);
-          return;
-      }
+    //       availableLocallyActor.awaitCond(availableLocallyActor::msgAvailable);
+    //       availableLocallyActor.expectMsgClass(Duration.ZERO, AvailableLocallyResponse.class);
+    //       return;
+    //   }
 
     // @Test
     // public void testAvailableRemotely() {

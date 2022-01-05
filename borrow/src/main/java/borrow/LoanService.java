@@ -166,8 +166,8 @@ public class LoanService extends AbstractActor {
 
                                     LoanSearchResponse response = new LoanSearchResponse(
                                             loanID,
-                                            bookID,
                                             memberID,
+                                            bookID,
                                             loanDate,
                                             returnDate,
                                             actualReturnDate,

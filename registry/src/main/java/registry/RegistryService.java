@@ -5,6 +5,7 @@ import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.SQLIntegrityConstraintViolationException;
 import java.sql.Statement;
 import java.time.Duration;
 
@@ -71,12 +72,13 @@ public class RegistryService extends AbstractActor {
     private static SupervisorStrategy strategy = new OneForOneStrategy(
             10,
             Duration.ofMinutes(1),
-            DeciderBuilder.match(SQLException.class, e -> SupervisorStrategy.restart())
-                    .build());
+            DeciderBuilder
+            .match(SQLException.class, e -> SupervisorStrategy.restart())
+            .match(SQLIntegrityConstraintViolationException.class, e -> SupervisorStrategy.resume())
+            .build());
 
     @Override
     public SupervisorStrategy supervisorStrategy() {
-        System.out.println("HIIIIIIIIIIIII");
         return strategy;
     }
 
@@ -89,15 +91,16 @@ public class RegistryService extends AbstractActor {
                     .match(SQLException.class, exception -> {
                         throw exception;
                     })
+                    // Added for testing, to check value resets to 0 after restart
                     .match(Integer.class, i -> {
                         checkState = i;
-                        System.out.println("ANNNNNDDDDD HEEEERE");
                         System.out.println(checkState);
                     })
                     .matchEquals("get", msg -> getSender().tell(checkState, getSelf()))
                     .match(RegisterMemberRequest.class,
                             Request -> {
 
+                                int rowsAffected = 0;
                                 try (Connection conn = DriverManager.getConnection(dBURL, dbUsername, dbPassword)) {
                                     String query = "INSERT INTO REGISTRATION (id, name, gender, year_of_birth, password, library_ref, email, phone_no) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
                                     PreparedStatement statement = conn.prepareStatement(query,
@@ -111,21 +114,22 @@ public class RegistryService extends AbstractActor {
                                     statement.setString(7, Request.getMember().getEmail());
                                     statement.setString(8, Request.getMember().getPhoneNumber());
 
-                                    int rowsAffected = statement.executeUpdate();
+                                    rowsAffected = statement.executeUpdate();
 
                                     if (rowsAffected > 0) {
-                                        // getSelf().tell(new SQLException(), ActorRef.noSender());
                                         getSender().tell(
                                                 new OperationStatusResponse(Request.getLibraryRef(),
                                                         Request.getMember().getId(), "Member added successfully"),
                                                 getSelf());
                                     } else {
                                         getSender().tell(new OperationStatusResponse(Request.getLibraryRef(),
-                                                Request.getMember().getId(), "Operation unsuccessful"), getSelf());
+                                                Request.getMember().getId(), "Register member operation unsuccessful"), getSelf());
                                     }
+                                } catch (SQLIntegrityConstraintViolationException e) {
+                                    getSelf().tell(new SQLIntegrityConstraintViolationException(), getSelf());
+                                    // e.printStackTrace();
                                 } catch (SQLException e) {
                                     getSelf().tell(new SQLException(), getSelf());
-                                    e.printStackTrace();
                                 }
                             })
                     .build();
@@ -143,7 +147,6 @@ public class RegistryService extends AbstractActor {
                     })
                     .match(Integer.class, i -> {
                         checkState = i;
-                        System.out.println("ANNNNNDDDDD HEEEERE");
                         System.out.println(checkState);
                     })
                     .matchEquals("get", s -> getSender().tell(checkState, getSelf()))
@@ -162,12 +165,12 @@ public class RegistryService extends AbstractActor {
                                                 Request.getId(), "Member deleted successfully"), getSelf());
                                     } else {
                                         getSender().tell(new OperationStatusResponse(Request.getLibraryRef(),
-                                                Request.getId(), "Operation unsuccessful"), getSelf());
+                                                Request.getId(), "Delete member operation unsuccessful"), getSelf());
                                     }
 
                                 } catch (SQLException e) {
                                     getSelf().tell(new SQLException(), getSelf());
-                                    e.printStackTrace();
+                                    // e.printStackTrace();
                                 }
                             })
                     .build();
@@ -185,7 +188,6 @@ public class RegistryService extends AbstractActor {
                     })
                     .match(Integer.class, i -> {
                         checkState = i;
-                        System.out.println("ANNNNNDDDDD HEEEERE");
                         System.out.println(checkState);
                     })
                     .matchEquals("get", s -> getSender().tell(checkState, getSelf()))
@@ -212,7 +214,7 @@ public class RegistryService extends AbstractActor {
 
                                 } catch (SQLException e) {
                                     getSelf().tell(new SQLException(), getSelf());
-                                    e.printStackTrace();
+                                    // e.printStackTrace();
                                 }
                             })
                     .build();
@@ -230,7 +232,6 @@ public class RegistryService extends AbstractActor {
                     })
                     .match(Integer.class, i -> {
                         checkState = i;
-                        System.out.println("ANNNNNDDDDD HEEEERE");
                         System.out.println(checkState);
                     })
                     .matchEquals("get", s -> getSender().tell(checkState, getSelf()))
@@ -258,12 +259,15 @@ public class RegistryService extends AbstractActor {
                                                     Request.getId(), "Password changed"), getSelf());
                                         } else {
                                             getSender().tell(new OperationStatusResponse(Request.getLibraryRef(),
-                                                    Request.getId(), "Operation unsuccessful"), getSelf());
+                                                    Request.getId(), "Operation unsuccessful, password was not updated"), getSelf());
                                         }
+                                    } else {
+                                        getSender().tell(new OperationStatusResponse(Request.getLibraryRef(),
+                                                    Request.getId(), "Operation unsuccessful, old password provided is incorrect"), getSelf());
                                     }
                                 } catch (SQLException e) {
                                     getSelf().tell(new SQLException(), getSelf());
-                                    e.printStackTrace();
+                                    // e.printStackTrace();
                                 }
                             })
                     .build();
@@ -304,7 +308,6 @@ public class RegistryService extends AbstractActor {
                         Request -> {
                             brokerRef = getSender();
                             registerMemberChild.tell(Request, getSelf());
-                            System.out.println("HEEEEEEEEEEEREEEEEEEEEEEEE");
                         })
 
                 .match(DeleteMemberRequest.class,

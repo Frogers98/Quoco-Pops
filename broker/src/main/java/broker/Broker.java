@@ -166,6 +166,22 @@ public class Broker extends AbstractActor {
                             clientRefs.get(msg.getLibraryRef()).tell(msg, getSelf());
                         })
 
+                .match(AvailableLocallyResponse.class, 
+                        msg -> {
+                                clientRefs.get(msg.getLibraryRef()).tell(msg, getSelf());
+                        })
+                
+                .match(AvailableRemotelyResponse.class, 
+                        msg -> {
+                                clientRefs.get(msg.getLibraryRef()).tell(msg, getSelf());
+                        })
+
+                .match(ReturnBookRequest.class, 
+                        msg -> {
+                                clientRefs.put(msg.getLibraryRef(), getSender());
+                                actorRefs.get("loan").tell(msg, getSelf());
+                        })
+                
                 .match(String.class,
                         msg -> {
                             // This can take in register_____ messages from each of the services and store

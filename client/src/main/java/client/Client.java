@@ -56,9 +56,9 @@ public class Client extends AbstractActor {
                                 CatalogueAdditionRequest bookAddition = new CatalogueAdditionRequest(book, 1);
                                 brokerRef.tell(bookAddition, getSelf());
 
-                                 //Test message to delete a book from the catalogue service
-                                 CatalogueRemovalRequest bookRemoval = new CatalogueRemovalRequest(3, "tall_lib", 2);
-                                 brokerRef.tell(bookRemoval, getSelf());
+                                //  //Test message to delete a book from the catalogue service
+                                CatalogueRemovalRequest bookRemoval = new CatalogueRemovalRequest(3, "tall_lib", 2);
+                                brokerRef.tell(bookRemoval, getSelf());
 
                                 // Test message to search for a book using the catalogue service
                                 SearchRequest searchRequest = new SearchRequest("phib_lib", 2, 123);
@@ -67,9 +67,10 @@ public class Client extends AbstractActor {
                                 // Check for availability of book (there is a copy of book 3 in tall_lib but not dl_lib in the database,
                                 // so a AvailablaeLocallyResponse should be generated for the first request and a AvailableRemotelyResponse for
                                 // the second.
-                                CheckAvailabilityRequest availabilityRequest1 = new CheckAvailabilityRequest("tall_lib", 3, 3);
+                                CheckAvailabilityRequest availabilityRequest1 = new CheckAvailabilityRequest("tall_lib", 12, 3);
                                 brokerRef.tell(availabilityRequest1, getSelf());
-                                CheckAvailabilityRequest availabilityRequest2 = new CheckAvailabilityRequest("dl_lib", 3, 4);
+
+                                CheckAvailabilityRequest availabilityRequest2 = new CheckAvailabilityRequest("tall_lib", 11, 4);
                                 brokerRef.tell(availabilityRequest2, getSelf());
 
                                 // Test message to register a user
@@ -85,16 +86,16 @@ public class Client extends AbstractActor {
                                 // brokerRef.tell(memberRequest, getSelf());
 
                                 // Test message to unregister a user
-                                // DeleteMemberRequest memberDeletion = new DeleteMemberRequest("phib_lib", 5);
-                                // brokerRef.tell(memberDeletion, getSelf());
+                                DeleteMemberRequest memberDeletion = new DeleteMemberRequest("phib_lib", 5);
+                                brokerRef.tell(memberDeletion, getSelf());
 
                                 // Test message to retrieve member details
                                 RetrieveMemberDetailsRequest memberDetailsRequest = new RetrieveMemberDetailsRequest("tall_lib", 1);
                                 brokerRef.tell(memberDetailsRequest, getSelf());
 
-//                                 Test message to update password
-                                 UpdatePasswordRequest passwordRequest = new UpdatePasswordRequest("tall_lib", 1, "123", "LisaNeedsBraces");
-                                 brokerRef.tell(passwordRequest, getSelf());
+                                // Test message to update password
+                                UpdatePasswordRequest passwordRequest = new UpdatePasswordRequest("tall_lib", 1, "123", "LisaNeedsBraces");
+                                brokerRef.tell(passwordRequest, getSelf());
 
 //                                 Test message to loan a book (Operation status request should be returned as this represents
 //                                 a user scanning a physical book in person at a machine in the library)
@@ -110,7 +111,7 @@ public class Client extends AbstractActor {
                                 brokerRef.tell(finesRequest, getSelf());
 
                                 // Test message to return a book (an OperationStatus message should be returned)
-                                ReturnBookRequest returnBookRequest = new ReturnBookRequest(3, "phib_lib", 25, 64);
+                                ReturnBookRequest returnBookRequest = new ReturnBookRequest(10, "dl_lib", 1, 2);
                                 brokerRef.tell(returnBookRequest, getSelf());
 
                                 System.out.println("Finished sending messages");
@@ -119,7 +120,7 @@ public class Client extends AbstractActor {
                 .match(SearchResponse.class,
                         searchResponse -> {
                             Book returnedBook = searchResponse.getBook();
-                            System.out.println("\n**********\nSEARCH RESPONSE FOR USER " + searchResponse.getUserId() +
+                            System.out.println("\n**********\nBOOK SEARCH RESPONSE FOR USER " + searchResponse.getUserId() +
                                     "\nTitle: " + returnedBook.getBookTitle() +
                                     "\nAuthor: " + returnedBook.getBookAuthor() +
                                     "\nBook ID code: " + returnedBook.getBookID() +
@@ -130,9 +131,9 @@ public class Client extends AbstractActor {
                         additionResponse -> {
                             System.out.println("\n**********\nBOOK ADDITION RESPONSE FOR USER " + additionResponse.getUserId());
                             if (additionResponse.isSuccessfulAction()) {
-                                System.out.println("\nBook addition was successful");
+                                System.out.println("Book addition was successful");
                             } else {
-                                System.out.println("\nBook addition was unsuccessful");
+                                System.out.println("Book addition was unsuccessful");
                             }
                             System.out.println("*********");
                         })
@@ -141,32 +142,30 @@ public class Client extends AbstractActor {
                         removalResponse -> {
                             System.out.println("\n**********\nBOOK REMOVAL RESPONSE FOR USER " + removalResponse.getUserId());
                             if (removalResponse.isSuccessfulAction()) {
-                                System.out.println("\nBook removal was successful");
+                                System.out.println("Book removal was successful");
                             } else {
-                                System.out.println("\nBook removal was unsuccessful");
+                                System.out.println("Book removal was unsuccessful");
                             }
                             System.out.println("*********");
                         })
                 .match(AvailableLocallyResponse.class,
                         availLocalResponse -> {
-                            System.out.println("\n*********\nAVAILABILITY RESPONSE FOR USER" + availLocalResponse.getUserId() + ", your request is available locally at " + availLocalResponse.getLibraryRef() +
-                                    "\nThere are currently " + availLocalResponse.getCopiesAvailable() + "copies of book id " + availLocalResponse.getBookId() + "available.\n*********");
+                            System.out.println("\n*********\nAVAILABILITY RESPONSE FOR USER " + availLocalResponse.getUserId() + ", the book you have requested is available in this library\nThere are currently " + availLocalResponse.getCopiesAvailable() + " copies available.\n*********");
                         })
                 .match(AvailableRemotelyResponse.class,
                         availableRemoteResponse -> {
                             System.out.println("\n**********\nAVAILABILITY RESPONSE FOR USER " + availableRemoteResponse.getUserId() +
-                            ", your request is not available locally at " + availableRemoteResponse.getLibraryRef() +
-                                    "\nbut can be found in the following locations at these distances:\n");
+                            ", the book you have requested is not available in this library\nbut can be found in the following libraries, which are at these distances:\n");
                             for (Map.Entry<String, Integer> entry : availableRemoteResponse.getWhereAvailable().entrySet()) {
                                 String library = entry.getKey();
-                                int distance = entry.getValue();
-                                System.out.println(library + "-----" + distance);
+                                int distance = entry.getValue() / 1000;
+                                System.out.println(library + "-----" + distance + "km");
                             }
                             System.out.println("*********");
                         })
                 .match(OperationStatusResponse.class,
                         operationStatusResponse ->  {
-                            System.out.println("\n**********\nOPERATION STATUS RESPONSE FOR USER" + operationStatusResponse.getMemberId() +
+                            System.out.println("\n**********\nOPERATION STATUS RESPONSE FOR USER " + operationStatusResponse.getMemberId() +
                               "\n" + operationStatusResponse.getMessage() + "\n*********");
                         })
                 .match(RetrieveMemberDetailsResponse.class,

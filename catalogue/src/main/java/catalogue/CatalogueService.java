@@ -192,10 +192,11 @@ public class CatalogueService extends AbstractActor {
                                     getSender().tell(response, getSelf());
                                 } else {
                                     CatalogueRemovalResponse response = new CatalogueRemovalResponse(bookRemoval.getBookID(), false, libraryName);
+                                    getSender().tell(response, getSelf());
                                 }
                             } catch (SQLException e) {
-//                                System.out.println("Tried to delete book: " + bookRemoval.getBookID() + "in " + bookRemoval.getLibraryRef() + " but book was not in table");
                                 CatalogueRemovalResponse response = new CatalogueRemovalResponse(bookRemoval.getBookID(), false, libraryName);
+                                getSender().tell(response, getSelf());
                             }
                         })
 
