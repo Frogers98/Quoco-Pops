@@ -182,6 +182,7 @@ public class Broker extends AbstractActor {
                             if (msg.equals("registerRegistry")) {
 //                                System.out.println(getSender().toString());
                                 actorRefs.put("registry", getSender());
+                                getSender().tell("sendBrokerRef", getSelf());
                             }
                             if (msg.equals("registerLoan")) {
 //                                System.out.println(getSender().toString());
